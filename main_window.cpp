@@ -15,7 +15,7 @@ MainWindow::MainWindow()
 	Board::GameSetup gameSetup;
 	gameSetup.width = 10;
 	gameSetup.height = 10;
-	gameSetup.colors = 16;
+	gameSetup.colors = 5;
 	gameSetup.rowLength = 3;
 	
 	scene = Board::newBoard(gameSetup, this);

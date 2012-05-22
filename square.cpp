@@ -81,7 +81,11 @@ Square::Side Square::side(QPointF p)
 
 void Square::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 {
-	setHighlight(1, side(event->pos()));
+	Side s = side(event->pos());
+	if (board->isLegal(this, neighbours[s]))
+		setHighlight(1, s);
+	else
+		setHighlight(0);
 }
 
 void Square::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)

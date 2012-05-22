@@ -1,5 +1,5 @@
 #pragma once
-#include <set>
+
 #include "board.hpp"
 
 class BallColor;
@@ -12,7 +12,6 @@ class BoardImplementation : public Board
 	protected:
 		Square** squares;
 		Square* square(uint x, uint y);
-		std::set<std::pair<Square*, Square*> > legalMoves;
 	protected:
 		void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);
 		void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);

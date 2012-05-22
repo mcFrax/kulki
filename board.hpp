@@ -1,5 +1,6 @@
 #pragma once
 #include <QGraphicsScene>
+#include <set>
 
 class Square;
 class Player;
@@ -40,11 +41,13 @@ class Board : public QGraphicsScene
 				BallColor operator () (uint x, uint y) const;
 				uint width() const;
 				uint height() const;
+				bool contains(int x, int y) const;
 		};
 	protected:
 		const GameSetup setup;
 		State state;
 		Player* curPlayer;
+		std::set<std::pair<Square*, Square*> > legalMoves;
 	protected:
 		Board(const GameSetup&, QObject * parent = 0);
 	public:
@@ -57,6 +60,8 @@ class Board : public QGraphicsScene
 		State getState();
 		
 		bool inBoard(int x, int y);
+		
+		bool isLegal(Square*, Square*) const;
 	signals:
 		void playerMoved(Player*);
 		void playerMoveEnded(Player*, uint total); //or fallingEnded
