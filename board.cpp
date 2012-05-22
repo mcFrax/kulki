@@ -1,11 +1,31 @@
 #include <QGraphicsSceneMouseEvent>
-#include "board.hpp"
+#include "boardimplementation.hpp"
 #include "square.hpp"
 #include "ball.hpp"
 
 Board::Board(const GameSetup& s, QObject * parent)
 	: QGraphicsScene(0, 0, s.width*Square::xSize,
 		s.height*Square::ySize, parent), setup(s), curPlayer(0)
+{
+}
+
+Player* Board::currentPlayer()
+{
+	return curPlayer;
+}
+
+const GameSetup& Board::gameSetup()
+{
+	return setup;
+}
+
+State Board::getState()
+{
+	return state;
+}
+
+BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
+	: Board(s, parent)
 {
 	BallColor::createTable(setup.colors);
 	squares = new Square*[s.width*s.height];
@@ -39,12 +59,12 @@ Board::Board(const GameSetup& s, QObject * parent)
 	}
 }
 
-Board::~Board()
+BoardImplementation::~BoardImplementation()
 {
 	delete squares;
 }
 
-void Board::mousePressEvent(QGraphicsSceneMouseEvent * event)
+void BoardImplementation::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
 	switch (state) {
 		case playerMove :
@@ -55,7 +75,7 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent * event)
 	}
 }
 
-void Board::squarePressed(Square* s1, Square* s2)
+void BoardImplementation::squarePressed(Square* s1, Square* s2)
 {
 	Ball* b1 = s1->getBall();
 	Ball* b2 = s2->getBall();
@@ -65,7 +85,7 @@ void Board::squarePressed(Square* s1, Square* s2)
 	check();
 }
 
-uint Board::countSame(uint startX, uint startY, int xMove, int yMove)
+uint BoardImplementation::countSame(uint startX, uint startY, int xMove, int yMove)
 //xMove, yMove definiuja kierunek, nie zwrot
 {
 	BallColor bc = square(startX, startY).getColor();
@@ -78,7 +98,7 @@ uint Board::countSame(uint startX, uint startY, int xMove, int yMove)
 }
 
 
-void Board::computeLegalMoves(int xo, int yo)
+void BoardImplementation::computeLegalMoves(int xo, int yo)
 {
 	for ( uint iy = 0; iy < setup.height-1; ++iy){
 		for ( uint ix = 0; ix < setup.width-1; ++ix){
@@ -87,14 +107,14 @@ void Board::computeLegalMoves(int xo, int yo)
 	}
 }
 
-void Board::computeLegalMoves()
+void BoardImplementation::computeLegalMoves()
 {
 	legalMoves.clear();
 	computeLegalMoves(1,0);
 	computeLegalMoves(0,1);
 }
 
-Square* Board::square(uint x, uint y)
+Square* BoardImplementation::square(uint x, uint y)
 {
 	return squares[y*setup.width+x];
 }
