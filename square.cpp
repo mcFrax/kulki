@@ -7,7 +7,7 @@ const qreal Square::xSize = 36;
 const qreal Square::ySize = 36;
 
 Square::Square(uint xPos, uint yPos, Board* b)
-	: QGraphicsRectItem(0, 0, xSize, ySize, 0, b), xPos(xPos), yPos(yPos)
+	: QGraphicsRectItem(0, 0, xSize, ySize, 0, b), xPos(xPos), yPos(yPos),
 		board(b)
 {
 	setPos(xPos*xSize, yPos*ySize);
@@ -64,7 +64,7 @@ Board* Square::getBoard()
 	return board;
 }
 
-BallColor ballColor()
+BallColor Square::ballColor()
 {
 	return ball->getColor();
 	//~ if (ball)

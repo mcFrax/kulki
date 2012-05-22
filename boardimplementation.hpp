@@ -2,6 +2,8 @@
 #include <set>
 #include "board.hpp"
 
+class BallColor;
+
 class BoardImplementation : public Board
 {
 	Q_OBJECT

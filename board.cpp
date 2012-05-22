@@ -1,7 +1,13 @@
 #include <QGraphicsSceneMouseEvent>
+#include "board.hpp"
 #include "boardimplementation.hpp"
 #include "square.hpp"
 #include "ball.hpp"
+
+Board* Board::newBoard(const GameSetup& s, QObject * parent)
+{
+	return new BoardImplementation(s, parent);
+}
 
 Board::Board(const GameSetup& s, QObject * parent)
 	: QGraphicsScene(0, 0, s.width*Square::xSize,
@@ -14,12 +20,12 @@ Player* Board::currentPlayer()
 	return curPlayer;
 }
 
-const GameSetup& Board::gameSetup()
+const Board::GameSetup& Board::gameSetup()
 {
 	return setup;
 }
 
-State Board::getState()
+Board::State Board::getState()
 {
 	return state;
 }
@@ -103,23 +109,23 @@ void BoardImplementation::squarePressed(Square* s1, Square* s2)
 	check();
 }
 
-bool inBoard
-
 uint BoardImplementation::countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc)
 //xMove, yMove definiuja kierunek, nie zwrot
 {
 	uint res = 0;
 	int ix = sX;
 	int iy = sY;
-	while (square(ix, iy)->getColor() == bc && inBoard(ix, iy){
+	while (square(ix, iy)->ballColor() == bc && inBoard(ix, iy)){
 		++res;
-		ix += xM, iy += yM);
+		ix += xM;
+		iy += yM;
 	}
 	ix = sX-xM;
 	iy = sY-yM;
-	while (square(ix, iy)->getColor() == bc && inBoard(ix, iy){
+	while (square(ix, iy)->ballColor() == bc && inBoard(ix, iy)){
 		++res;
-		ix -= xM, iy -= yM);
+		ix -= xM;
+		iy -= yM;
 	}
 }
 

@@ -18,7 +18,7 @@ MainWindow::MainWindow()
 	gameSetup.colors = 16;
 	gameSetup.rowLength = 3;
 	
-	scene = new Board(gameSetup, this);
+	scene = Board::newBoard(gameSetup, this);
 
 	graphicsView = new QGraphicsView(scene, this);
 	graphicsView->setMouseTracking(1);

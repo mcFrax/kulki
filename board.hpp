@@ -32,8 +32,10 @@ class Board : public QGraphicsScene
 		const GameSetup setup;
 		State state;
 		Player* curPlayer;
-	public:
+	protected:
 		Board(const GameSetup&, QObject * parent = 0);
+	public:
+		static Board* newBoard(const GameSetup&, QObject * parent = 0);
 		
 		Player* currentPlayer();
 		
@@ -41,7 +43,7 @@ class Board : public QGraphicsScene
 		
 		State getState();
 		
-		bool inBoard(uint x, uint y);
+		bool inBoard(int x, int y);
 	signals:
 		void playerMoved(Player*);
 		void playerMoveEnded(Player*, uint total); //or fallingEnded
