@@ -9,7 +9,7 @@ SET(kulki_SOURCES main.cpp
 	board.cpp square.cpp )
 
 SET(kulki_HEADERS main_window.hpp 
-	ball.hpp board.hpp square.hpp )
+	ball.hpp board.hpp boardimplementation.hpp square.hpp )
 
 QT4_WRAP_CPP(kulki_HEADERS_MOC ${kulki_HEADERS})
 

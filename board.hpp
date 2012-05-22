@@ -21,6 +21,7 @@ class Board : public QGraphicsScene
 			uint width;  //
 			uint height; //in squares
 			uint colors;
+			uint rowLength;
 			//list_of_players
 			//time_limit
 			//bonus chances
@@ -40,6 +41,7 @@ class Board : public QGraphicsScene
 		
 		State getState();
 		
+		bool inBoard(uint x, uint y);
 	signals:
 		void playerMoved(Player*);
 		void playerMoveEnded(Player*, uint total); //or fallingEnded

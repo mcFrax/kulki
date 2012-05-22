@@ -24,6 +24,12 @@ State Board::getState()
 	return state;
 }
 
+bool Board::inBoard(int x, int y)
+{
+	return x >= 0 && x < setup.width
+		&& y >= 0 && y < setup.height;
+}
+
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	: Board(s, parent)
 {
@@ -75,8 +81,20 @@ void BoardImplementation::mousePressEvent(QGraphicsSceneMouseEvent * event)
 	}
 }
 
+void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
+{
+	switch (state) {
+		case playerMove :
+			QGraphicsScene::mouseMoveEvent(event);
+			return;
+		default:
+			event->ignore();
+	}
+}
+
 void BoardImplementation::squarePressed(Square* s1, Square* s2)
 {
+	#warning check if legal?
 	Ball* b1 = s1->getBall();
 	Ball* b2 = s2->getBall();
 	b1->placeOnSquare(s2);
@@ -85,15 +103,23 @@ void BoardImplementation::squarePressed(Square* s1, Square* s2)
 	check();
 }
 
-uint BoardImplementation::countSame(uint startX, uint startY, int xMove, int yMove)
+bool inBoard
+
+uint BoardImplementation::countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc)
 //xMove, yMove definiuja kierunek, nie zwrot
 {
-	BallColor bc = square(startX, startY).getColor();
-	switch (uint(bc)) {
-		case BallColor::noneNumber :
-			return 0;
-		case BallColor::jokerNumber :
-			
+	uint res = 0;
+	int ix = sX;
+	int iy = sY;
+	while (square(ix, iy)->getColor() == bc && inBoard(ix, iy){
+		++res;
+		ix += xM, iy += yM);
+	}
+	ix = sX-xM;
+	iy = sY-yM;
+	while (square(ix, iy)->getColor() == bc && inBoard(ix, iy){
+		++res;
+		ix -= xM, iy -= yM);
 	}
 }
 
