@@ -19,6 +19,9 @@ MainWindow::MainWindow()
 	gameSetup.rowLength = 3;
 	
 	scene = Board::newBoard(gameSetup, this);
+	
+	#warning scene->setCurrentPlayer(0);
+	scene->setCurrentPlayer(0);
 
 	graphicsView = new QGraphicsView(scene, this);
 	graphicsView->setMouseTracking(1);

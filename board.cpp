@@ -4,6 +4,32 @@
 #include "square.hpp"
 #include "ball.hpp"
 
+//klasa do "udawanych" zamian
+//dziala jak Board::BoardInfo, ale zamienia s1 z s2
+class SwapPretender
+{
+	private:
+		Square** array;
+		uint arrayWidth;
+		Square* s1;
+		Square* s2;
+	public:
+		SwapPretender(Square** array, uint arrayWidth,
+				Square* s1, Square* s2)
+			: array(array), arrayWidth(arrayWidth), s1(s1), s2(s2)
+		{
+		}
+		BallColor operator () (uint x, uint y)
+		{
+			Square* square = array[y*arrayWidth+x];
+			if (square == s1)
+				square = s2;
+			else if (square == s2)
+				square = s1;
+			return square->ballColor();
+		}
+}
+
 Board* Board::newBoard(const GameSetup& s, QObject * parent)
 {
 	return new BoardImplementation(s, parent);
@@ -34,6 +60,26 @@ bool Board::inBoard(int x, int y)
 {
 	return x >= 0 && x < setup.width
 		&& y >= 0 && y < setup.height;
+}
+
+Board::BoardInfo::BoardInfo(Square** array, uint width, uint height)
+	: array(array), arrayWidth(width), arrayHeight(height)
+{
+}
+
+BallColor Board::BoardInfo::operator () (uint x, uint y) const
+{
+	return array[y*arrayWidth+x]->ballColor();
+}
+
+uint Board::BoardInfo::width() const
+{
+	return arrayWidth;
+}
+
+uint Board::BoardInfo::height() const
+{
+	return arrayHeight;
 }
 
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
@@ -109,7 +155,7 @@ void BoardImplementation::squarePressed(Square* s1, Square* s2)
 	check();
 }
 
-uint BoardImplementation::countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc)
+uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc)
 //xMove, yMove definiuja kierunek, nie zwrot
 {
 	uint res = 0;
@@ -129,12 +175,27 @@ uint BoardImplementation::countSame(uint sX, uint sY, bool xM, bool yM, BallColo
 	}
 }
 
-
-void BoardImplementation::computeLegalMoves(int xo, int yo)
+static bool checkForTriple(uint x, uint y, Board::GameSetup& setup,
+		SwapPretender pret)
 {
-	for ( uint iy = 0; iy < setup.height-1; ++iy){
-		for ( uint ix = 0; ix < setup.width-1; ++ix){
-			
+	for (uint c = 0; c < setup.colors; ++c){
+		if (countSame(
+	}
+}
+
+void BoardImplementation::computeLegalMoves(const int dx, const int dy)
+{
+	//wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>
+	for ( uint iy = 0; iy < setup.height-dx; ++iy){
+		for ( uint ix = 0; ix < setup.width-dy; ++ix){
+			//symulacja zamiany, i sprawdzenie, czy cos daje
+			SwapPretender pret(squares, setup.width, square(ix, iy), 
+					square(ix+dx, iy+dy));
+			if (checkForTriple(ix, iy, setup, pret)
+					|| checkForTriple(ix+dx, iy+dy, setup, pret)){
+				legalMoves.insert(make_pair(square(ix, iy), 
+						square(ix+dx, iy+dy)));
+			}
 		}
 	}
 }
@@ -142,11 +203,42 @@ void BoardImplementation::computeLegalMoves(int xo, int yo)
 void BoardImplementation::computeLegalMoves()
 {
 	legalMoves.clear();
-	computeLegalMoves(1,0);
-	computeLegalMoves(0,1);
+	Array2<BallColor> balls(setup.width, setup.height);
+	for (uint iy = 0; iy < setup.height; ++iy){
+		for (uint ix = 0; ix < setup.width; ++ix){
+			balls(ix, iy) = square(ix, iy)->ballColor();
+		}
+	}
+	computeLegalMoves(1, 0, balls);
+	computeLegalMoves(0, 1, balls);
 }
 
 Square* BoardImplementation::square(uint x, uint y)
 {
 	return squares[y*setup.width+x];
+}
+
+void BoardImplementation::check()
+{
+	state = checking;
+	#warning here goes check
+	if (0)
+		state = falling;
+	else if (1)
+		state = normal;
+	else
+		state = locked;
+}
+
+#warning some documentation needed here (or there)
+void BoardImplementation::setCurrentPlayer(Player* p)
+{
+	#warning not the best solution:
+	if (state != normal)
+		return;
+	#warning if (curPlayer) ???
+	#warning if (!p) ???
+	state = playerMove;
+	curPlayer = p;
+	//legalMoves should be ready here
 }

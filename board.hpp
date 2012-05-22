@@ -3,6 +3,7 @@
 
 class Square;
 class Player;
+class BallColor;
 
 class Board : public QGraphicsScene
 {
@@ -27,6 +28,18 @@ class Board : public QGraphicsScene
 			//bonus chances
 			//points factor
 			//etc, etc
+		};
+		class BoardInfo
+		{
+			private:
+				Square** array;
+				uint arrayWidth;
+				uint arrayHeight;
+			public:
+				BoardInfo(Square** array, uint width, uint height);
+				BallColor operator () (uint x, uint y) const;
+				uint width() const;
+				uint height() const;
 		};
 	protected:
 		const GameSetup setup;
