@@ -12,7 +12,7 @@ class BallItem : public QObject, protected QGraphicsEllipseItem
 		static const qreal ymargin;
 		void animate(qreal yoffset);
 	public:
-		BallItem(const QColor&);
+		//~ BallItem(const QColor&);
 		BallItem(const QColor&, Square*, qreal yoffset = 0);
 		void placeOnSquare(Square*, qreal ypos = 0);
 		QBrush brush() const;

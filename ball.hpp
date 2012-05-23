@@ -27,7 +27,7 @@ class Ball
 		BallItem* ballItem;
 		void setColor(const BallColor&);
 	protected: 
-		Ball(const BallColor&);
+		//~ Ball(const BallColor&);
 		Ball(const BallColor&, Square*, int falling = 0);
 	public: 
 		~Ball();
@@ -39,7 +39,7 @@ class Ball
 		//~ BallItem* getBallItem();
 		virtual void update(uint plyNumber);
 	public:
-		static Ball* getNew(const Board::GameSetup&);
+		//~ static Ball* getNew(const Board::GameSetup&);
 		static Ball* getNew(const Board::GameSetup&, Square* s,
 				int falling = 0);
 };

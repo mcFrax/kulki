@@ -46,13 +46,18 @@ class Board : public QGraphicsScene
 		const GameSetup setup;
 		State state;
 		Player* curPlayer;
+		Player* nextPlayer;
 		std::set<std::pair<Square*, Square*> > legalMoves;
+		std::set<QObject*> currentAnimations;
 	protected:
 		Board(const GameSetup&, QObject * parent = 0);
+		void setState(State);
+		virtual void check() = 0;
 	public:
 		static Board* newBoard(const GameSetup&, QObject * parent = 0);
 		
 		Player* currentPlayer();
+		Player* getNextPlayer();
 		
 		const GameSetup& gameSetup();
 		
@@ -63,12 +68,15 @@ class Board : public QGraphicsScene
 		bool isLegal(Square*, Square*) const;
 		
 		virtual bool move(Square*, Square*) = 0;
+		
+		void registerAnimation(QObject* anim);
 	signals:
 		//~ void playerMoved(Player*);
-		//~ void playerMoveEnded(Player*, uint total); //or fallingEnded
+		void playerMoveEnded(Player*, uint total); //or fallingEnded
 		//~ void pointsEarned(Player*, uint points);
 		//~ void gameEnded();
 		void stateChanged(Board::State);
 	public slots:
 		virtual void setCurrentPlayer(Player*) = 0;
+		void animationEnded();
 };

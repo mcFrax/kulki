@@ -11,8 +11,8 @@ using namespace std;
 
 //klasa do "udawanych" zamian - przy sprawdzaniu ruchow
 //dziala identycznie z Board::BoardInfo, ale zamienia s1 z s2
+//!Udaje Board::BoardInfo z zamiana dwoch Square'ow
 class SwapPretender
-//!<Udaje Board::BoardInfo z zamiana dwoch Square'ow
 {
 	private:
 		Square** array;
@@ -51,84 +51,117 @@ class SwapPretender
 		}
 };
 
+
+//!Konstruktor
 Board* Board::newBoard(const GameSetup& s, QObject * parent)
-//!<Konstruktor
 {
 	return new BoardImplementation(s, parent);
 }
 
+//!Konstruktor
 Board::Board(const GameSetup& s, QObject * parent)
-//!<Konstruktor
 	: QGraphicsScene(0, 0, s.width*Square::xSize,
 		s.height*Square::ySize, parent), setup(s), state(animatingMove),
 		curPlayer(0)
 {
 }
 
+//!Zwraca biezacego gracza
 Player* Board::currentPlayer()
-//!<Zwraca biezacego gracza
 {
 	return curPlayer;
 }
 
+//!Zwraca nastepnego gracza (jezeli zostal ustawiony)
+Player* Board::getNextPlayer()
+{
+	return nextPlayer;
+}
+
+//!Zwraca gameSetup
 const Board::GameSetup& Board::gameSetup()
-//!<Zwraca gameSetup
 {
 	return setup;
 }
 
+//!Zwraca aktualny stan planszy/gry
 Board::State Board::getState()
-//!<Zwraca aktualny stan planszy/gry
 {
 	return state;
 }
 
+//!Ustawia state i emituje stateChanged (gdy state != s)
+void Board::setState(State s)
+{
+	if (state == s) return;
+	state = s;
+	emit stateChanged(state);
+}
+
+//!Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
 bool Board::inBoard(int x, int y)
-//!<Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
 {
 	return x >= 0 && x < setup.width
 		&& y >= 0 && y < setup.height;
 }
 
+//!Sprawdza, czy ruch - zamiana s1 z s2 - jest legalny
 bool Board::isLegal(Square* s1, Square* s2) const
-//!<sprawdza, czy ruch - zamiana s1 z s2 - jest legalny
 {
 	return legalMoves.find(make_pair(s1, s2)) != legalMoves.end();
 }
 
+//!Rejestruje animacje onim jako trwajaca
+void Board::registerAnimation(QObject* anim)
+{
+	currentAnimations.insert(anim);
+}
+
+//!Wywolywany przez konczaca sie animacje
+void Board::animationEnded()
+{
+	set<QObject*>::iterator i = currentAnimations.find(sender());
+	if (i == currentAnimations.end())
+		return;
+	currentAnimations.erase(i);
+	if (currentAnimations.empty()){
+		check();
+	}
+}
+
+//!Kontruktor
 Board::BoardInfo::BoardInfo(Square** array, uint width, uint height)
-//!<Kontruktor
 	: array(array), arrayWidth(width), arrayHeight(height)
 {
 }
 
+//!Square na pozycji (x, y)
 BallColor Board::BoardInfo::operator () (uint x, uint y) const
-//!<Square na pozycji (x, y)
 {
 	return array[y*arrayWidth+x]->ballColor();
 }
 
+//!Szerokosc (w polach)
 uint Board::BoardInfo::width() const
-//!<Szerokosc (w polach)
 {
 	return arrayWidth;
 }
 
+//!Wyskokosc (w polach)
 uint Board::BoardInfo::height() const
 {
-//!<Wyskokosc (w polach)
 	return arrayHeight;
 }
 
+//!Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
 bool Board::BoardInfo::contains(int x, int y) const
-//!<Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
 {
 	return x >= 0 && x < arrayWidth
 		&& y >= 0 && y < arrayHeight;
 }
 
+//!Konstruktor
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
-//!<Konstruktor
 	: Board(s, parent)
 {
 	BallColor::createTable(setup.colors);
@@ -163,17 +196,37 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	}
 	
 	computeLegalMoves();
-	state = waitingForPlayer;
+	setState(animatingMove);
 }
 
+//!Destruktor
 BoardImplementation::~BoardImplementation()
-//!<Destruktor
 {
 	delete squares;
 }
 
+//!Punkty za rzadek
+int BoardImplementation::Row::points() const
+{
+	int res = 0;
+	for (const_iterator i = begin(); i != end(); ++i)
+		res += (*i)->getPointValue();
+	for (const_iterator i = begin(); i != end(); ++i)
+		res = (*i)->applyPointModificator(res);
+	return res;
+}
+
+//!Sprawdza, czy b pasuje do kulek w tym rzadku
+bool BoardImplementation::Row::matches(Ball* b) const
+{
+	for (const_iterator i = begin(); i != end(); ++i)
+		if ((*i)->getColor() != b->getColor())
+			return 1;
+	return empty();
+}
+
+//!overrides QGraphicsScene::mousePressEvent
 void BoardImplementation::mousePressEvent(QGraphicsSceneMouseEvent * event)
-//!<overrides mousePressEvent
 {
 	switch (state) {
 		case waitingForMove :
@@ -184,8 +237,8 @@ void BoardImplementation::mousePressEvent(QGraphicsSceneMouseEvent * event)
 	}
 }
 
+//!overrides QGraphicsScene::mouseMoveEvent
 void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
-//!<overrides mouseMoveEvent
 {
 	switch (state) {
 		case waitingForMove :
@@ -196,12 +249,12 @@ void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 	}
 }
 
-bool BoardImplementation::move(Square* s1, Square* s2)
 //!Wykonanie ruchu - zamiany kulki na s1 z kulka na s2 - przez biezacego gracza
+bool BoardImplementation::move(Square* s1, Square* s2)
 {
 	if (state != waitingForMove || !isLegal(s1, s2))
 		return 0;
-	state = animatingMove;
+	setState(animatingMove);
 	Ball* b1 = s1->getBall();
 	Ball* b2 = s2->getBall();
 	b1->placeOnSquare(s2);
@@ -213,10 +266,10 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 
 //dzieki template'owi moge uzywac i BoardInfo i SwapPretender,
 //bez polimorfizmu i bez copy'iego paste'a
+//!zlicza ile jest kulek na (sX,sY) i sasiednich polach typu (sX+k*xM, sY+k*yM) koloru bc
 template <class BoardInfo_or_SwapPretender>
 uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc,
 		const BoardInfo_or_SwapPretender& board)
-//!<zlicza ile jest kulek na (sX,sY) i sasiednich polach typu (sX+k*xM, sY+k*yM) koloru bc
 {
 	if (board(sX, sY) != bc)
 		return 0;
@@ -239,10 +292,10 @@ uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc,
 	return res;
 }
 
+//!Sprawdza, czy jest jakas trojka (rzad), zawierajacy kulke na (x,y)
 template <class BoardInfo_or_SwapPretender>
-static bool checkForTriple(uint x, uint y, const Board::GameSetup& setup,
+static bool checkForRow(uint x, uint y, const Board::GameSetup& setup,
 		const BoardInfo_or_SwapPretender& board)
-//!<Sprawdza, czy jest jakas trojka (rzad), zawierajacy kulke na (x,y)
 {
 	for (uint c = 0; c < setup.colors; ++c){
 		if (countSame(x, y, 1, 0, c, board) >= setup.rowLength
@@ -252,16 +305,16 @@ static bool checkForTriple(uint x, uint y, const Board::GameSetup& setup,
 	return 0;
 }
 
+//!Wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>
 void BoardImplementation::computeLegalMoves(const int dx, const int dy)
-//!<Wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>
 {
 	for ( uint iy = 0; iy < setup.height-dy; ++iy){
 		for ( uint ix = 0; ix < setup.width-dx; ++ix){
 			//symulacja zamiany, i sprawdzenie, czy cos daje
 			SwapPretender pret(squares, setup.width, setup.height, 
 					square(ix, iy), square(ix+dx, iy+dy));
-			if (checkForTriple(ix, iy, setup, pret)
-					|| checkForTriple(ix+dx, iy+dy, setup, pret)){
+			if (checkForRow(ix, iy, setup, pret)
+					|| checkForRow(ix+dx, iy+dy, setup, pret)){
 				legalMoves.insert(make_pair(square(ix, iy), 
 						square(ix+dx, iy+dy)));
 				legalMoves.insert(make_pair(square(ix+dx, iy+dy), 
@@ -271,8 +324,8 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy)
 	}
 }
 
+//!Wylicza wszystkie legalne zamiany
 bool BoardImplementation::computeLegalMoves()
-//!<Wylicza wszystkie legalne zamiany
 {
 	legalMoves.clear();
 	computeLegalMoves(1, 0);
@@ -280,27 +333,83 @@ bool BoardImplementation::computeLegalMoves()
 	return !legalMoves.empty();
 }
 
+//!Square na pozycji (x, y)
 Square* BoardImplementation::square(uint x, uint y)
-//!<Square na pozycji (x, y)
 {
 	return squares[y*setup.width+x];
 }
 
-void BoardImplementation::check()
-//!<Sprawdzenie planszy (po ruchu) i odpowiednia zmiana stanu
+//!Rozpoczyna nowa ture
+void BoardImplementation::newPly()
 {
-	//~ state = checking;
-	//~ #warning here goes check
-	//~ if (0)
-		//~ state = falling; //cleaning? something?
-	//~ else if (1)
-		//~ state = normal;
-	//~ else
-		//~ state = locked;
+	total = 0;
+	curPlayer = nextPlayer;
+	nextPlayer = 0;
+	if (curPlayer){
+		setState(waitingForMove);
+	} else {
+		setState(waitingForPlayer);
+	}
 }
 
+BoardImplementation::Rows BoardImplementation::findRows()
+{
+	#warning teraz jest glupio i zle, bo jedna kulka moze byc tylko w jednym Row`ie (w kazdym z kierunkow)
+	Rows res;
+	//zliczanie poziomo
+	Row curRow;
+	for (uint iy = 0; iy < setup.height-setup.rowLength; ++iy){
+		for (uint ix = 0; ix < setup.width-setup.rowLength; ++ix){
+			Ball* b = square(ix, iy)->getBall();
+			if (curRow.matches(b)){
+				curRow.push_back(b);
+			} else {
+				if (curRow.size() >= setup.rowLength){
+					res.push_back(Row());
+					swap(res.back(), curRow);
+				} else {
+					curRow = Row();
+				}
+			}
+		}
+	}
+	//zliczanie pionowo
+	for (uint ix = 0; ix < setup.width-setup.rowLength; ++ix){
+		for (uint iy = 0; iy < setup.height-setup.rowLength; ++iy){
+			
+		}
+	}
+	return res;
+}
+
+//!Sprawdzenie planszy (po ruchu/uzupelnieniu) i odpowiednia zmiana stanu
+void BoardImplementation::check()
+{
+	setState(animatingMove);
+	const Rows& rows = findRows();
+	if (rows.empty()){
+		//spadanie sie skonczylo
+		emit playerMoveEnded(curPlayer, total);
+		if (!computeLegalMoves())
+			setState(locked);
+		else
+			newPly();
+	} else {
+		set<Ball*> balls;
+		for (Rows::const_iterator ir = rows.begin(); ir != rows.end(); ++ir){
+			for (Row::const_iterator ib = ir->begin(); ib != ir->end(); ++ib)
+				balls.insert(*ib);
+			total += ir->points();
+			
+		}
+		for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
+			delete *i;
+		refill();
+	}
+}
+
+//!zepchniecie kulek (grawitacja) + utworzenie nowych (zapelnienie planszy)
 void BoardImplementation::refill()
-//!<zepchniecie kulek (grawitacja) + utworzenie nowych (zapelnienie planszy)
 {
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
@@ -310,13 +419,14 @@ void BoardImplementation::refill()
 }
 
 #warning more documentation needed here (or there)
+//!Oddaje nastepny ruch graczowi p.
 void BoardImplementation::setCurrentPlayer(Player* p)
-//!<Oddaje nastepny ruch graczowi p.
 {
-	if (curPlayer)
-		return;
-		
-	curPlayer = p;
-	if (state == waitingForPlayer)
-		state = waitingForMove;
+	if (state == waitingForPlayer){
+		curPlayer = p;
+		if (state == waitingForPlayer)
+			setState(waitingForMove);
+	} else if (!nextPlayer) {
+		nextPlayer = p;
+	}
 }

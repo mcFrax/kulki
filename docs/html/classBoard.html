@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<title>Kulki: Dokumentacja klasy Board</title>
+
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { searchBox.OnSelectItem(0); });
+</script>
+
+</head>
+<body>
+<div id="top"><!-- do not remove this div! -->
+
+
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  
+  
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">Kulki
+   
+   </div>
+   
+  </td>
+  
+  
+  
+ </tr>
+ </tbody>
+</table>
+</div>
+
+<!-- Wygenerowano przez Doxygen 1.7.6.1 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Szukaj');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Strona&#160;główna</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Klasy</span></a></li>
+      <li><a href="files.html"><span>Pliki</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Szukaj" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Lista&#160;klas</span></a></li>
+      <li><a href="classes.html"><span>Indeks&#160;klas</span></a></li>
+      <li><a href="hierarchy.html"><span>Hierarchia&#160;klas</span></a></li>
+      <li><a href="functions.html"><span>Składowe&#160;klas</span></a></li>
+    </ul>
+  </div>
+</div>
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Komponenty</a> &#124;
+<a href="#pub-types">Typy publiczne</a> &#124;
+<a href="#pub-slots">Sloty publiczne</a> &#124;
+<a href="#signals">Sygnały</a> &#124;
+<a href="#pub-methods">Metody publiczne</a> &#124;
+<a href="#pub-static-methods">Statyczne metody publiczne</a> &#124;
+<a href="#pro-methods">Metody chronione</a> &#124;
+<a href="#pro-attribs">Atrybuty chronione</a> &#124;
+<a href="#friends">Przyjaciele</a>  </div>
+  <div class="headertitle">
+<div class="title">Dokumentacja klasy Board</div>  </div>
+</div><!--header-->
+<div class="contents">
+<!-- doxytag: class="Board" --><div class="dynheader">
+Diagram dziedziczenia dla Board</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classBoard.png" usemap="#Board_map" alt=""/>
+  <map id="Board_map" name="Board_map">
+<area href="classBoardImplementation.html" alt="BoardImplementation" shape="rect" coords="0,56,128,80"/>
+</map>
+ </div></div>
+
+<p><a href="classBoard-members.html">Lista wszystkich składowych.</a></p>
+<table class="memberdecls">
+<tr><td colspan="2"><h2><a name="nested-classes"></a>
+Komponenty</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard_1_1BoardInfo.html">BoardInfo</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structBoard_1_1GameSetup.html">GameSetup</a></td></tr>
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Typy publiczne</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>State</b> { <b>waitingForPlayer</b>, 
+<b>waitingForMove</b>, 
+<b>animatingMove</b>, 
+<b>locked</b>
+ }</td></tr>
+<tr><td colspan="2"><h2><a name="pub-slots"></a>
+Sloty publiczne</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6f1cedcba5d238fc7b0af9a404ad2fa"></a><!-- doxytag: member="Board::setCurrentPlayer" ref="ae6f1cedcba5d238fc7b0af9a404ad2fa" args="(Player *)=0" -->
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setCurrentPlayer</b> (Player *)=0</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaef5f4f72353f7e8fac8bcf3bd1aa620"></a><!-- doxytag: member="Board::animationEnded" ref="aaef5f4f72353f7e8fac8bcf3bd1aa620" args="()=0" -->
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>animationEnded</b> ()=0</td></tr>
+<tr><td colspan="2"><h2><a name="signals"></a>
+Sygnały</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a83e324364c0c0a14ae3102d5cdb2e924"></a><!-- doxytag: member="Board::playerMoveEnded" ref="a83e324364c0c0a14ae3102d5cdb2e924" args="(Player *, uint total)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>playerMoveEnded</b> (Player *, uint total)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa52403935c7dd02006810978c422141"></a><!-- doxytag: member="Board::stateChanged" ref="aaa52403935c7dd02006810978c422141" args="(Board::State)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><b>stateChanged</b> (Board::State)</td></tr>
+<tr><td colspan="2"><h2><a name="pub-methods"></a>
+Metody publiczne</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4669d39a61a757de8e194b9dd6cc9bb7"></a><!-- doxytag: member="Board::currentPlayer" ref="a4669d39a61a757de8e194b9dd6cc9bb7" args="()" -->
+Player *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a4669d39a61a757de8e194b9dd6cc9bb7">currentPlayer</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Zwraca biezacego gracza. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a364b6481eab551dde65c7bff424a08ba"></a><!-- doxytag: member="Board::getNextPlayer" ref="a364b6481eab551dde65c7bff424a08ba" args="()" -->
+Player *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a364b6481eab551dde65c7bff424a08ba">getNextPlayer</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Zwraca nastepnego gracza (jezeli zostal ustawiony) <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a931f45ac63ee9f3c324f459d1cf6bd81"></a><!-- doxytag: member="Board::gameSetup" ref="a931f45ac63ee9f3c324f459d1cf6bd81" args="()" -->
+const <a class="el" href="structBoard_1_1GameSetup.html">GameSetup</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a931f45ac63ee9f3c324f459d1cf6bd81">gameSetup</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Zwraca gameSetup. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac400210d34c0c38ad400f5bc722d48db"></a><!-- doxytag: member="Board::getState" ref="ac400210d34c0c38ad400f5bc722d48db" args="()" -->
+State&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#ac400210d34c0c38ad400f5bc722d48db">getState</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Zwraca aktualny stan planszy/gry. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4640363780e5a4082ebe675f826c25a7"></a><!-- doxytag: member="Board::inBoard" ref="a4640363780e5a4082ebe675f826c25a7" args="(int x, int y)" -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a4640363780e5a4082ebe675f826c25a7">inBoard</a> (int x, int y)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b2ec7d69ce1b54ebbd1968704aea123"></a><!-- doxytag: member="Board::isLegal" ref="a3b2ec7d69ce1b54ebbd1968704aea123" args="(Square *, Square *) const " -->
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a3b2ec7d69ce1b54ebbd1968704aea123">isLegal</a> (<a class="el" href="classSquare.html">Square</a> *, <a class="el" href="classSquare.html">Square</a> *) const </td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sprawdza, czy ruch - zamiana s1 z s2 - jest legalny. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a350843d2ad26666187cbe85494036d2f"></a><!-- doxytag: member="Board::move" ref="a350843d2ad26666187cbe85494036d2f" args="(Square *, Square *)=0" -->
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>move</b> (<a class="el" href="classSquare.html">Square</a> *, <a class="el" href="classSquare.html">Square</a> *)=0</td></tr>
+<tr><td colspan="2"><h2><a name="pub-static-methods"></a>
+Statyczne metody publiczne</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a77be248f24d2c5f0a5acb855ec038621"></a><!-- doxytag: member="Board::newBoard" ref="a77be248f24d2c5f0a5acb855ec038621" args="(const GameSetup &amp;, QObject *parent=0)" -->
+static <a class="el" href="classBoard.html">Board</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a77be248f24d2c5f0a5acb855ec038621">newBoard</a> (const <a class="el" href="structBoard_1_1GameSetup.html">GameSetup</a> &amp;, QObject *parent=0)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Konstruktor. <br/></td></tr>
+<tr><td colspan="2"><h2><a name="pro-methods"></a>
+Metody chronione</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a743f2b01b93bcab45dcd857c90002e7c"></a><!-- doxytag: member="Board::Board" ref="a743f2b01b93bcab45dcd857c90002e7c" args="(const GameSetup &amp;, QObject *parent=0)" -->
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a743f2b01b93bcab45dcd857c90002e7c">Board</a> (const <a class="el" href="structBoard_1_1GameSetup.html">GameSetup</a> &amp;, QObject *parent=0)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Konstruktor. <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0da75edef72612c50d4f83d13fb1e590"></a><!-- doxytag: member="Board::setState" ref="a0da75edef72612c50d4f83d13fb1e590" args="(State)" -->
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBoard.html#a0da75edef72612c50d4f83d13fb1e590">setState</a> (State)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Ustawia state i emituje stateChanged (gdy state != s) <br/></td></tr>
+<tr><td colspan="2"><h2><a name="pro-attribs"></a>
+Atrybuty chronione</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4124f4c20f28b90e2477a088c18f7a04"></a><!-- doxytag: member="Board::setup" ref="a4124f4c20f28b90e2477a088c18f7a04" args="" -->
+const <a class="el" href="structBoard_1_1GameSetup.html">GameSetup</a>&#160;</td><td class="memItemRight" valign="bottom"><b>setup</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80198856293644f6a3d4abc0d948e94f"></a><!-- doxytag: member="Board::state" ref="a80198856293644f6a3d4abc0d948e94f" args="" -->
+State&#160;</td><td class="memItemRight" valign="bottom"><b>state</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b2c8a59d5965b70f70b0b80e5aff64c"></a><!-- doxytag: member="Board::curPlayer" ref="a2b2c8a59d5965b70f70b0b80e5aff64c" args="" -->
+Player *&#160;</td><td class="memItemRight" valign="bottom"><b>curPlayer</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa11d227658b4e31d66d1dcbfcf894a93"></a><!-- doxytag: member="Board::nextPlayer" ref="aa11d227658b4e31d66d1dcbfcf894a93" args="" -->
+Player *&#160;</td><td class="memItemRight" valign="bottom"><b>nextPlayer</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b9edb88bae5fd0f709cf2049dab88e5"></a><!-- doxytag: member="Board::legalMoves" ref="a4b9edb88bae5fd0f709cf2049dab88e5" args="" -->
+std::set&lt; std::pair&lt; <a class="el" href="classSquare.html">Square</a> <br class="typebreak"/>
+*, <a class="el" href="classSquare.html">Square</a> * &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>legalMoves</b></td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Przyjaciele</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a898342fe8db565e495e828f6cbc932f8"></a><!-- doxytag: member="Board::Square" ref="a898342fe8db565e495e828f6cbc932f8" args="" -->
+class&#160;</td><td class="memItemRight" valign="bottom"><b>Square</b></td></tr>
+</table>
+<hr/>Dokumentacja dla tej klasy została wygenerowana z plików:<ul>
+<li><a class="el" href="board_8hpp_source.html">board.hpp</a></li>
+<li>board.cpp</li>
+</ul>
+</div><!-- contents -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Klasy</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Funkcje</a></div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+
+
+<hr class="footer"/><address class="footer"><small>
+Wygenerowano Wed May 23 2012 20:20:41 dla Kulki programem &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.7.6.1
+</small></address>
+
+</body>
+</html>

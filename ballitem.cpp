@@ -6,18 +6,19 @@
 
 #include "ballitem.hpp"
 #include "square.hpp"
+#include "board.hpp"
 
 #include "debugtools.hpp"
 
 const qreal BallItem::xmargin = 3;
 const qreal BallItem::ymargin = 3;
 
-BallItem::BallItem(const QColor& color)
-	: QGraphicsEllipseItem()
-{
-	QGraphicsEllipseItem::setBrush(QBrush(color));
-	setAcceptedMouseButtons(0);
-}
+//~ BallItem::BallItem(const QColor& color)
+	//~ : QGraphicsEllipseItem()
+//~ {
+	//~ QGraphicsEllipseItem::setBrush(QBrush(color));
+	//~ setAcceptedMouseButtons(0);
+//~ }
 
 
 int fallingDuration(qreal distance)
@@ -49,15 +50,17 @@ void BallItem::placeOnSquare(Square* s, qreal ypos)
 
 void BallItem::animate(qreal yoffset)
 {
-	
 	QPropertyAnimation* anim = new QPropertyAnimation(this, "rect");
 	anim->setStartValue(rect());
 	anim->setEndValue(QRectF(xmargin, ymargin,
 			Square::xSize-2*xmargin, Square::ySize-2*ymargin));
 	anim->setDuration(fallingDuration(fabs(yoffset)));
 	anim->setEasingCurve(QEasingCurve::OutBounce);
+	static_cast<Square*>(parentItem())->getBoard()->registerAnimation(this);
+	connect(anim, SIGNAL(finished()), static_cast<Square*>(parentItem())->
+			getBoard(), SLOT(animationEnded()));
 	
-	anim->start();
+	anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 QBrush BallItem::brush() const

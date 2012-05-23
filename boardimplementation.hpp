@@ -1,7 +1,9 @@
 #pragma once
+#include <vector>
 
 #include "board.hpp"
 
+class Ball;
 class BallColor;
 
 //Tu sa upchniete te metody pomocnicze, ktore niepotrzebnie zasmiecaly
@@ -9,17 +11,27 @@ class BallColor;
 class BoardImplementation : public Board
 {
 	Q_OBJECT
-	protected:
+	private:
+		class Row : public std::vector<Ball*>
+		{
+			public:
+				int points() const;
+				bool matches(Ball*) const;
+		};
+		typedef std::vector<Row> Rows;
+	private:
 		Square** squares;
 		Square* square(uint x, uint y);
-	protected:
+		int total;
+	private:
 		void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);
 		void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);
 		void check();
 		void computeLegalMoves(const int, const int);
 		bool computeLegalMoves();
-		uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc);
+		Rows findRows();
 		void refill();
+		void newPly();
 	private:
 		bool move(Square*, Square*);
 	public:

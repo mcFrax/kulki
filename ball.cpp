@@ -4,10 +4,10 @@
 #include "square.hpp"
 #include "board.hpp"
 
-Ball::Ball(const BallColor& c)
-	: color(c), square(0), state(none), ballItem(0)
-{
-}
+//~ Ball::Ball(const BallColor& c)
+	//~ : color(c), square(0), state(none), ballItem(0)
+//~ {
+//~ }
 
 Ball::Ball(const BallColor& c, Square* s, int fall)
 	: color(c), square(s), state(fall?falling:normal),
@@ -63,10 +63,10 @@ void Ball::setColor(const BallColor& col)
 	ballItem->setBrush(QBrush(col));
 }
 
-Ball* Ball::getNew(const Board::GameSetup&)
-{
-	return new ColorBall(BallColor::random());
-}
+//~ Ball* Ball::getNew(const Board::GameSetup&)
+//~ {
+	//~ return new ColorBall(BallColor::random());
+//~ }
 
 Ball* Ball::getNew(const Board::GameSetup&, Square* s, int falling)
 {

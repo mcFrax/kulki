@@ -4,7 +4,7 @@
 class ColorBall : public Ball
 {
 	public:
-		ColorBall(const BallColor&);
+		//~ ColorBall(const BallColor&);
 		ColorBall(const BallColor&, Square*, int falling = 0);
 		uint getPointValue();
 };
@@ -12,7 +12,7 @@ class ColorBall : public Ball
 class JokerBall : public Ball
 {
 	public:
-		JokerBall();
+		//~ JokerBall();
 		JokerBall(Square*, int falling = 0);
 		uint getPointValue();
 };
@@ -20,7 +20,7 @@ class JokerBall : public Ball
 class CameleonBall : public ColorBall
 {
 	public:
-		CameleonBall();
+		//~ CameleonBall();
 		CameleonBall(Square*, int falling = 0);
 		void update(uint plyNumber);
 };
@@ -28,7 +28,7 @@ class CameleonBall : public ColorBall
 class DoubleBall : public ColorBall
 {
 	public:
-		DoubleBall(const BallColor&);
+		//~ DoubleBall(const BallColor&);
 		DoubleBall(const BallColor&, Square*, int falling = 0);
 		int applyPointModificator(const int& points);
 };
@@ -36,7 +36,7 @@ class DoubleBall : public ColorBall
 class SkullBall : public ColorBall //or maybe it should be joker?
 {
 	public:
-		SkullBall(const BallColor&);
+		//~ SkullBall(const BallColor&);
 		SkullBall(const BallColor&, Square*, int falling = 0);
 		uint getPointValue();
 		int applyPointModificator(const int& points);
@@ -47,7 +47,7 @@ class HourglassBall : public ColorBall
 	private:
 		uint points;
 	public:
-		HourglassBall(const BallColor&);
+		//~ HourglassBall(const BallColor&);
 		HourglassBall(const BallColor&, Square*, int falling = 0);
 		void update(uint plyNumber);
 		uint getPointValue();
