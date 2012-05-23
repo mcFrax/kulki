@@ -5,9 +5,8 @@ class Board;
 class Ball;
 class BallColor;
 
-class Square : public QObject, public QGraphicsRectItem
+class Square : public QGraphicsRectItem
 {
-	Q_OBJECT
 	friend class Ball;
 	public:
 		enum Side {
@@ -29,6 +28,7 @@ class Square : public QObject, public QGraphicsRectItem
 	protected:
 		void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 		void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
+		void mousePressEvent(QGraphicsSceneMouseEvent * event);
 		void setHighlight(bool, Square::Side side = left);
 		Square::Side side(QPointF);
 	public:
@@ -39,9 +39,9 @@ class Square : public QObject, public QGraphicsRectItem
 		Ball* getBall();
 		Board* getBoard();
 		BallColor ballColor();
+		#warning nazwy sie gryza, ale to chyba powinno byc tutaj:
+		void takeBall();
 		
 		static const qreal xSize;
 		static const qreal ySize;
-	public slots:
-		
 };

@@ -3,16 +3,18 @@
 
 class Square;
 
-class BallItem : protected QGraphicsEllipseItem
+class BallItem : public QObject, protected QGraphicsEllipseItem
 {
+	Q_OBJECT
+	Q_PROPERTY(QRectF rect READ rect WRITE setRect)
 	protected:
 		static const qreal xmargin;
 		static const qreal ymargin;
+		void animate(qreal yoffset);
 	public:
 		BallItem(const QColor&);
-		BallItem(const QColor&, Square*, qreal xoffset = 0, qreal yoffset = 0);
-		void placeOnSquare(Square*, qreal xpos = 0, qreal ypos = 0);
-		void setPosition(qreal x, qreal y);
+		BallItem(const QColor&, Square*, qreal yoffset = 0);
+		void placeOnSquare(Square*, qreal ypos = 0);
 		QBrush brush() const;
 		void setBrush(const QBrush&);
 };

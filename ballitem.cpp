@@ -1,7 +1,13 @@
-#include "ballitem.hpp"
-#include "square.hpp"
+#include <cmath>
+
 #include <QBrush>
 #include <QPen>
+#include <QPropertyAnimation>
+
+#include "ballitem.hpp"
+#include "square.hpp"
+
+#include "debugtools.hpp"
 
 const qreal BallItem::xmargin = 3;
 const qreal BallItem::ymargin = 3;
@@ -13,28 +19,45 @@ BallItem::BallItem(const QColor& color)
 	setAcceptedMouseButtons(0);
 }
 
-#warning coordinates are not fully consistent yet
 
-BallItem::BallItem(const QColor& color, Square* s, qreal xoffset,
-		qreal yoffset)
-	: QGraphicsEllipseItem(xoffset+xmargin, yoffset+ymargin,
+int fallingDuration(qreal distance)
+{
+	#warning possible tuneable factor?
+	return sqrt(distance)*180.0;
+}
+
+BallItem::BallItem(const QColor& color, Square* s, qreal yoffset)
+	: QGraphicsEllipseItem(xmargin, yoffset+ymargin,
 			Square::xSize-2*xmargin, Square::ySize-2*ymargin, s)
 {
 	QGraphicsEllipseItem::setBrush(QBrush(color));
 	setAcceptedMouseButtons(0);
+	
+	if (yoffset != 0)
+		animate(yoffset);
 }
 
-void BallItem::placeOnSquare(Square* s, qreal xpos, qreal ypos)
+void BallItem::placeOnSquare(Square* s, qreal ypos)
 {
 	QGraphicsEllipseItem::setParentItem(s);
-	QGraphicsEllipseItem::setRect(xpos+xmargin, ypos+ymargin,
-			Square::xSize-2*xmargin, Square::ySize-2*ymargin);
+	//~ QGraphicsEllipseItem::setRect(xmargin, ypos+ymargin,
+			//~ Square::xSize-2*xmargin, Square::ySize-2*ymargin);
+	
+	if (ypos != 0)
+		animate(ypos);
 }
 
-void BallItem::setPosition(qreal x, qreal y)
+void BallItem::animate(qreal yoffset)
 {
-	QGraphicsEllipseItem::setRect(x+xmargin, y+ymargin,
-			Square::xSize-2*xmargin, Square::ySize-2*ymargin);
+	
+	QPropertyAnimation* anim = new QPropertyAnimation(this, "rect");
+	anim->setStartValue(rect());
+	anim->setEndValue(QRectF(xmargin, ymargin,
+			Square::xSize-2*xmargin, Square::ySize-2*ymargin));
+	anim->setDuration(fallingDuration(fabs(yoffset)));
+	anim->setEasingCurve(QEasingCurve::OutBounce);
+	
+	anim->start();
 }
 
 QBrush BallItem::brush() const

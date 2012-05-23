@@ -61,8 +61,21 @@ void Square::setHighlight(bool hl, Square::Side side)
 	}
 }
 
+static inline bool between(qreal x, qreal min, qreal max)
+{
+	return min < x && x <= max;
+}
+
 Square::Side Square::side(QPointF p)
 {
+	static const qreal clickableBorder = 8;
+	
+	//srodek 
+	if (between(p.x(), clickableBorder, Square::xSize-clickableBorder)
+			&& between(p.y(), clickableBorder, Square::ySize-clickableBorder))
+		return none;
+	
+	//brzeg
 	bool b1 = p.x() < p.y();
 	bool b2 = Square::xSize-p.x() < p.y();
 	
@@ -93,6 +106,14 @@ void Square::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 	setHighlight(0);
 }
 
+void Square::mousePressEvent(QGraphicsSceneMouseEvent * event)
+{
+	Side s = side(event->pos());
+	if (s == none)
+		return;
+	board->move(this, neighbours[s]);
+}
+
 Square* Square::getNeighbour(Square::Side s)
 {
 	return neighbours[s];
@@ -120,4 +141,17 @@ BallColor Square::ballColor()
 		//~ return ball->getColor();
 	//~ else
 		//~ return BallColor::none;
+}
+
+void Square::takeBall()
+{
+	if (ball) return;
+	int fall = 1;
+	for (Square* s = this->neighbours[top]; s != 0; s = s->neighbours[top]) {
+		if (s->ball) {
+			s->ball->placeOnSquare(this, fall);
+		}
+		++fall;
+	}
+	Ball::getNew(board->gameSetup(), this, fall);
 }

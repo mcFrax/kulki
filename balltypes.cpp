@@ -10,7 +10,7 @@ ColorBall::ColorBall(const BallColor& c)
 {
 }
 
-ColorBall::ColorBall(const BallColor& c, Square* s, uint falling)
+ColorBall::ColorBall(const BallColor& c, Square* s, int falling)
 	: Ball(c, s, falling)
 {
 }
@@ -29,7 +29,7 @@ JokerBall::JokerBall()
 {
 }
 
-JokerBall::JokerBall(Square* s, uint falling)
+JokerBall::JokerBall(Square* s, int falling)
 	: Ball(BallColor::joker, s, falling)
 {
 }
@@ -48,7 +48,7 @@ CameleonBall::CameleonBall()
 {
 }
 
-CameleonBall::CameleonBall(Square* s, uint falling)
+CameleonBall::CameleonBall(Square* s, int falling)
 	: ColorBall(BallColor::random(), s, falling)
 {
 }
@@ -67,7 +67,7 @@ DoubleBall::DoubleBall(const BallColor& color)
 {
 }
 
-DoubleBall::DoubleBall(const BallColor& color, Square* s, uint falling)
+DoubleBall::DoubleBall(const BallColor& color, Square* s, int falling)
 	: ColorBall(color, s, falling)
 {
 }
@@ -86,7 +86,7 @@ SkullBall::SkullBall(const BallColor& color)
 {
 }
 
-SkullBall::SkullBall(const BallColor& color, Square* s, uint falling)
+SkullBall::SkullBall(const BallColor& color, Square* s, int falling)
 	: ColorBall(color, s, falling)
 {
 }
@@ -111,7 +111,7 @@ HourglassBall::HourglassBall(const BallColor& color)
 	points = ColorBall::getPointValue();
 }
 
-HourglassBall::HourglassBall(const BallColor& color, Square* s, uint falling)
+HourglassBall::HourglassBall(const BallColor& color, Square* s, int falling)
 	: ColorBall(color, s, falling)
 {
 	points = ColorBall::getPointValue();

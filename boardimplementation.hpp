@@ -17,10 +17,11 @@ class BoardImplementation : public Board
 		void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);
 		void check();
 		void computeLegalMoves(const int, const int);
-		void computeLegalMoves();
+		bool computeLegalMoves();
 		uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc);
-	private slots:
-		void squarePressed(Square*, Square*);
+		void refill();
+	private:
+		bool move(Square*, Square*);
 	public:
 		BoardImplementation(const GameSetup&, QObject * parent = 0);
 		~BoardImplementation();

@@ -9,9 +9,10 @@
 
 using namespace std;
 
-//klasa do "udawanych" zamian
+//klasa do "udawanych" zamian - przy sprawdzaniu ruchow
 //dziala identycznie z Board::BoardInfo, ale zamienia s1 z s2
 class SwapPretender
+//!<Udaje Board::BoardInfo z zamiana dwoch Square'ow
 {
 	private:
 		Square** array;
@@ -51,69 +52,83 @@ class SwapPretender
 };
 
 Board* Board::newBoard(const GameSetup& s, QObject * parent)
+//!<Konstruktor
 {
 	return new BoardImplementation(s, parent);
 }
 
 Board::Board(const GameSetup& s, QObject * parent)
+//!<Konstruktor
 	: QGraphicsScene(0, 0, s.width*Square::xSize,
-		s.height*Square::ySize, parent), setup(s), curPlayer(0)
+		s.height*Square::ySize, parent), setup(s), state(animatingMove),
+		curPlayer(0)
 {
 }
 
 Player* Board::currentPlayer()
+//!<Zwraca biezacego gracza
 {
 	return curPlayer;
 }
 
 const Board::GameSetup& Board::gameSetup()
+//!<Zwraca gameSetup
 {
 	return setup;
 }
 
 Board::State Board::getState()
+//!<Zwraca aktualny stan planszy/gry
 {
 	return state;
 }
 
 bool Board::inBoard(int x, int y)
+//!<Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
 {
 	return x >= 0 && x < setup.width
 		&& y >= 0 && y < setup.height;
 }
 
 bool Board::isLegal(Square* s1, Square* s2) const
+//!<sprawdza, czy ruch - zamiana s1 z s2 - jest legalny
 {
 	return legalMoves.find(make_pair(s1, s2)) != legalMoves.end();
 }
 
 Board::BoardInfo::BoardInfo(Square** array, uint width, uint height)
+//!<Kontruktor
 	: array(array), arrayWidth(width), arrayHeight(height)
 {
 }
 
 BallColor Board::BoardInfo::operator () (uint x, uint y) const
+//!<Square na pozycji (x, y)
 {
 	return array[y*arrayWidth+x]->ballColor();
 }
 
 uint Board::BoardInfo::width() const
+//!<Szerokosc (w polach)
 {
 	return arrayWidth;
 }
 
 uint Board::BoardInfo::height() const
 {
+//!<Wyskokosc (w polach)
 	return arrayHeight;
 }
 
 bool Board::BoardInfo::contains(int x, int y) const
+//!<Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
 {
 	return x >= 0 && x < arrayWidth
 		&& y >= 0 && y < arrayHeight;
 }
 
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
+//!<Konstruktor
 	: Board(s, parent)
 {
 	BallColor::createTable(setup.colors);
@@ -143,23 +158,25 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	#warning possibly by making continous fall till its good
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
-			Ball::getNew(setup, square(ix, iy));
+			Ball::getNew(setup, square(ix, iy), setup.height+2);
 		}
 	}
 	
 	computeLegalMoves();
-	state = normal;
+	state = waitingForPlayer;
 }
 
 BoardImplementation::~BoardImplementation()
+//!<Destruktor
 {
 	delete squares;
 }
 
 void BoardImplementation::mousePressEvent(QGraphicsSceneMouseEvent * event)
+//!<overrides mousePressEvent
 {
 	switch (state) {
-		case playerMove :
+		case waitingForMove :
 			QGraphicsScene::mousePressEvent(event);
 			return;
 		default:
@@ -168,9 +185,10 @@ void BoardImplementation::mousePressEvent(QGraphicsSceneMouseEvent * event)
 }
 
 void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
+//!<overrides mouseMoveEvent
 {
 	switch (state) {
-		case playerMove :
+		case waitingForMove :
 			QGraphicsScene::mouseMoveEvent(event);
 			return;
 		default:
@@ -178,15 +196,19 @@ void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 	}
 }
 
-void BoardImplementation::squarePressed(Square* s1, Square* s2)
+bool BoardImplementation::move(Square* s1, Square* s2)
+//!Wykonanie ruchu - zamiany kulki na s1 z kulka na s2 - przez biezacego gracza
 {
-	#warning check if legal?
+	if (state != waitingForMove || !isLegal(s1, s2))
+		return 0;
+	state = animatingMove;
 	Ball* b1 = s1->getBall();
 	Ball* b2 = s2->getBall();
 	b1->placeOnSquare(s2);
 	b2->placeOnSquare(s1);
 	
 	check();
+	return 1;
 }
 
 //dzieki template'owi moge uzywac i BoardInfo i SwapPretender,
@@ -194,11 +216,14 @@ void BoardImplementation::squarePressed(Square* s1, Square* s2)
 template <class BoardInfo_or_SwapPretender>
 uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc,
 		const BoardInfo_or_SwapPretender& board)
-//xMove, yMove definiuja kierunek, nie zwrot
+//!<zlicza ile jest kulek na (sX,sY) i sasiednich polach typu (sX+k*xM, sY+k*yM) koloru bc
 {
-	uint res = 0;
-	int ix = sX;
-	int iy = sY;
+	if (board(sX, sY) != bc)
+		return 0;
+	
+	uint res = 1;
+	int ix = sX+xM;
+	int iy = sY+yM;
 	while (board.contains(ix, iy) && board(ix, iy) == bc){
 		++res;
 		ix += xM;
@@ -217,7 +242,7 @@ uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc,
 template <class BoardInfo_or_SwapPretender>
 static bool checkForTriple(uint x, uint y, const Board::GameSetup& setup,
 		const BoardInfo_or_SwapPretender& board)
-//sprawdza, czy jest jakas trojka (rzad), zawierajacy kulke na (x,y)
+//!<Sprawdza, czy jest jakas trojka (rzad), zawierajacy kulke na (x,y)
 {
 	for (uint c = 0; c < setup.colors; ++c){
 		if (countSame(x, y, 1, 0, c, board) >= setup.rowLength
@@ -228,8 +253,8 @@ static bool checkForTriple(uint x, uint y, const Board::GameSetup& setup,
 }
 
 void BoardImplementation::computeLegalMoves(const int dx, const int dy)
+//!<Wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>
 {
-	//wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>
 	for ( uint iy = 0; iy < setup.height-dy; ++iy){
 		for ( uint ix = 0; ix < setup.width-dx; ++ix){
 			//symulacja zamiany, i sprawdzenie, czy cos daje
@@ -246,39 +271,52 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy)
 	}
 }
 
-void BoardImplementation::computeLegalMoves()
+bool BoardImplementation::computeLegalMoves()
+//!<Wylicza wszystkie legalne zamiany
 {
 	legalMoves.clear();
 	computeLegalMoves(1, 0);
 	computeLegalMoves(0, 1);
+	return !legalMoves.empty();
 }
 
 Square* BoardImplementation::square(uint x, uint y)
+//!<Square na pozycji (x, y)
 {
 	return squares[y*setup.width+x];
 }
 
 void BoardImplementation::check()
+//!<Sprawdzenie planszy (po ruchu) i odpowiednia zmiana stanu
 {
-	state = checking;
-	#warning here goes check
-	if (0)
-		state = falling;
-	else if (1)
-		state = normal;
-	else
-		state = locked;
+	//~ state = checking;
+	//~ #warning here goes check
+	//~ if (0)
+		//~ state = falling; //cleaning? something?
+	//~ else if (1)
+		//~ state = normal;
+	//~ else
+		//~ state = locked;
 }
 
-#warning some documentation needed here (or there)
-void BoardImplementation::setCurrentPlayer(Player* p)
+void BoardImplementation::refill()
+//!<zepchniecie kulek (grawitacja) + utworzenie nowych (zapelnienie planszy)
 {
-	#warning not the best solution:
-	if (state != normal)
+	for ( int iy = setup.height-1; iy >= 0 ; --iy){
+		for ( int ix = 0; ix < setup.width; ++ix){
+			square(ix, iy)->takeBall();
+		}
+	}
+}
+
+#warning more documentation needed here (or there)
+void BoardImplementation::setCurrentPlayer(Player* p)
+//!<Oddaje nastepny ruch graczowi p.
+{
+	if (curPlayer)
 		return;
-	#warning if (curPlayer) ???
-	#warning if (!p) ???
-	state = playerMove;
+		
 	curPlayer = p;
-	//legalMoves should be ready here
+	if (state == waitingForPlayer)
+		state = waitingForMove;
 }

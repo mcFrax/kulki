@@ -9,13 +9,12 @@ class BallColor;
 class Board : public QGraphicsScene
 {
 	Q_OBJECT
+	friend class Square;
 	public:
 		enum State {
-			normal, //nothing
-			playerMove,
-			falling,
-			checking,
-			cleaning,
+			waitingForPlayer, //nothing
+			waitingForMove,
+			animatingMove,
 			locked, //game ended
 		};
 		struct GameSetup
@@ -62,11 +61,14 @@ class Board : public QGraphicsScene
 		bool inBoard(int x, int y);
 		
 		bool isLegal(Square*, Square*) const;
+		
+		virtual bool move(Square*, Square*) = 0;
 	signals:
-		void playerMoved(Player*);
-		void playerMoveEnded(Player*, uint total); //or fallingEnded
-		void pointsEarned(Player*, uint points);
-		void gameEnded();
+		//~ void playerMoved(Player*);
+		//~ void playerMoveEnded(Player*, uint total); //or fallingEnded
+		//~ void pointsEarned(Player*, uint points);
+		//~ void gameEnded();
+		void stateChanged(Board::State);
 	public slots:
 		virtual void setCurrentPlayer(Player*) = 0;
 };

@@ -8,9 +8,8 @@
 class Square;
 class BallItem;
 
-class Ball : public QObject
+class Ball
 {
-	Q_OBJECT
 	public: 
 		enum State {
 			normal,
@@ -19,7 +18,7 @@ class Ball : public QObject
 		};
 	private: 
 		//~ qreal positionOnSqare;
-		//~ uint fallingStart; //in game time
+		//~ int fallingStart; //in game time
 		//~ static const qreal fallingTime;
 		BallColor color;
 		Square* square;
@@ -29,24 +28,18 @@ class Ball : public QObject
 		void setColor(const BallColor&);
 	protected: 
 		Ball(const BallColor&);
-		Ball(const BallColor&, Square*, uint falling = 0);
+		Ball(const BallColor&, Square*, int falling = 0);
 	public: 
 		~Ball();
-		virtual void placeOnSquare(Square*, uint falling = 0);
+		virtual void placeOnSquare(Square*, int falling = 0);
 		virtual uint getPointValue() = 0;
 		virtual int applyPointModificator(const int& points) const;
 		QRectF getRect();
 		BallColor getColor() const;
 		//~ BallItem* getBallItem();
-	signals: 
-		//~ void falling();
-		void fallingEnded();
-	public slots: 
-		//~ bool checkIfFalling();
-		//~ void updatePosition(uint gameTime);
 		virtual void update(uint plyNumber);
 	public:
 		static Ball* getNew(const Board::GameSetup&);
 		static Ball* getNew(const Board::GameSetup&, Square* s,
-				uint falling = 0);
+				int falling = 0);
 };
