@@ -24,11 +24,6 @@ class Square : public QGraphicsRectItem
 		Ball* ball;
 		Board* board;
 		Square* neighbours[4];
-	protected:
-		//~ void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
-		//~ void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
-		//~ void setHighlight(bool, Square::Side side = left);
-		//~ Square::Side side(QPointF);
 	public:
 		Square(uint xPos, uint yPos, Board*); //pos is in squares
 		void setNeighbours(Square* l, Square* t, Square* r, Square* b);

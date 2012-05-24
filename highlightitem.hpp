@@ -1,5 +1,5 @@
 #pragma once
-#inlude <QGraphicsEllipseItem>
+#include <QGraphicsEllipseItem>
 
 class Board;
 class Square;
@@ -12,8 +12,8 @@ class HighlightItem : public QObject, public QGraphicsEllipseItem
 	public:
 		enum Direction
 		{
-			horizontal = 0,
-			vertical = 1
+			vertical = 0,
+			horizontal = 1
 		};
 	private:
 		Board* board;
@@ -24,8 +24,13 @@ class HighlightItem : public QObject, public QGraphicsEllipseItem
 		void setVisibility(qreal);
 		Direction direction;
 		QPropertyAnimation* anim;
+		bool active;
+	private slots:
+		void animFinished();
 	protected:
 		void mousePressEvent(QGraphicsSceneMouseEvent * event);
+		void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
+		void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
 	public:
 		HighlightItem(qreal x, qreal y, Board*, Square* s1, Square* s2,
 				Direction);

@@ -22,6 +22,14 @@ class Array2Accessor
 		{
 			return content[y*width+x];
 		}
+		operator T*()
+		{
+			return content;
+		}
+		operator const T*() const
+		{
+			return content;
+		}
 };
 
 template<class T>
@@ -33,7 +41,7 @@ class Array2
 		Array2(const Array2&); //undefined
 	public:
 		Array2(unsigned sizeX, unsigned sizeY)
-			: Array2(new T[sizeX*sizeY]), width(sizeX)
+			: content(new T[sizeX*sizeY]), width(sizeX)
 		{
 		}
 		~Array2()
@@ -47,6 +55,14 @@ class Array2
 		const T& operator()(unsigned x, unsigned y) const
 		{
 			return content[y*width+x];
+		}
+		operator T*()
+		{
+			return content;
+		}
+		operator const T*() const
+		{
+			return content;
 		}
 		operator Array2Accessor<T>()
 		{

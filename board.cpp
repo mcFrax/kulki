@@ -3,6 +3,7 @@
 #include "board.hpp"
 #include "boardimplementation.hpp"
 #include "square.hpp"
+#include "highlightitem.hpp"
 #include "ball.hpp"
 
 #include "debugtools.hpp"
@@ -162,8 +163,8 @@ bool Board::BoardInfo::contains(int x, int y) const
 
 //!Konstruktor
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
-	: Board(s, parent), squares(s.width, s.height), 
-		highlights(s.width-1, s.height-1)
+	: Board(s, parent), squares(s.width, s.height),
+		highlights(s.width, s.height)
 {
 	BallColor::createTable(setup.colors);
 	
@@ -187,17 +188,22 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	}
 	
 	//creating highlights
-	for (uint iy = 0; iy < s.height-1; ++iy){
-		for (uint ix = 0; ix < s.width-1; ++ix){
+	for (uint iy = 0; iy < s.height; ++iy){
+		for (uint ix = 0; ix < s.width; ++ix){
 			highlights(ix, iy) = make_pair(
+				#warning konieczny komentarz
 				//poziomy HighlightItem
-				new HighlightItem((ix+1)*Square::xSize, 
+				(squares(ix, iy)->getNeighbour(Square::right))
+					?new HighlightItem((ix+1)*Square::xSize, 
 						(iy+0.5)*Square::ySize, this, squares(ix, iy),
-						squares(ix+1, iy), HighlightItem::horizontal),
+						squares(ix+1, iy), HighlightItem::horizontal)
+					:0,
 				//pionowy HighlightItem
-				new HighlightItem((ix+0.5)*Square::xSize, 
+				(squares(ix, iy)->getNeighbour(Square::bottom))
+					?new HighlightItem((ix+0.5)*Square::xSize, 
 						(iy+1)*Square::ySize, this, squares(ix, iy),
 						squares(ix, iy+1), HighlightItem::vertical)
+					:0
 			);
 		}
 	}
@@ -218,7 +224,6 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 //!Destruktor
 BoardImplementation::~BoardImplementation()
 {
-	delete squares;
 }
 
 //!Punkty za rzadek
@@ -268,7 +273,6 @@ void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 //!Wykonanie ruchu - zamiany kulki na s1 z kulka na s2 - przez biezacego gracza
 bool BoardImplementation::move(Square* s1, Square* s2)
 {
-	
 	if (state != waitingForMove || !isLegal(s1, s2))
 		return 0;
 	setState(animatingMove);
@@ -278,6 +282,15 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 	b2->detach();
 	b1->placeOnSquare(s2);
 	b2->placeOnSquare(s1);
+	
+	for (uint iy = 0; iy < setup.height; ++iy){
+		for (uint ix = 0; ix < setup.width; ++ix){
+			if (highlights(ix, iy).first)
+				highlights(ix, iy).first->setVisible(0);
+			if (highlights(ix, iy).second)
+				highlights(ix, iy).second->setVisible(0);
+		}
+	}
 	
 	check();
 	return 1;
@@ -338,6 +351,11 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy)
 						squares(ix+dx, iy+dy)));
 				legalMoves.insert(make_pair(squares(ix+dx, iy+dy), 
 						squares(ix, iy)));
+				#warning - brzydkie, bo zaklada, ze dx, dy sa takie jak chcemy
+				if (dx)
+					highlights(ix,iy).first->setVisible(1);
+				else
+					highlights(ix,iy).second->setVisible(1);
 			}
 		}
 	}
@@ -350,12 +368,6 @@ bool BoardImplementation::computeLegalMoves()
 	computeLegalMoves(1, 0);
 	computeLegalMoves(0, 1);
 	return !legalMoves.empty();
-}
-
-//!Square na pozycji (x, y)
-Square* BoardImplementation::squares(uint x, uint y)
-{
-	return squares[y*setup.width+x];
 }
 
 //!Rozpoczyna nowa ture
