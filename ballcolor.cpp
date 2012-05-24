@@ -1,5 +1,7 @@
 #include "ballcolor.hpp"
 
+#include <QColor>
+
 uint BallColor::colors = 0;
 const uint BallColor::noneNumber = 0xFFFFFFFF;
 const uint BallColor::jokerNumber = 0xFFFFFFFE;

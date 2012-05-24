@@ -3,6 +3,7 @@
 
 class Board;
 class Square;
+class QPropertyAnimation;
 
 class HighlightItem : public QObject, public QGraphicsEllipseItem
 {
@@ -11,8 +12,8 @@ class HighlightItem : public QObject, public QGraphicsEllipseItem
 	public:
 		enum Direction
 		{
-			horizontal,
-			vertical
+			horizontal = 0,
+			vertical = 1
 		};
 	private:
 		Board* board;
@@ -21,9 +22,14 @@ class HighlightItem : public QObject, public QGraphicsEllipseItem
 		qreal visibilityVal;
 		qreal visibility();
 		void setVisibility(qreal);
+		Direction direction;
+		QPropertyAnimation* anim;
 	protected:
-		
+		void mousePressEvent(QGraphicsSceneMouseEvent * event);
 	public:
 		HighlightItem(qreal x, qreal y, Board*, Square* s1, Square* s2,
-				Direction, qreal visibility = 0);
+				Direction);
+	public slots:
+		void activate();
+		void deactivate();
 };

@@ -1,4 +1,5 @@
 #include "main_window.hpp"
+#include <QGraphicsView>
 //~ #include <iostream>
 //~ #include <stdexcept>
 //~ #include <fstream>

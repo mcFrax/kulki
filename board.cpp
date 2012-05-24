@@ -162,27 +162,43 @@ bool Board::BoardInfo::contains(int x, int y) const
 
 //!Konstruktor
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
-	: Board(s, parent)
+	: Board(s, parent), squares(s.width, s.height), 
+		highlights(s.width-1, s.height-1)
 {
 	BallColor::createTable(setup.colors);
-	squares = new Square*[s.width*s.height];
 	
 	//creating squares
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
-			squares[iy*s.width+ix] = new Square(ix, iy, this);
+			squares(ix, iy) = new Square(ix, iy, this);
 		}
 	}
 	
 	//setting squares neighbours
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
-			square(ix, iy)->setNeighbours(
-					ix == 0 ? 0 : square(ix-1, iy),
-					iy == 0 ? 0 : square(ix, iy-1),
-					ix == s.width-1  ? 0 : square(ix+1, iy),
-					iy == s.height-1 ? 0 : square(ix, iy+1)
+			squares(ix, iy)->setNeighbours(
+					ix == 0 ? 0 : squares(ix-1, iy),
+					iy == 0 ? 0 : squares(ix, iy-1),
+					ix == s.width-1  ? 0 : squares(ix+1, iy),
+					iy == s.height-1 ? 0 : squares(ix, iy+1)
 					);
+		}
+	}
+	
+	//creating highlights
+	for (uint iy = 0; iy < s.height-1; ++iy){
+		for (uint ix = 0; ix < s.width-1; ++ix){
+			highlights(ix, iy) = make_pair(
+				//poziomy HighlightItem
+				new HighlightItem((ix+1)*Square::xSize, 
+						(iy+0.5)*Square::ySize, this, squares(ix, iy),
+						squares(ix+1, iy), HighlightItem::horizontal),
+				//pionowy HighlightItem
+				new HighlightItem((ix+0.5)*Square::xSize, 
+						(iy+1)*Square::ySize, this, squares(ix, iy),
+						squares(ix, iy+1), HighlightItem::vertical)
+			);
 		}
 	}
 	
@@ -191,7 +207,7 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	#warning possibly by making continous fall till its good
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
-			Ball::getNew(setup, square(ix, iy), iy+1);
+			Ball::getNew(setup, squares(ix, iy), iy+1);
 		}
 	}
 	
@@ -315,13 +331,13 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy)
 		for ( uint ix = 0; ix < setup.width-dx; ++ix){
 			//symulacja zamiany, i sprawdzenie, czy cos daje
 			SwapPretender pret(squares, setup.width, setup.height, 
-					square(ix, iy), square(ix+dx, iy+dy));
+					squares(ix, iy), squares(ix+dx, iy+dy));
 			if (checkForRow(ix, iy, setup, pret)
 					|| checkForRow(ix+dx, iy+dy, setup, pret)){
-				legalMoves.insert(make_pair(square(ix, iy), 
-						square(ix+dx, iy+dy)));
-				legalMoves.insert(make_pair(square(ix+dx, iy+dy), 
-						square(ix, iy)));
+				legalMoves.insert(make_pair(squares(ix, iy), 
+						squares(ix+dx, iy+dy)));
+				legalMoves.insert(make_pair(squares(ix+dx, iy+dy), 
+						squares(ix, iy)));
 			}
 		}
 	}
@@ -337,7 +353,7 @@ bool BoardImplementation::computeLegalMoves()
 }
 
 //!Square na pozycji (x, y)
-Square* BoardImplementation::square(uint x, uint y)
+Square* BoardImplementation::squares(uint x, uint y)
 {
 	return squares[y*setup.width+x];
 }
@@ -363,7 +379,7 @@ BoardImplementation::Rows BoardImplementation::findRows()
 	Row curRow;
 	for (uint iy = 0; iy < setup.height; ++iy){
 		for (uint ix = 0; ix < setup.width; ++ix){
-			Ball* b = square(ix, iy)->getBall();
+			Ball* b = squares(ix, iy)->getBall();
 			if (!curRow.matches(b)){
 				if (curRow.size() >= setup.rowLength){
 					res.push_back(Row());
@@ -383,7 +399,7 @@ BoardImplementation::Rows BoardImplementation::findRows()
 	//zliczanie pionowo
 	for (uint ix = 0; ix < setup.width; ++ix){
 		for (uint iy = 0; iy < setup.height; ++iy){
-			Ball* b = square(ix, iy)->getBall();
+			Ball* b = squares(ix, iy)->getBall();
 			if (!curRow.matches(b)){
 				if (curRow.size() >= setup.rowLength){
 					res.push_back(Row());
@@ -437,8 +453,8 @@ void BoardImplementation::refill()
 {
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			square(ix, iy)->takeBall(500);
-			//~ square(ix, iy)->setBrush(QBrush(square(ix, iy)->ballColor()));
+			squares(ix, iy)->takeBall(500);
+			//~ squares(ix, iy)->setBrush(QBrush(squares(ix, iy)->ballColor()));
 		}
 	}
 }

@@ -2,9 +2,11 @@
 #include <vector>
 
 #include "board.hpp"
+#include "array2.hpp"
 
 class Ball;
 class BallColor;
+class HighlightItem;
 
 //Tu sa upchniete te metody pomocnicze, ktore niepotrzebnie zasmiecaly
 //Board, a wyrzucenie ich poza klase byloby problemem.
@@ -20,9 +22,8 @@ class BoardImplementation : public Board
 		};
 		typedef std::vector<Row> Rows;
 	private:
-		Square** squares;
-		Square* square(uint x, uint y);
-		HighlightItem** highlightItems;
+		Array2<Square*> squares;
+		Array2<std::pair<HighlightItem*, HighlightItem*> > highlights;
 		int total;
 	private:
 		void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);

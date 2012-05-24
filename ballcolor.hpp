@@ -1,5 +1,8 @@
 #pragma once
-#include <QColor>
+
+#include <QtGlobal>
+
+class QColor;
 
 class BallColor {
 	private:

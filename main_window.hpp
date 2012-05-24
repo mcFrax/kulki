@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QGraphicsView>
 
 class Board;
+class QGraphicsView;
 
 class MainWindow : public QMainWindow
 {
