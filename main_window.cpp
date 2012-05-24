@@ -20,8 +20,9 @@ MainWindow::MainWindow()
 	
 	scene = Board::newBoard(gameSetup, this);
 	
-	#warning scene->setCurrentPlayer(0);
+	#warning temporary
 	scene->setCurrentPlayer(0);
+	connect(scene, SIGNAL(playerMoveEnded(Player*, uint)), scene, SLOT(setCurrentPlayer(Player*)));
 
 	graphicsView = new QGraphicsView(scene, this);
 	graphicsView->setMouseTracking(1);

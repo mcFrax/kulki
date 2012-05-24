@@ -9,7 +9,6 @@ class BallColor;
 class Board : public QGraphicsScene
 {
 	Q_OBJECT
-	friend class Square;
 	public:
 		enum State {
 			waitingForPlayer, //nothing

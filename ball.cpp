@@ -9,25 +9,26 @@
 //~ {
 //~ }
 
-Ball::Ball(const BallColor& c, Square* s, int fall)
+Ball::Ball(const BallColor& c, Square* s, int fall, int animDelay)
 	: color(c), square(s), state(fall?falling:normal),
-		ballItem(new BallItem(c, s, -fall*Square::ySize))
+		ballItem(new BallItem(c, s, -fall*Square::ySize, animDelay))
 {
 	s->ball = this;
 }
 
-void Ball::placeOnSquare(Square* s, int fall)
+void Ball::placeOnSquare(Square* s, int fall, int animDelay)
 {
 	#warning 
 	if (square)
 		square->ball = 0;
 	if (!ballItem)
-		ballItem = new BallItem(color, s, -fall*Square::ySize);
+		ballItem = new BallItem(color, s, -fall*Square::ySize, animDelay);
 	else
-		ballItem->placeOnSquare(s, -fall*Square::ySize);
+		ballItem->placeOnSquare(s, -fall*Square::ySize, animDelay);
 	state = fall?falling:normal;
 	square = s;
-	s->ball = this;
+	if (s)
+		s->ball = this;
 }
 
 Ball::~Ball()
@@ -45,6 +46,20 @@ int Ball::applyPointModificator(const int& points) const
 
 void Ball::update(uint plyNumber)
 {
+}
+
+void Ball::explode()
+{
+	if (ballItem){
+		ballItem->explode();
+		ballItem = 0;
+	}
+	delete this;
+}
+
+void Ball::detach()
+{
+	placeOnSquare(0);
 }
 
 //~ BallItem* Ball::getBallItem()
@@ -68,7 +83,7 @@ void Ball::setColor(const BallColor& col)
 	//~ return new ColorBall(BallColor::random());
 //~ }
 
-Ball* Ball::getNew(const Board::GameSetup&, Square* s, int falling)
+Ball* Ball::getNew(const Board::GameSetup&, Square* s, int falling, int animDelay)
 {
-	return new ColorBall(BallColor::random(), s, falling);
+	return new ColorBall(BallColor::random(), s, falling, animDelay);
 }

@@ -191,7 +191,7 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	#warning possibly by making continous fall till its good
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
-			Ball::getNew(setup, square(ix, iy), setup.height+2);
+			Ball::getNew(setup, square(ix, iy), iy+1);
 		}
 	}
 	
@@ -221,8 +221,8 @@ bool BoardImplementation::Row::matches(Ball* b) const
 {
 	for (const_iterator i = begin(); i != end(); ++i)
 		if ((*i)->getColor() != b->getColor())
-			return 1;
-	return empty();
+			return 0;
+	return 1;
 }
 
 //!overrides QGraphicsScene::mousePressEvent
@@ -252,11 +252,14 @@ void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 //!Wykonanie ruchu - zamiany kulki na s1 z kulka na s2 - przez biezacego gracza
 bool BoardImplementation::move(Square* s1, Square* s2)
 {
+	
 	if (state != waitingForMove || !isLegal(s1, s2))
 		return 0;
 	setState(animatingMove);
 	Ball* b1 = s1->getBall();
 	Ball* b2 = s2->getBall();
+	b1->detach();
+	b2->detach();
 	b1->placeOnSquare(s2);
 	b2->placeOnSquare(s1);
 	
@@ -358,12 +361,10 @@ BoardImplementation::Rows BoardImplementation::findRows()
 	Rows res;
 	//zliczanie poziomo
 	Row curRow;
-	for (uint iy = 0; iy < setup.height-setup.rowLength; ++iy){
-		for (uint ix = 0; ix < setup.width-setup.rowLength; ++ix){
+	for (uint iy = 0; iy < setup.height; ++iy){
+		for (uint ix = 0; ix < setup.width; ++ix){
 			Ball* b = square(ix, iy)->getBall();
-			if (curRow.matches(b)){
-				curRow.push_back(b);
-			} else {
+			if (!curRow.matches(b)){
 				if (curRow.size() >= setup.rowLength){
 					res.push_back(Row());
 					swap(res.back(), curRow);
@@ -371,13 +372,37 @@ BoardImplementation::Rows BoardImplementation::findRows()
 					curRow = Row();
 				}
 			}
+			curRow.push_back(b);
 		}
+		if (curRow.size() >= setup.rowLength){
+			res.push_back(Row());
+			swap(res.back(), curRow);
+		}
+		curRow = Row();
 	}
 	//zliczanie pionowo
-	for (uint ix = 0; ix < setup.width-setup.rowLength; ++ix){
-		for (uint iy = 0; iy < setup.height-setup.rowLength; ++iy){
-			
+	for (uint ix = 0; ix < setup.width; ++ix){
+		for (uint iy = 0; iy < setup.height; ++iy){
+			Ball* b = square(ix, iy)->getBall();
+			if (!curRow.matches(b)){
+				if (curRow.size() >= setup.rowLength){
+					res.push_back(Row());
+					swap(res.back(), curRow);
+				} else {
+					curRow = Row();
+				}
+			}
+			curRow.push_back(b);
 		}
+		if (curRow.size() >= setup.rowLength){
+			res.push_back(Row());
+			swap(res.back(), curRow);
+		}
+		curRow = Row();
+	}
+	if (curRow.size() >= setup.rowLength){
+		res.push_back(Row());
+		swap(res.back(), curRow);
 	}
 	return res;
 }
@@ -400,10 +425,9 @@ void BoardImplementation::check()
 			for (Row::const_iterator ib = ir->begin(); ib != ir->end(); ++ib)
 				balls.insert(*ib);
 			total += ir->points();
-			
 		}
 		for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
-			delete *i;
+			(*i)->explode();
 		refill();
 	}
 }
@@ -413,7 +437,8 @@ void BoardImplementation::refill()
 {
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			square(ix, iy)->takeBall();
+			square(ix, iy)->takeBall(500);
+			//~ square(ix, iy)->setBrush(QBrush(square(ix, iy)->ballColor()));
 		}
 	}
 }

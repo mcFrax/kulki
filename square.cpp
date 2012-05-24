@@ -143,15 +143,16 @@ BallColor Square::ballColor()
 		//~ return BallColor::none;
 }
 
-void Square::takeBall()
+void Square::takeBall(int animDelay)
 {
 	if (ball) return;
 	int fall = 1;
 	for (Square* s = this->neighbours[top]; s != 0; s = s->neighbours[top]) {
 		if (s->ball) {
-			s->ball->placeOnSquare(this, fall);
+			s->ball->placeOnSquare(this, fall, animDelay);
+			return;
 		}
 		++fall;
 	}
-	Ball::getNew(board->gameSetup(), this, fall);
+	Ball::getNew(board->gameSetup(), this, fall, animDelay);
 }

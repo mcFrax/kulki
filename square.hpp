@@ -4,6 +4,7 @@
 class Board;
 class Ball;
 class BallColor;
+class HighlightItem;
 
 class Square : public QGraphicsRectItem
 {
@@ -23,7 +24,7 @@ class Square : public QGraphicsRectItem
 		Ball* ball;
 		Board* board;
 		Square* neighbours[4];
-		QGraphicsItem* highlight;
+		HighlightItem* highlight;
 		Square::Side highlightedSide;
 	protected:
 		void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
@@ -40,7 +41,7 @@ class Square : public QGraphicsRectItem
 		Board* getBoard();
 		BallColor ballColor();
 		#warning nazwy sie gryza, ale to chyba powinno byc tutaj:
-		void takeBall();
+		void takeBall(int animDelay = 0);
 		
 		static const qreal xSize;
 		static const qreal ySize;

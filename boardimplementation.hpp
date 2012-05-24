@@ -22,6 +22,7 @@ class BoardImplementation : public Board
 	private:
 		Square** squares;
 		Square* square(uint x, uint y);
+		HighlightItem** highlightItems;
 		int total;
 	private:
 		void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);

@@ -28,18 +28,20 @@ class Ball
 		void setColor(const BallColor&);
 	protected: 
 		//~ Ball(const BallColor&);
-		Ball(const BallColor&, Square*, int falling = 0);
+		Ball(const BallColor&, Square*, int falling = 0, int animDelay = 0);
 	public: 
 		~Ball();
-		virtual void placeOnSquare(Square*, int falling = 0);
+		virtual void placeOnSquare(Square*, int falling = 0, int animDelay = 0);
 		virtual uint getPointValue() = 0;
 		virtual int applyPointModificator(const int& points) const;
 		QRectF getRect();
 		BallColor getColor() const;
 		//~ BallItem* getBallItem();
 		virtual void update(uint plyNumber);
+		void explode();
+		void detach();
 	public:
 		//~ static Ball* getNew(const Board::GameSetup&);
 		static Ball* getNew(const Board::GameSetup&, Square* s,
-				int falling = 0);
+				int falling = 0, int animDelay = 0);
 };

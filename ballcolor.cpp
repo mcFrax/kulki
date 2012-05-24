@@ -53,7 +53,7 @@ void BallColor::createTable(uint cols)
 	table = new QColor[colors];
 	for (uint i = 0; i < colors; ++i)
 		#warning disgusting
-		table[i] = QColor((Qt::GlobalColor)(i+2));
+		table[i] = QColor((Qt::GlobalColor)(i+7));
 }
 
 #include <cstdlib>

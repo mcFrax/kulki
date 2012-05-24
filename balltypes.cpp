@@ -10,8 +10,8 @@
 //~ {
 //~ }
 
-ColorBall::ColorBall(const BallColor& c, Square* s, int falling)
-	: Ball(c, s, falling)
+ColorBall::ColorBall(const BallColor& c, Square* s, int falling, int animDelay)
+	: Ball(c, s, falling, animDelay)
 {
 }
 
@@ -29,8 +29,8 @@ uint ColorBall::getPointValue()
 //~ {
 //~ }
 
-JokerBall::JokerBall(Square* s, int falling)
-	: Ball(BallColor::joker, s, falling)
+JokerBall::JokerBall(Square* s, int falling, int animDelay)
+	: Ball(BallColor::joker, s, falling, animDelay)
 {
 }
 
@@ -48,8 +48,8 @@ uint JokerBall::getPointValue()
 //~ {
 //~ }
 
-CameleonBall::CameleonBall(Square* s, int falling)
-	: ColorBall(BallColor::random(), s, falling)
+CameleonBall::CameleonBall(Square* s, int falling, int animDelay)
+	: ColorBall(BallColor::random(), s, falling, animDelay)
 {
 }
 
@@ -67,8 +67,8 @@ void CameleonBall::update(uint plyNumber)
 //~ {
 //~ }
 
-DoubleBall::DoubleBall(const BallColor& color, Square* s, int falling)
-	: ColorBall(color, s, falling)
+DoubleBall::DoubleBall(const BallColor& color, Square* s, int falling, int animDelay)
+	: ColorBall(color, s, falling, animDelay)
 {
 }
 
@@ -86,8 +86,8 @@ int DoubleBall::applyPointModificator(const int& points)
 //~ {
 //~ }
 
-SkullBall::SkullBall(const BallColor& color, Square* s, int falling)
-	: ColorBall(color, s, falling)
+SkullBall::SkullBall(const BallColor& color, Square* s, int falling, int animDelay)
+	: ColorBall(color, s, falling, animDelay)
 {
 }
 
@@ -111,8 +111,8 @@ int SkullBall::applyPointModificator(const int& points)
 	//~ points = ColorBall::getPointValue();
 //~ }
 
-HourglassBall::HourglassBall(const BallColor& color, Square* s, int falling)
-	: ColorBall(color, s, falling)
+HourglassBall::HourglassBall(const BallColor& color, Square* s, int falling, int animDelay)
+	: ColorBall(color, s, falling, animDelay)
 {
 	points = ColorBall::getPointValue();
 }
