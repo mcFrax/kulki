@@ -85,6 +85,7 @@ BallColor BallColor::random()
 	return rand()%colors;
 }
 
+//!Losuje kolor nie nalezacy do zbioru forbidden
 BallColor BallColor::random(const std::set<BallColor>& fb)
 {
 	BallColor res;

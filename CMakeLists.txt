@@ -7,7 +7,7 @@ SET(kulki_SOURCES main.cpp
 	main_window.cpp
 	ball.cpp ballcolor.cpp ballitem.cpp balltypes.cpp
 	board.cpp square.cpp highlightitem.cpp
-	pointsearneditem.cpp )
+	pointsearneditem.cpp boardimplementation.cpp  )
 
 SET(kulki_HEADERS main_window.hpp 
 	ballitem.hpp board.hpp boardimplementation.hpp 

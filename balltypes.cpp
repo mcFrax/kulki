@@ -66,18 +66,7 @@ CameleonBall::CameleonBall(Square* s, int falling, int animDelay)
 
 void CameleonBall::newCheckUpdate()
 {
-	set<BallColor> fb;
-	for (int i = 0; i < 4; ++i){
-		if (square->getNeighbours()[i]){
-			BallColor c = square->getNeighbours()[i]->ballColor();
-			if (c.isNormal());
-				fb.insert(c);
-		}
-	}
-	setColor(BallColor::random(fb));
-	//jezeli 2 kameleony beda obok siebie, to i tak beda zmieniac kolor
-	//kolejno, nie jednoczesnie, wiec nie ma problemu
-	//jedyna glupia sytuacja, to kiedy obok bedzie joker - wtedy nic nie pomoze
+	setColor(BallColor::random());
 }
 
 ///////////////////////////////////////////////////////////
