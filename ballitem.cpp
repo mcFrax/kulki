@@ -2,7 +2,9 @@
 
 #include <QBrush>
 #include <QPen>
+#include <QPixmap>
 #include <QPropertyAnimation>
+#include <QGraphicsPixmapItem>
 
 #include "ballitem.hpp"
 #include "square.hpp"
@@ -13,26 +15,34 @@
 const qreal BallItem::xmargin = 3;
 const qreal BallItem::ymargin = 3;
 
-//~ BallItem::BallItem(const QColor& color)
-	//~ : QGraphicsEllipseItem()
-//~ {
-	//~ QGraphicsEllipseItem::setBrush(QBrush(color));
-	//~ setAcceptedMouseButtons(0);
-//~ }
-
-
 int fallingDuration(qreal distance)
 {
 	#warning possible tuneable factor?
 	return sqrt(distance)*180.0;
 }
 
+QPixmap* BallItem::glossPixmap = 0;
+
 BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
-	: QGraphicsEllipseItem(xmargin, yoffset+ymargin,
-			Square::xSize-2*xmargin, Square::ySize-2*ymargin, s)
+	: QGraphicsEllipseItem(xmargin, ymargin,
+			Square::xSize-2*xmargin, Square::ySize-2*ymargin, s),
+			specialPixmapItem(0)
 {
 	QGraphicsEllipseItem::setBrush(QBrush(color));
 	setAcceptedMouseButtons(0);
+	setTransformOriginPoint((Square::xSize-2*xmargin)/2,
+			(Square::ySize-2*ymargin)/2);
+	
+	if (!glossPixmap)
+		glossPixmap = new QPixmap("../Ball.png");
+		
+	glossPixmapItem = new QGraphicsPixmapItem(*glossPixmap, this);
+	glossPixmapItem->setAcceptedMouseButtons(0);
+	glossPixmapItem->setScale((Square::xSize-2*xmargin)/glossPixmap->width());
+	glossPixmapItem->setZValue(1);
+	glossPixmapItem->setPos(xmargin, ymargin);
+	glossPixmapItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
+	glossPixmapItem->setTransformationMode(Qt::SmoothTransformation);
 	
 	if (yoffset != 0)
 		animate(yoffset, animDelay);
@@ -41,7 +51,7 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 {
 	QGraphicsEllipseItem::setParentItem(s);
-	QGraphicsEllipseItem::setRect(xmargin, ypos+ymargin,
+	QGraphicsEllipseItem::setRect(xmargin, ymargin,
 			Square::xSize-2*xmargin, Square::ySize-2*ymargin);
 	
 	if (ypos != 0)
@@ -50,11 +60,13 @@ void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 
 void BallItem::animate(qreal yoffset, int animDelay)
 {
-	QPropertyAnimation* anim = new QPropertyAnimation(this, "rect");
-	anim->setEndValue(QRectF(xmargin, ymargin,
-			Square::xSize-2*xmargin, Square::ySize-2*ymargin));
+	//~ QPropertyAnimation* anim = new QPropertyAnimation(this, "rect");
+	QPropertyAnimation* anim = new QPropertyAnimation(this, "pos");
+	anim->setStartValue(QPointF(0, yoffset));
+	anim->setEndValue(QPointF(0, 0));
 	int duration = fallingDuration(fabs(yoffset)) + animDelay;
-	anim->setKeyValueAt(animDelay/double(duration), rect());
+	//~ anim->setKeyValueAt(animDelay/double(duration), rect());
+	anim->setKeyValueAt(animDelay/double(duration), QPointF(0, yoffset));
 	anim->setDuration(duration);
 	anim->setEasingCurve(QEasingCurve::OutBounce);
 	static_cast<Square*>(parentItem())->getBoard()->registerAnimation(anim);
@@ -66,9 +78,12 @@ void BallItem::animate(qreal yoffset, int animDelay)
 
 void BallItem::explode()
 {
-	QPropertyAnimation* anim = new QPropertyAnimation(this, "rect");
-	anim->setEndValue(QRectF(-10, -10,
-			Square::xSize+20, Square::ySize+20));
+	QPointF sp = scenePos();
+	setParentItem(0);
+	setPos(sp);
+	setZValue(3);
+	QPropertyAnimation* anim = new QPropertyAnimation(this, "scale");
+	anim->setEndValue(2);
 	anim->setDuration(500);
 	anim->setEasingCurve(QEasingCurve::InOutBack);
 	connect(anim, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -84,4 +99,39 @@ QBrush BallItem::brush() const
 void BallItem::setBrush(const QBrush& b)
 {
 	QGraphicsEllipseItem::setBrush(b);
+}
+
+void BallItem::scalePixmapItem(const QPixmap& pm, qreal sizeFactor)
+{
+	if (pm.isNull()) return;
+	qreal W = Square::xSize - 2*xmargin; //alternatywnie rect().width()
+	qreal H = Square::ySize - 2*xmargin; //alternatywnie rect().height()
+	qreal w = pm.width();
+	qreal h = pm.height();
+	qreal realScaleFactor = std::min((sizeFactor*W)/w, (sizeFactor*H)/h);
+	specialPixmapItem->setScale(realScaleFactor);
+	specialPixmapItem->setPos(xmargin+(W-w*realScaleFactor)/2, 
+			ymargin+(H-h*realScaleFactor)/2);
+}
+
+void BallItem::setSpecialPixmap(const QPixmap& pm, qreal sizeFactor)
+{
+	if (specialPixmapItem) {
+		specialPixmapItem->setPixmap(pm);
+	} else {
+		specialPixmapItem = new QGraphicsPixmapItem(pm, this);
+		specialPixmapItem->setAcceptedMouseButtons(0);
+		specialPixmapItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
+		specialPixmapItem->setTransformationMode(Qt::SmoothTransformation);
+		specialPixmapItem->setZValue(2);
+	}
+	scalePixmapItem(pm, sizeFactor);
+}
+
+QPixmap BallItem::specialPixmap()
+{
+	if (specialPixmapItem)
+		return specialPixmapItem->pixmap();
+	else
+		return QPixmap();
 }

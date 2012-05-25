@@ -5,6 +5,7 @@ class Board;
 class Ball;
 class BallColor;
 class HighlightItem;
+class QBrush;
 
 class Square : public QGraphicsRectItem
 {

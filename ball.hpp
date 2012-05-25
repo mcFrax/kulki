@@ -9,38 +9,26 @@ class BallItem;
 
 class Ball
 {
-	public: 
-		enum State {
-			normal,
-			falling,
-			none,
-		};
 	private: 
-		//~ qreal positionOnSqare;
-		//~ int fallingStart; //in game time
-		//~ static const qreal fallingTime;
 		BallColor color;
-		Square* square;
-		State state;
 	protected:
+		Square* square;
 		BallItem* ballItem;
 		void setColor(const BallColor&);
-	protected: 
-		//~ Ball(const BallColor&);
+	protected:
 		Ball(const BallColor&, Square*, int falling = 0, int animDelay = 0);
 	public: 
 		~Ball();
 		virtual void placeOnSquare(Square*, int falling = 0, int animDelay = 0);
 		virtual uint getPointValue() = 0;
 		virtual int applyPointModificator(const int& points) const;
-		QRectF getRect();
+		QRectF getRect() const;
 		BallColor getColor() const;
-		//~ BallItem* getBallItem();
-		virtual void update(uint plyNumber);
+		virtual void newTurnUpdate();
+		virtual void newCheckUpdate();
 		void explode();
 		void detach();
 	public:
-		//~ static Ball* getNew(const Board::GameSetup&);
 		static Ball* getNew(const Board::GameSetup&, Square* s,
 				int falling = 0, int animDelay = 0);
 };

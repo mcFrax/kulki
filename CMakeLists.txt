@@ -6,11 +6,12 @@ FIND_PACKAGE(Qt4 REQUIRED)
 SET(kulki_SOURCES main.cpp
 	main_window.cpp
 	ball.cpp ballcolor.cpp ballitem.cpp balltypes.cpp
-	board.cpp square.cpp highlightitem.cpp)
+	board.cpp square.cpp highlightitem.cpp
+	pointsearneditem.cpp )
 
 SET(kulki_HEADERS main_window.hpp 
-	ballitem.hpp board.hpp boardimplementation.hpp square.hpp 
-	highlightitem.hpp )
+	ballitem.hpp board.hpp boardimplementation.hpp 
+	highlightitem.hpp pointsearneditem.hpp)
 
 QT4_WRAP_CPP(kulki_HEADERS_MOC ${kulki_HEADERS})
 

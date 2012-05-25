@@ -1,11 +1,15 @@
 #include <QGraphicsSceneMouseEvent>
+#include <QBrush>
+#include <QPixmap>
 
 #include "board.hpp"
 #include "boardimplementation.hpp"
 #include "square.hpp"
 #include "highlightitem.hpp"
 #include "ball.hpp"
+#include "pointsearneditem.hpp"
 
+#include <ostream>
 #include "debugtools.hpp"
 
 using namespace std;
@@ -53,6 +57,19 @@ class SwapPretender
 };
 
 
+std::ostream& operator << (std::ostream& os, Board::State s){
+	switch (s) {
+		case Board::waitingForPlayer:
+			return os << "waitingForPlayer";
+		case Board::waitingForMove:
+			return os << "waitingForMove";
+		case Board::animatingMove:
+			return os << "animatingMove";
+		case Board::locked:
+			return os << "locked";
+	}
+}
+
 //!Konstruktor
 Board* Board::newBoard(const GameSetup& s, QObject * parent)
 {
@@ -96,6 +113,7 @@ void Board::setState(State s)
 {
 	if (state == s) return;
 	state = s;
+	PRINT(state);
 	emit stateChanged(state);
 }
 
@@ -112,13 +130,13 @@ bool Board::isLegal(Square* s1, Square* s2) const
 	return legalMoves.find(make_pair(s1, s2)) != legalMoves.end();
 }
 
-//!Rejestruje animacje onim jako trwajaca
+//!Rejestruje animacje jako trwajaca
 void Board::registerAnimation(QObject* anim)
 {
 	currentAnimations.insert(anim);
 }
 
-//!Wywolywany przez konczaca sie animacje
+//!Wywolywana przez konczaca sie animacje
 void Board::animationEnded()
 {
 	set<QObject*>::iterator i = currentAnimations.find(sender());
@@ -126,7 +144,7 @@ void Board::animationEnded()
 		return;
 	currentAnimations.erase(i);
 	if (currentAnimations.empty()){
-		check();
+		check(0);
 	}
 }
 
@@ -164,8 +182,10 @@ bool Board::BoardInfo::contains(int x, int y) const
 //!Konstruktor
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	: Board(s, parent), squares(s.width, s.height),
-		highlights(s.width, s.height)
+		highlights(s.width, s.height), turnNumber(0)
 {
+	setBackgroundBrush(QBrush(QPixmap("../starfield.jpg")));
+	
 	BallColor::createTable(setup.colors);
 	
 	//creating squares
@@ -217,7 +237,7 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 		}
 	}
 	
-	computeLegalMoves();
+	computeLegalMoves(1);
 	setState(animatingMove);
 }
 
@@ -226,15 +246,20 @@ BoardImplementation::~BoardImplementation()
 {
 }
 
+BoardImplementation::Row::Row()
+	: sum(0), sumUpToDate(0)
+{
+}
+
 //!Punkty za rzadek
 int BoardImplementation::Row::points() const
 {
-	int res = 0;
+	int sum = 0;
 	for (const_iterator i = begin(); i != end(); ++i)
-		res += (*i)->getPointValue();
+		sum += (*i)->getPointValue();
 	for (const_iterator i = begin(); i != end(); ++i)
-		res = (*i)->applyPointModificator(res);
-	return res;
+		sum = (*i)->applyPointModificator(sum);
+	return sum;
 }
 
 //!Sprawdza, czy b pasuje do kulek w tym rzadku
@@ -244,6 +269,14 @@ bool BoardImplementation::Row::matches(Ball* b) const
 		if ((*i)->getColor() != b->getColor())
 			return 0;
 	return 1;
+}
+
+void BoardImplementation::Row::emitPointsEarnedItem(Board* b) const
+{
+	QPointF center(0, 0);
+	for (const_iterator i = begin(); i != end(); ++i)
+		center += (*i)->getRect().center() / qreal(size());
+	new PointsEarnedItem(b, center.x(), center.y(), points());
 }
 
 //!overrides QGraphicsScene::mousePressEvent
@@ -292,7 +325,7 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 		}
 	}
 	
-	check();
+	check(1);
 	return 1;
 }
 
@@ -338,7 +371,7 @@ static bool checkForRow(uint x, uint y, const Board::GameSetup& setup,
 }
 
 //!Wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>
-void BoardImplementation::computeLegalMoves(const int dx, const int dy)
+void BoardImplementation::computeLegalMoves(const int dx, const int dy, bool setVisibility)
 {
 	for ( uint iy = 0; iy < setup.height-dy; ++iy){
 		for ( uint ix = 0; ix < setup.width-dx; ++ix){
@@ -352,30 +385,40 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy)
 				legalMoves.insert(make_pair(squares(ix+dx, iy+dy), 
 						squares(ix, iy)));
 				#warning - brzydkie, bo zaklada, ze dx, dy sa takie jak chcemy
-				if (dx)
-					highlights(ix,iy).first->setVisible(1);
-				else
-					highlights(ix,iy).second->setVisible(1);
+				if (setVisibility){
+					if (dx)
+						highlights(ix,iy).first->setVisible(1);
+					else
+						highlights(ix,iy).second->setVisible(1);
+				}
 			}
 		}
 	}
 }
 
 //!Wylicza wszystkie legalne zamiany
-bool BoardImplementation::computeLegalMoves()
+bool BoardImplementation::computeLegalMoves(bool setVisibility)
 {
 	legalMoves.clear();
-	computeLegalMoves(1, 0);
-	computeLegalMoves(0, 1);
+	computeLegalMoves(1, 0, setVisibility);
+	computeLegalMoves(0, 1, setVisibility);
 	return !legalMoves.empty();
 }
 
 //!Rozpoczyna nowa ture
-void BoardImplementation::newPly()
+void BoardImplementation::newTurn()
 {
+	LINECHECK
 	total = 0;
+	++turnNumber;
 	curPlayer = nextPlayer;
 	nextPlayer = 0;
+	for ( int iy = setup.height-1; iy >= 0 ; --iy){
+		for ( int ix = 0; ix < setup.width; ++ix){
+			squares(ix, iy)->getBall()->newTurnUpdate();
+		}
+	}
+	computeLegalMoves(1);
 	if (curPlayer){
 		setState(waitingForMove);
 	} else {
@@ -386,6 +429,7 @@ void BoardImplementation::newPly()
 BoardImplementation::Rows BoardImplementation::findRows()
 {
 	#warning teraz jest glupio i zle, bo jedna kulka moze byc tylko w jednym Row`ie (w kazdym z kierunkow)
+	//i w ogole zle liczy
 	Rows res;
 	//zliczanie poziomo
 	Row curRow;
@@ -436,23 +480,31 @@ BoardImplementation::Rows BoardImplementation::findRows()
 }
 
 //!Sprawdzenie planszy (po ruchu/uzupelnieniu) i odpowiednia zmiana stanu
-void BoardImplementation::check()
+void BoardImplementation::check(bool firstCheckInTurn)
 {
 	setState(animatingMove);
+	if (!firstCheckInTurn){
+		for ( int iy = setup.height-1; iy >= 0 ; --iy){
+			for ( int ix = 0; ix < setup.width; ++ix){
+				squares(ix, iy)->getBall()->newCheckUpdate();
+			}
+		}
+	}
 	const Rows& rows = findRows();
 	if (rows.empty()){
 		//spadanie sie skonczylo
 		emit playerMoveEnded(curPlayer, total);
-		if (!computeLegalMoves())
+		if (!computeLegalMoves(0))
 			setState(locked);
 		else
-			newPly();
+			newTurn();
 	} else {
 		set<Ball*> balls;
 		for (Rows::const_iterator ir = rows.begin(); ir != rows.end(); ++ir){
 			for (Row::const_iterator ib = ir->begin(); ib != ir->end(); ++ib)
 				balls.insert(*ib);
 			total += ir->points();
+			ir->emitPointsEarnedItem(this);
 		}
 		for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
 			(*i)->explode();
@@ -465,7 +517,7 @@ void BoardImplementation::refill()
 {
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			squares(ix, iy)->takeBall(500);
+			squares(ix, iy)->takeBall(800);
 			//~ squares(ix, iy)->setBrush(QBrush(squares(ix, iy)->ballColor()));
 		}
 	}

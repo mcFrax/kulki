@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtGlobal>
+#include <set>
 
 class QColor;
 
@@ -13,8 +14,10 @@ class BallColor {
 		BallColor(uint colorNumber = BallColor::noneNumber);
 		bool operator == (const BallColor& colorNumber) const;
 		bool operator != (const BallColor& colorNumber) const;
+		bool operator < (const BallColor& colorNumber) const;
 		operator uint() const;
 		operator QColor() const;
+		bool isNormal() const;
 		
 		static const uint noneNumber;
 		static const uint jokerNumber;
@@ -23,5 +26,6 @@ class BallColor {
 		static QColor* table;
 		static void createTable(uint colors);
 		static BallColor random();
+		static BallColor random(const std::set<BallColor>& forbidden);
 		static uint availableColors();
 };

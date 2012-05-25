@@ -79,3 +79,5 @@ class Board : public QGraphicsScene
 		virtual void setCurrentPlayer(Player*) = 0;
 		void animationEnded();
 };
+
+std::ostream& operator << (std::ostream&, Board::State);

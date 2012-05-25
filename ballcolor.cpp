@@ -2,6 +2,8 @@
 
 #include <QColor>
 
+using namespace std;
+
 uint BallColor::colors = 0;
 const uint BallColor::noneNumber = 0xFFFFFFFF;
 const uint BallColor::jokerNumber = 0xFFFFFFFE;
@@ -29,6 +31,11 @@ bool BallColor::operator != (const BallColor& color) const
 	return !(*this == color);
 };
 
+bool BallColor::operator < (const BallColor& c) const
+{
+	return colorNumber < c.colorNumber;
+}
+
 BallColor::operator uint() const
 {
 	return colorNumber;
@@ -39,11 +46,15 @@ BallColor::operator QColor() const
 	switch (colorNumber) {
 		case noneNumber:
 		case jokerNumber:
-			#warning temporary
 			return Qt::transparent;
 		default:
 			return table[colorNumber];
 	}
+}
+
+bool BallColor::isNormal() const
+{
+	return colorNumber < 0xFFFFFFF0;
 }
 
 void BallColor::createTable(uint cols)
@@ -72,6 +83,14 @@ BallColor BallColor::random()
 	sra = 1;
 	//~ std::cerr << rand()%colors  << std::endl;
 	return rand()%colors;
+}
+
+BallColor BallColor::random(const std::set<BallColor>& fb)
+{
+	BallColor res;
+	//losuje, az znajde dobry. potencjalnie moze sie zawiesic.
+	while(fb.find(res = random()) != fb.end());
+	return res;
 }
 
 uint BallColor::availableColors()

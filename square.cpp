@@ -7,13 +7,14 @@
 
 #include "debugtools.hpp"
 
-const qreal Square::xSize = 36;
-const qreal Square::ySize = 36;
+const qreal Square::xSize = 48;
+const qreal Square::ySize = 48;
 
 Square::Square(uint xPos, uint yPos, Board* b)
 	: QGraphicsRectItem(0, 0, xSize, ySize, 0, b), xPos(xPos), yPos(yPos),
 		board(b)
 {
+	setPen(Qt::NoPen);
 	setPos(xPos*xSize, yPos*ySize);
 	for (int i = 0; i < 5; ++i)
 		neighbours[i] = 0;
