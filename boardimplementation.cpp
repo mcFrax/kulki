@@ -208,28 +208,18 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 
 //dzieki template'owi moge uzywac i BoardInfo i SwapPretender,
 //bez zbednego polimorfizmu i bez copy'iego paste'a
-//!zlicza ile jest kulek na (sX,sY) i sasiednich polach typu (sX+k*xM, sY+k*yM) koloru bc
+//!zlicza ile jest kulek koloru bc na (sX,sY) i sasiednich polach typu (sX+k*xM, sY+k*yM)
 template <class BoardInfo_or_SwapPretender>
-uint countSame(uint sX, uint sY, bool xM, bool yM, BallColor bc,
+int countSame(uint sX, uint sY, int xM, int yM, BallColor bc,
 		const BoardInfo_or_SwapPretender& board)
 {
-	if (board(sX, sY) != bc)
-		return 0;
-	
-	uint res = 1;
-	int ix = sX+xM;
-	int iy = sY+yM;
+	int res = 0;
+	int ix = sX;
+	int iy = sY;
 	while (board.contains(ix, iy) && board(ix, iy) == bc){
 		++res;
 		ix += xM;
 		iy += yM;
-	}
-	ix = sX-xM;
-	iy = sY-yM;
-	while (board.contains(ix, iy) && board(ix, iy) == bc){
-		++res;
-		ix -= xM;
-		iy -= yM;
 	}
 	return res;
 }
@@ -240,9 +230,15 @@ static bool checkForRow(uint x, uint y, const Board::GameSetup& setup,
 		const BoardInfo_or_SwapPretender& board)
 {
 	for (uint c = 0; c < setup.colors; ++c){
-		if (countSame(x, y, 1, 0, c, board) >= setup.rowLength
-				|| countSame(x, y, 0, 1, c, board) >= setup.rowLength)
+		if (((countSame(x, y, 1, 0, c, board)
+				+countSame(x, y, -1, 0, c, board)-1)
+				>= int(setup.rowLength))
+				||
+				((countSame(x, y, 0, 1, c, board)
+				+countSame(x, y, 0, -1, c, board)-1)
+				>= int(setup.rowLength))){
 			return 1;
+		}
 	}
 	return 0;
 }
@@ -261,7 +257,7 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy, bool set
 						squares(ix+dx, iy+dy)));
 				legalMoves.insert(make_pair(squares(ix+dx, iy+dy), 
 						squares(ix, iy)));
-				#warning - brzydkie, bo zaklada, ze dx, dy sa takie jak chcemy
+				#warning - troszke brzydkie, bo zaklada, ze dx, dy sa takie jak chcemy
 				if (setVisibility){
 					if (dx)
 						highlights(ix,iy).first->setVisible(1);
@@ -285,7 +281,6 @@ bool BoardImplementation::computeLegalMoves(bool setVisibility)
 //!Rozpoczyna nowa ture
 void BoardImplementation::newTurn()
 {
-	LINECHECK
 	total = 0;
 	++turnNumber;
 	curPlayer = nextPlayer;
@@ -303,56 +298,59 @@ void BoardImplementation::newTurn()
 	}
 }
 
+static void putBestToSet(Board::BoardInfo bi, int ix, int iy, 
+		const Board::GameSetup& setup, set<pair<int, int> >& rowset,
+		int xM, int yM)
+{
+			int best = 0;
+			pair<int, int> bestPair;
+			for (uint c = 0; c < setup.colors; ++c){
+				int l1 = countSame(ix, iy, xM, yM, c, bi);
+				int l2 = countSame(ix, iy, -xM, -yM, c, bi);
+				if (l1+l2-1 > best){
+					best = l1+l2-1;
+					if (xM != 0) { //zakladam, ze liczymy po x-ach
+						bestPair = make_pair(ix-l2+1, ix+l1-1);
+					} else {
+						bestPair = make_pair(iy-l2+1, iy+l1-1);
+					}
+				}
+			}
+			if (best >= setup.rowLength){
+				rowset.insert(bestPair);
+			}
+}
+
 BoardImplementation::Rows BoardImplementation::findRows()
 {
-	#warning teraz jest glupio i zle, bo jedna kulka moze byc tylko w jednym Row`ie (w kazdym z kierunkow)
-	//i w ogole zle liczy
+	BoardInfo bi(squares, setup.width, setup.height);
 	Rows res;
-	//zliczanie poziomo
-	Row curRow;
 	for (uint iy = 0; iy < setup.height; ++iy){
+		set<pair<int, int> > rowset;
 		for (uint ix = 0; ix < setup.width; ++ix){
-			Ball* b = squares(ix, iy)->getBall();
-			if (!curRow.matches(b)){
-				if (curRow.size() >= setup.rowLength){
-					res.push_back(Row());
-					swap(res.back(), curRow);
-				} else {
-					curRow = Row();
-				}
-			}
-			curRow.push_back(b);
+			putBestToSet(bi, ix, iy, setup, rowset, 1, 0);
 		}
-		if (curRow.size() >= setup.rowLength){
+		//mamy gotowy set
+		for (set<pair<int, int> >::iterator i = rowset.begin(); i != rowset.end(); ++i){
 			res.push_back(Row());
-			swap(res.back(), curRow);
+			for (int j = i->first; j <= i->second; ++j)
+				res.back().push_back(squares(j, iy)->getBall());
 		}
-		curRow = Row();
 	}
-	//zliczanie pionowo
+	
 	for (uint ix = 0; ix < setup.width; ++ix){
+		set<pair<int, int> > rowset;
 		for (uint iy = 0; iy < setup.height; ++iy){
-			Ball* b = squares(ix, iy)->getBall();
-			if (!curRow.matches(b)){
-				if (curRow.size() >= setup.rowLength){
-					res.push_back(Row());
-					swap(res.back(), curRow);
-				} else {
-					curRow = Row();
-				}
-			}
-			curRow.push_back(b);
+			putBestToSet(bi, ix, iy, setup, rowset, 0, 1);
 		}
-		if (curRow.size() >= setup.rowLength){
+		//mamy gotowy set
+		for (set<pair<int, int> >::iterator i = rowset.begin(); i != rowset.end(); ++i){
 			res.push_back(Row());
-			swap(res.back(), curRow);
+			for (int j = i->first; j <= i->second; ++j)
+				res.back().push_back(squares(ix, j)->getBall());
 		}
-		curRow = Row();
 	}
-	if (curRow.size() >= setup.rowLength){
-		res.push_back(Row());
-		swap(res.back(), curRow);
-	}
+	
 	return res;
 }
 
