@@ -51,7 +51,7 @@ class Board : public QGraphicsScene
 	protected:
 		Board(const GameSetup&, QObject * parent = 0);
 		void setState(State);
-		virtual void check() = 0;
+		virtual void check(bool) = 0;
 	public:
 		static Board* newBoard(const GameSetup&, QObject * parent = 0);
 		

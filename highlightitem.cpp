@@ -1,25 +1,61 @@
 #include "highlightitem.hpp"
 #include "board.hpp"
+#include "square.hpp"
 
+#include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
+#include <QImage>
 
 #include "debugtools.hpp"
 
-static const qreal itL = 20;
-static const qreal itW = 16;
+static const qreal WFactor = 0.6;
+
+QPixmap* HighlightItem::pixmap[2] = {0};
 
 HighlightItem::HighlightItem(qreal x, qreal y, Board* board, Square* s1, Square* s2,
 		Direction dir)
-	: QGraphicsEllipseItem(0, 0, dir?itL:itW, dir?itW:itL, 0, board),
-		board(board), s1(s1), s2(s2), direction(dir), visibilityVal(1),
-		anim(0), active(0)
+	: QGraphicsPixmapItem(getPixmap(dir), 0), board(board), s1(s1), s2(s2),
+		direction(dir), visibilityVal(0), anim(0), active(0)
 {
-	setPos(x-(dir?itL:itW)/2, y-(dir?itW:itL)/2);
+	board->addItem(this);
+	qreal scaleF;
+	if (dir == horizontal)
+		scaleF = WFactor*Square::ySize/getPixmap(dir).height();
+	else
+		scaleF = WFactor*Square::xSize/getPixmap(dir).width();
+	setScale(scaleF);
+	setZValue(1);
+	setPos(x-scaleF*getPixmap(dir).width()/2, 
+			y-scaleF*getPixmap(dir).height()/2);
+	setGraphicsEffect(new QGraphicsOpacityEffect());
 	setVisibility(0);
-	setPen(Qt::NoPen);
-	setAcceptHoverEvents(1);
 	setVisible(0);
+	setAcceptHoverEvents(1);
 };
+
+
+
+//~ QPainterPath HighlightItem::opaqueArea() const
+//~ {
+	//~ LINECHECK
+	//~ QPainterPath res;
+	//~ res.addRect(boundingRect());
+	//~ return res;
+//~ }
+
+QPixmap HighlightItem::getPixmap(Direction dir)
+{
+	if (!pixmap[dir]){
+		if (dir == vertical){
+			QImage img("../highlight1.png");
+			pixmap[dir] = new QPixmap(QPixmap::fromImage(
+					img.transformed(QTransform().rotate(90))));
+		} else {
+			pixmap[dir] = new QPixmap("../highlight1.png");
+		}
+	}
+	return *pixmap[dir];
+}
 
 void HighlightItem::animFinished()
 {
@@ -29,7 +65,10 @@ void HighlightItem::animFinished()
 void HighlightItem::setVisibility(qreal v)
 {
 	visibilityVal = v;
-	setBrush(QBrush(QColor(0,0,0,127*v)));
+	
+	static_cast<QGraphicsOpacityEffect*>(graphicsEffect())->
+			setOpacity(0.8*v);
+	//~ setOpacity(0.8*v);
 }
 
 qreal HighlightItem::visibility()

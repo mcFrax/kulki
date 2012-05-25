@@ -15,7 +15,7 @@ MainWindow::MainWindow()
 	#warning hardcoded setup
 	Board::GameSetup gameSetup;
 	gameSetup.width = 10;
-	gameSetup.height = 10;
+	gameSetup.height = 8;
 	gameSetup.colors = 5;
 	gameSetup.rowLength = 3;
 	

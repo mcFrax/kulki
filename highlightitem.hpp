@@ -1,11 +1,12 @@
 #pragma once
-#include <QGraphicsEllipseItem>
+#include <QGraphicsPixmapItem>
 
 class Board;
 class Square;
+class QPixmap;
 class QPropertyAnimation;
 
-class HighlightItem : public QObject, public QGraphicsEllipseItem
+class HighlightItem : public QObject, public QGraphicsPixmapItem
 {
 	Q_OBJECT
 	Q_PROPERTY(qreal visibility READ visibility WRITE setVisibility)
@@ -25,6 +26,9 @@ class HighlightItem : public QObject, public QGraphicsEllipseItem
 		Direction direction;
 		QPropertyAnimation* anim;
 		bool active;
+		static QPixmap* pixmap[2];
+	private:
+		static QPixmap getPixmap(Direction);
 	private slots:
 		void animFinished();
 	protected:
@@ -34,6 +38,7 @@ class HighlightItem : public QObject, public QGraphicsEllipseItem
 	public:
 		HighlightItem(qreal x, qreal y, Board*, Square* s1, Square* s2,
 				Direction);
+		//~ QPainterPath opaqueArea() const;
 	public slots:
 		void activate();
 		void deactivate();
