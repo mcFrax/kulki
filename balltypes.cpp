@@ -33,9 +33,9 @@ JokerBall::JokerBall(Square* s, int falling, int animDelay)
 	: Ball(BallColor::joker, s, falling, animDelay)
 {
 	if (!specialPixmap)
-		specialPixmap = new QPixmap("../jester.gif");
+		specialPixmap = new QPixmap(":Balls/Joker.png");
 	if (brush.style() == Qt::NoBrush){
-		QPixmap brushPixmap(QPixmap("../swirl.png").
+		QPixmap brushPixmap(QPixmap(":Balls/JokerBrush.png").
 			scaledToWidth(Square::xSize+40, Qt::SmoothTransformation));
 		brush = QBrush(brushPixmap);
 		brush.setTransform(QTransform::fromTranslate(-20, -20));
@@ -59,8 +59,7 @@ CameleonBall::CameleonBall(Square* s, int falling, int animDelay)
 	: ColorBall(BallColor::random(), s, falling, animDelay)
 {
 	if (!specialPixmap)
-		//~ specialPixmap = new QPixmap("../rainbow-partial-moons_Clipart_svg_File.svg");
-		specialPixmap = new QPixmap("../rainbow.png");
+		specialPixmap = new QPixmap(":Balls/Cameleon.png");
 	ballItem->setSpecialPixmap(*specialPixmap, 0.6);
 }
 
@@ -79,7 +78,7 @@ DoubleBall::DoubleBall(const BallColor& color, Square* s, int falling, int animD
 	: ColorBall(color, s, falling, animDelay)
 {
 	if (!specialPixmap)
-		specialPixmap = new QPixmap("../Star.png");
+		specialPixmap = new QPixmap(":Balls/Double.png");
 	ballItem->setSpecialPixmap(*specialPixmap, 0.6);
 }
 
@@ -98,7 +97,7 @@ SkullBall::SkullBall(const BallColor& color, Square* s, int falling, int animDel
 	: ColorBall(color, s, falling, animDelay)
 {
 	if (!specialPixmap)
-		specialPixmap = new QPixmap("../Skull.png");
+		specialPixmap = new QPixmap(":Balls/Skull.png");
 	ballItem->setSpecialPixmap(*specialPixmap, 0.6);
 }
 
@@ -123,7 +122,7 @@ HourglassBall::HourglassBall(const BallColor& color, Square* s, int falling, int
 {
 	points = ColorBall::getPointValue();
 	if (!specialPixmap)
-		specialPixmap = new QPixmap("../Hourglass.png");
+		specialPixmap = new QPixmap(":Balls/Hourglass.png");
 	ballItem->setSpecialPixmap(*specialPixmap, 0.6);
 }
 

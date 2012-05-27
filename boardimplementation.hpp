@@ -2,7 +2,6 @@
 #include <vector>
 
 #include "board.hpp"
-#include "array2.hpp"
 
 class Ball;
 class BallColor;
@@ -27,19 +26,20 @@ class BoardImplementation : public Board
 		};
 		typedef std::vector<Row> Rows;
 	private:
-		Array2<Square*> squares;
 		Array2<std::pair<HighlightItem*, HighlightItem*> > highlights;
 		int total;
 		int turnNumber;
+		bool swappingBalls;
 	private:
 		void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);
 		void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);
-		void check(bool firstCheckInTurn);
+		void check();
 		void computeLegalMoves(const int, const int, bool);
 		bool computeLegalMoves(bool);
 		Rows findRows();
 		void refill();
 		void newTurn();
+		void ballsNewCheckUpdate();
 	private:
 		bool move(Square*, Square*);
 	public:

@@ -38,7 +38,6 @@ class HighlightItem : public QObject, public QGraphicsPixmapItem
 	public:
 		HighlightItem(qreal x, qreal y, Board*, Square* s1, Square* s2,
 				Direction);
-		//~ QPainterPath opaqueArea() const;
 	public slots:
 		void activate();
 		void deactivate();

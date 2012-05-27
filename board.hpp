@@ -1,7 +1,11 @@
 #pragma once
 #include <QGraphicsScene>
+
 #include <set>
 
+#include "array2.hpp"
+
+class QPoint;
 class Square;
 class Player;
 class BallColor;
@@ -46,12 +50,13 @@ class Board : public QGraphicsScene
 		State state;
 		Player* curPlayer;
 		Player* nextPlayer;
+		Array2<Square*> squares;
 		std::set<std::pair<Square*, Square*> > legalMoves;
 		std::set<QObject*> currentAnimations;
 	protected:
 		Board(const GameSetup&, QObject * parent = 0);
 		void setState(State);
-		virtual void check(bool) = 0;
+		virtual void check() = 0;
 	public:
 		static Board* newBoard(const GameSetup&, QObject * parent = 0);
 		
@@ -65,15 +70,17 @@ class Board : public QGraphicsScene
 		bool inBoard(int x, int y);
 		
 		bool isLegal(Square*, Square*) const;
+		bool isLegal(QPoint, QPoint) const;
 		
 		virtual bool move(Square*, Square*) = 0;
+		bool move(QPoint, QPoint);
 		
 		void registerAnimation(QObject* anim);
 	signals:
-		//~ void playerMoved(Player*);
+		void playerMoved(Player*);
 		void playerMoveEnded(Player*, uint total); //or fallingEnded
-		//~ void pointsEarned(Player*, uint points);
-		//~ void gameEnded();
+		void pointsEarned(Player*, uint points);
+		void gameEnded();
 		void stateChanged(Board::State);
 	public slots:
 		virtual void setCurrentPlayer(Player*) = 0;

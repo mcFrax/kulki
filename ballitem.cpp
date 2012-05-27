@@ -17,8 +17,7 @@ const qreal BallItem::ymargin = 3;
 
 int fallingDuration(qreal distance)
 {
-	#warning possible tuneable factor?
-	return sqrt(distance)*180.0;
+	return sqrt(distance/Square::ySize*64)*180.0;
 }
 
 QPixmap* BallItem::glossPixmap = 0;
@@ -34,7 +33,7 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 			(Square::ySize-2*ymargin)/2);
 	
 	if (!glossPixmap)
-		glossPixmap = new QPixmap("../Ball.png");
+		glossPixmap = new QPixmap(":Balls/Ball.png");
 		
 	glossPixmapItem = new QGraphicsPixmapItem(*glossPixmap, this);
 	glossPixmapItem->setAcceptedMouseButtons(0);
@@ -58,9 +57,17 @@ void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 		animate(ypos, animDelay);
 }
 
+void BallItem::placeOnSquare(Square* s, Square* from)
+{
+	QGraphicsEllipseItem::setParentItem(s);
+	QGraphicsEllipseItem::setRect(xmargin, ymargin,
+			Square::xSize-2*xmargin, Square::ySize-2*ymargin);
+	
+	animateArc(from->pos() - s->pos());
+}
+
 void BallItem::animate(qreal yoffset, int animDelay)
 {
-	//~ QPropertyAnimation* anim = new QPropertyAnimation(this, "rect");
 	QPropertyAnimation* anim = new QPropertyAnimation(this, "pos");
 	anim->setStartValue(QPointF(0, yoffset));
 	anim->setEndValue(QPointF(0, 0));
@@ -69,6 +76,26 @@ void BallItem::animate(qreal yoffset, int animDelay)
 	anim->setKeyValueAt(animDelay/double(duration), QPointF(0, yoffset));
 	anim->setDuration(duration);
 	anim->setEasingCurve(QEasingCurve::OutBounce);
+	static_cast<Square*>(parentItem())->getBoard()->registerAnimation(anim);
+	connect(anim, SIGNAL(finished()), static_cast<Square*>(parentItem())->
+			getBoard(), SLOT(animationEnded()));
+	
+	anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void BallItem::animateArc(QPointF startPoint)
+{
+	QPropertyAnimation* anim = new QPropertyAnimation(this, "pos");
+	anim->setStartValue(startPoint);
+	anim->setEndValue(QPointF(0, 0));
+	
+	QLineF line(startPoint/2, startPoint);
+	
+	anim->setKeyValueAt(0.5, line.normalVector().p2());
+	
+	anim->setDuration(400);
+	anim->setEasingCurve(QEasingCurve::InOutQuad);
+	
 	static_cast<Square*>(parentItem())->getBoard()->registerAnimation(anim);
 	connect(anim, SIGNAL(finished()), static_cast<Square*>(parentItem())->
 			getBoard(), SLOT(animationEnded()));

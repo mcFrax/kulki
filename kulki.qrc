@@ -1,0 +1,16 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="Balls">
+	<file alias="Ball.png">images/Ball.png</file>
+	
+	<file alias="Joker.png">images/JesterHat.png</file>
+	<file alias="JokerBrush.png">images/swirl.png</file>
+	<file alias="Cameleon.png">images/rainbow.png</file>
+	<file alias="Double.png">images/Star.png</file>
+	<file alias="Skull.png">images/Skull.png</file>
+	<file alias="Hourglass.png">images/Hourglass.png</file>
+</qresource>
+<qresource>
+	<file alias="Background.jpg">images/starfield.jpg</file>
+	<file alias="Highlight.png">images/highlight1.png</file>
+</qresource>
+</RCC>

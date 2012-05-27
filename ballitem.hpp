@@ -14,6 +14,7 @@ class BallItem : public QObject, protected QGraphicsEllipseItem
 		static const qreal xmargin;
 		static const qreal ymargin;
 		void animate(qreal yoffset, int animDelay = 0);
+		void animateArc(QPointF startpoint);
 		QGraphicsPixmapItem* glossPixmapItem;
 		QGraphicsPixmapItem* specialPixmapItem;
 		void scalePixmapItem(const QPixmap&, qreal sizeFactor);
@@ -21,6 +22,7 @@ class BallItem : public QObject, protected QGraphicsEllipseItem
 	public:
 		BallItem(const QColor&, Square*, qreal yoffset = 0, int animDelay = 0);
 		void placeOnSquare(Square*, qreal ypos = 0, int animDelay = 0);
+		void placeOnSquare(Square*, Square* from);
 		QBrush brush() const;
 		void setBrush(const QBrush&);
 		void setSpecialPixmap(const QPixmap&, qreal sizeFactor = 1.0);

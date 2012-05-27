@@ -7,8 +7,8 @@
 
 #include "debugtools.hpp"
 
-const qreal Square::xSize = 48;
-const qreal Square::ySize = 48;
+const qreal Square::xSize = 92;
+const qreal Square::ySize = 92;
 
 Square::Square(uint xPos, uint yPos, Board* b)
 	: QGraphicsRectItem(0, 0, xSize, ySize, 0, b), xPos(xPos), yPos(yPos),

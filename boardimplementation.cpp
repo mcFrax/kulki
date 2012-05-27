@@ -8,6 +8,7 @@
 #include "highlightitem.hpp"
 #include "ball.hpp"
 #include "pointsearneditem.hpp"
+#include "player.hpp"
 
 #include "debugtools.hpp"
 
@@ -58,10 +59,9 @@ class SwapPretender
 
 //!Konstruktor
 BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
-	: Board(s, parent), squares(s.width, s.height),
-		highlights(s.width, s.height), turnNumber(0)
+	: Board(s, parent), highlights(s.width, s.height), turnNumber(0), swappingBalls(0)
 {
-	setBackgroundBrush(QBrush(QPixmap("../starfield.jpg")));
+	setBackgroundBrush(QBrush(QPixmap(":Background.jpg")));
 	
 	BallColor::createTable(setup.colors);
 	
@@ -190,8 +190,8 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 	Ball* b2 = s2->getBall();
 	b1->detach();
 	b2->detach();
-	b1->placeOnSquare(s2);
-	b2->placeOnSquare(s1);
+	b1->placeOnSquare(s2, s1);
+	b2->placeOnSquare(s1, s2);
 	
 	for (uint iy = 0; iy < setup.height; ++iy){
 		for (uint ix = 0; ix < setup.width; ++ix){
@@ -202,7 +202,9 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 		}
 	}
 	
-	check(1);
+	//~ check(1);
+	swappingBalls = 1;
+	emit playerMoved(curPlayer);
 	return 1;
 }
 
@@ -290,8 +292,8 @@ void BoardImplementation::newTurn()
 			squares(ix, iy)->getBall()->newTurnUpdate();
 		}
 	}
-	computeLegalMoves(1);
 	if (curPlayer){
+		computeLegalMoves(curPlayer->isHuman());
 		setState(waitingForMove);
 	} else {
 		setState(waitingForPlayer);
@@ -302,23 +304,25 @@ static void putBestToSet(Board::BoardInfo bi, int ix, int iy,
 		const Board::GameSetup& setup, set<pair<int, int> >& rowset,
 		int xM, int yM)
 {
-			int best = 0;
-			pair<int, int> bestPair;
-			for (uint c = 0; c < setup.colors; ++c){
-				int l1 = countSame(ix, iy, xM, yM, c, bi);
-				int l2 = countSame(ix, iy, -xM, -yM, c, bi);
-				if (l1+l2-1 > best){
-					best = l1+l2-1;
-					if (xM != 0) { //zakladam, ze liczymy po x-ach
-						bestPair = make_pair(ix-l2+1, ix+l1-1);
-					} else {
-						bestPair = make_pair(iy-l2+1, iy+l1-1);
-					}
-				}
+	//wrzuca do seta pare odpowiadajaca najdluzszemu rzadkowi zawierajacemu kulke
+	//na ix, iy (o ile taki jest)
+	int best = 0;
+	pair<int, int> bestPair;
+	for (uint c = 0; c < setup.colors; ++c){
+		int l1 = countSame(ix, iy, xM, yM, c, bi);
+		int l2 = countSame(ix, iy, -xM, -yM, c, bi);
+		if (l1+l2-1 > best){
+			best = l1+l2-1;
+			if (xM != 0) { //zakladam, ze liczymy po x-ach
+				bestPair = make_pair(ix-l2+1, ix+l1-1);
+			} else {
+				bestPair = make_pair(iy-l2+1, iy+l1-1);
 			}
-			if (best >= setup.rowLength){
-				rowset.insert(bestPair);
-			}
+		}
+	}
+	if (best >= setup.rowLength){
+		rowset.insert(bestPair);
+	}
 }
 
 BoardImplementation::Rows BoardImplementation::findRows()
@@ -354,25 +358,33 @@ BoardImplementation::Rows BoardImplementation::findRows()
 	return res;
 }
 
-//!Sprawdzenie planszy (po ruchu/uzupelnieniu) i odpowiednia zmiana stanu
-void BoardImplementation::check(bool firstCheckInTurn)
+void BoardImplementation::ballsNewCheckUpdate()
 {
-	setState(animatingMove);
-	if (!firstCheckInTurn){
-		for ( int iy = setup.height-1; iy >= 0 ; --iy){
-			for ( int ix = 0; ix < setup.width; ++ix){
-				squares(ix, iy)->getBall()->newCheckUpdate();
-			}
+	for ( int iy = setup.height-1; iy >= 0 ; --iy){
+		for ( int ix = 0; ix < setup.width; ++ix){
+			squares(ix, iy)->getBall()->newCheckUpdate();
 		}
 	}
+}
+
+//!Sprawdzenie planszy (po ruchu/uzupelnieniu) i odpowiednia zmiana stanu
+void BoardImplementation::check()
+{
+	setState(animatingMove);
+	if (!swappingBalls){
+		ballsNewCheckUpdate();
+	}
+	swappingBalls = 0;
 	const Rows& rows = findRows();
 	if (rows.empty()){
 		//spadanie sie skonczylo
 		emit playerMoveEnded(curPlayer, total);
-		if (!computeLegalMoves(0))
+		if (!computeLegalMoves(0)){
 			setState(locked);
-		else
+			emit gameEnded();
+		} else {
 			newTurn();
+		}
 	} else {
 		set<Ball*> balls;
 		for (Rows::const_iterator ir = rows.begin(); ir != rows.end(); ++ir){
@@ -404,8 +416,8 @@ void BoardImplementation::setCurrentPlayer(Player* p)
 {
 	if (state == waitingForPlayer){
 		curPlayer = p;
-		if (state == waitingForPlayer)
-			setState(waitingForMove);
+		computeLegalMoves(curPlayer->isHuman());
+		setState(waitingForMove);
 	} else if (!nextPlayer) {
 		nextPlayer = p;
 	}

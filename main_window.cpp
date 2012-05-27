@@ -1,11 +1,8 @@
-#include "main_window.hpp"
 #include <QGraphicsView>
-//~ #include <iostream>
-//~ #include <stdexcept>
-//~ #include <fstream>
-//~ #include <QBrush>
-//~ #include <QColor>
 
+#include "main_window.hpp"
+#include "humanplayer.hpp"
+#include "aiplayer.hpp"
 #include "board.hpp"
 
 using namespace std;
@@ -22,11 +19,21 @@ MainWindow::MainWindow()
 	scene = Board::newBoard(gameSetup, this);
 	
 	#warning temporary
-	scene->setCurrentPlayer(0);
-	connect(scene, SIGNAL(playerMoveEnded(Player*, uint)), scene, SLOT(setCurrentPlayer(Player*)));
+	human = new HumanPlayer("Matou");
+	ai = new AIPlayer();
+	scene->setCurrentPlayer(human);
+	connect(scene, SIGNAL(playerMoveEnded(Player*, uint)), this, SLOT(nextPlayer(Player*)));
 
 	graphicsView = new QGraphicsView(scene, this);
 	graphicsView->setMouseTracking(1);
 
 	setCentralWidget(graphicsView);
+}
+
+void MainWindow::nextPlayer(Player* p)
+{
+	if (p == human)
+		scene->setCurrentPlayer(ai);
+	else
+		scene->setCurrentPlayer(human);
 }

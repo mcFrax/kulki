@@ -1,9 +1,12 @@
+#include <QPoint>
+
 #include <ostream>
 
 #include "board.hpp"
 #include "boardimplementation.hpp"
 #include "square.hpp"
 #include "ballcolor.hpp"
+#include "player.hpp"
 
 #include "debugtools.hpp"
 
@@ -22,7 +25,7 @@ std::ostream& operator << (std::ostream& os, Board::State s){
 	}
 }
 
-//!Konstruktor
+//!Fabryka
 Board* Board::newBoard(const GameSetup& s, QObject * parent)
 {
 	return new BoardImplementation(s, parent);
@@ -32,7 +35,7 @@ Board* Board::newBoard(const GameSetup& s, QObject * parent)
 Board::Board(const GameSetup& s, QObject * parent)
 	: QGraphicsScene(0, 0, s.width*Square::xSize,
 		s.height*Square::ySize, parent), setup(s), state(animatingMove),
-		curPlayer(0)
+		curPlayer(0), nextPlayer(0), squares(s.width, s.height)
 {
 }
 
@@ -65,8 +68,12 @@ void Board::setState(State s)
 {
 	if (state == s) return;
 	state = s;
-	PRINT(state);
+	//~ PRINT(state);
 	emit stateChanged(state);
+	if (s == waitingForMove && curPlayer){
+		//~ std::cerr << "Ruch gracza " << curPlayer->name().toStdString() << endl;
+		curPlayer->makeMove(this);
+	}
 }
 
 //!Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
@@ -80,6 +87,18 @@ bool Board::inBoard(int x, int y)
 bool Board::isLegal(Square* s1, Square* s2) const
 {
 	return legalMoves.find(make_pair(s1, s2)) != legalMoves.end();
+}
+
+//!Sprawdza, czy ruch - zamiana p1 z p2 - jest legalny
+bool Board::isLegal(QPoint p1, QPoint p2) const
+{
+	return isLegal(squares(p1.x(), p1.y()), squares(p2.x(), p2.y()));
+}
+
+//!Wykonuje ruch - zamiane p1 z p2
+bool Board::move(QPoint p1, QPoint p2)
+{
+	return move(squares(p1.x(), p1.y()), squares(p2.x(), p2.y()));
 }
 
 //!Rejestruje animacje jako trwajaca
@@ -96,7 +115,7 @@ void Board::animationEnded()
 		return;
 	currentAnimations.erase(i);
 	if (currentAnimations.empty()){
-		check(0);
+		check();
 	}
 }
 

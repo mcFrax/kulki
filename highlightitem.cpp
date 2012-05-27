@@ -34,25 +34,15 @@ HighlightItem::HighlightItem(qreal x, qreal y, Board* board, Square* s1, Square*
 	setAcceptHoverEvents(1);
 };
 
-
-
-//~ QPainterPath HighlightItem::opaqueArea() const
-//~ {
-	//~ LINECHECK
-	//~ QPainterPath res;
-	//~ res.addRect(boundingRect());
-	//~ return res;
-//~ }
-
 QPixmap HighlightItem::getPixmap(Direction dir)
 {
 	if (!pixmap[dir]){
 		if (dir == vertical){
-			QImage img("../highlight1.png");
+			QImage img(":Highlight.png");
 			pixmap[dir] = new QPixmap(QPixmap::fromImage(
 					img.transformed(QTransform().rotate(90))));
 		} else {
-			pixmap[dir] = new QPixmap("../highlight1.png");
+			pixmap[dir] = new QPixmap(":Highlight.png");
 		}
 	}
 	return *pixmap[dir];
@@ -69,7 +59,6 @@ void HighlightItem::setVisibility(qreal v)
 	
 	static_cast<QGraphicsOpacityEffect*>(graphicsEffect())->
 			setOpacity(0.8*v);
-	//~ setOpacity(0.8*v);
 }
 
 qreal HighlightItem::visibility()

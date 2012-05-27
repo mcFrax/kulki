@@ -20,6 +20,7 @@ class Ball
 	public: 
 		~Ball();
 		virtual void placeOnSquare(Square*, int falling = 0, int animDelay = 0);
+		virtual void placeOnSquare(Square*, Square* from);
 		virtual uint getPointValue() = 0;
 		virtual int applyPointModificator(const int& points) const;
 		QRectF getRect() const;

@@ -17,13 +17,22 @@ Ball::Ball(const BallColor& c, Square* s, int fall, int animDelay)
 
 void Ball::placeOnSquare(Square* s, int fall, int animDelay)
 {
-	#warning 
-	if (square)
+	if (square) //may be detached
 		square->ball = 0;
-	if (!ballItem)
-		ballItem = new BallItem(color, s, -fall*Square::ySize, animDelay);
-	else
-		ballItem->placeOnSquare(s, -fall*Square::ySize, animDelay);
+	//~ if (!ballItem)
+		//~ ballItem = new BallItem(color, s, -fall*Square::ySize, animDelay);
+	//~ else
+	ballItem->placeOnSquare(s, -fall*Square::ySize, animDelay);
+	square = s;
+	if (s)
+		s->ball = this;
+}
+
+void Ball::placeOnSquare(Square* s, Square* from)
+{
+	if (square) //may be detached
+		square->ball = 0;
+	ballItem->placeOnSquare(s, from);
 	square = s;
 	if (s)
 		s->ball = this;
