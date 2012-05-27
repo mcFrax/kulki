@@ -9,7 +9,6 @@ using namespace std;
 
 MainWindow::MainWindow()
 {
-	#warning hardcoded setup
 	Board::GameSetup gameSetup;
 	gameSetup.width = 10;
 	gameSetup.height = 8;
@@ -18,7 +17,6 @@ MainWindow::MainWindow()
 	
 	scene = Board::newBoard(gameSetup, this);
 	
-	#warning temporary
 	human = new HumanPlayer("Matou");
 	ai = new AIPlayer();
 	scene->setCurrentPlayer(human);

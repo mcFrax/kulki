@@ -88,7 +88,7 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
 			highlights(ix, iy) = make_pair(
-				#warning konieczny komentarz
+				//na brzegu wstawiam zera (tym ? :)
 				//poziomy HighlightItem
 				(squares(ix, iy)->getNeighbour(Square::right))
 					?new HighlightItem((ix+1)*Square::xSize, 
@@ -106,8 +106,6 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	}
 	
 	//placing balls
-	#warning here must go avoiding triplets on start
-	#warning possibly by making continous fall till its good
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
 			Ball::getNew(setup, squares(ix, iy), iy+1);
@@ -245,7 +243,7 @@ static bool checkForRow(uint x, uint y, const Board::GameSetup& setup,
 	return 0;
 }
 
-//!Wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>
+//!Wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>. Przy dx, dy != 0, 1  i dx+dy != 1 moze sie krzaczyc
 void BoardImplementation::computeLegalMoves(const int dx, const int dy, bool setVisibility)
 {
 	for ( uint iy = 0; iy < setup.height-dy; ++iy){
@@ -259,7 +257,6 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy, bool set
 						squares(ix+dx, iy+dy)));
 				legalMoves.insert(make_pair(squares(ix+dx, iy+dy), 
 						squares(ix, iy)));
-				#warning - troszke brzydkie, bo zaklada, ze dx, dy sa takie jak chcemy
 				if (setVisibility){
 					if (dx)
 						highlights(ix,iy).first->setVisible(1);
@@ -378,7 +375,8 @@ void BoardImplementation::check()
 	const Rows& rows = findRows();
 	if (rows.empty()){
 		//spadanie sie skonczylo
-		emit playerMoveEnded(curPlayer, total);
+		if (curPlayer)
+			emit playerMoveEnded(curPlayer, total);
 		if (!computeLegalMoves(0)){
 			setState(locked);
 			emit gameEnded();
@@ -405,12 +403,10 @@ void BoardImplementation::refill()
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
 			squares(ix, iy)->takeBall(800);
-			//~ squares(ix, iy)->setBrush(QBrush(squares(ix, iy)->ballColor()));
 		}
 	}
 }
 
-#warning more documentation needed here (or there)
 //!Oddaje nastepny ruch graczowi p.
 void BoardImplementation::setCurrentPlayer(Player* p)
 {

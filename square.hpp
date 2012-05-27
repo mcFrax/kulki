@@ -33,7 +33,7 @@ class Square : public QGraphicsRectItem
 		Ball* getBall();
 		Board* getBoard();
 		BallColor ballColor();
-		#warning nazwy sie gryza, ale to chyba powinno byc tutaj:
+		
 		void takeBall(int animDelay = 0);
 		
 		static const qreal xSize;
