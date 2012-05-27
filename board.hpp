@@ -9,6 +9,7 @@ class QPoint;
 class Square;
 class Player;
 class BallColor;
+class QAbstractAnimation;
 
 class Board : public QGraphicsScene
 {
@@ -75,7 +76,7 @@ class Board : public QGraphicsScene
 		virtual bool move(Square*, Square*) = 0;
 		bool move(QPoint, QPoint);
 		
-		void registerAnimation(QObject* anim);
+		void registerAnimation(QAbstractAnimation* anim);
 	signals:
 		void playerMoved(Player*);
 		void playerMoveEnded(Player*, uint total); //or fallingEnded

@@ -58,6 +58,11 @@ BallColor Square::ballColor()
 		//~ return BallColor::none;
 }
 
+QGraphicsItem* Square::item()
+{
+	return this;
+}
+
 void Square::takeBall(int animDelay)
 {
 	if (ball) return;

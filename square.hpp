@@ -7,7 +7,7 @@ class BallColor;
 class HighlightItem;
 class QBrush;
 
-class Square : public QGraphicsRectItem
+class Square : protected QGraphicsRectItem
 {
 	friend class Ball;
 	public:
@@ -33,6 +33,8 @@ class Square : public QGraphicsRectItem
 		Ball* getBall();
 		Board* getBoard();
 		BallColor ballColor();
+		
+		QGraphicsItem* item();
 		
 		void takeBall(int animDelay = 0);
 		

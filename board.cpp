@@ -1,4 +1,5 @@
 #include <QPoint>
+#include <QAbstractAnimation>
 
 #include <ostream>
 
@@ -102,9 +103,10 @@ bool Board::move(QPoint p1, QPoint p2)
 }
 
 //!Rejestruje animacje jako trwajaca
-void Board::registerAnimation(QObject* anim)
+void Board::registerAnimation(QAbstractAnimation* anim)
 {
 	currentAnimations.insert(anim);
+	connect(anim, SIGNAL(finished()), this, SLOT(animationEnded()));
 }
 
 //!Wywolywana przez konczaca sie animacje
