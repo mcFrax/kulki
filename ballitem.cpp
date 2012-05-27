@@ -17,7 +17,7 @@ const qreal BallItem::ymargin = 3;
 
 int fallingDuration(qreal distance)
 {
-	return sqrt(distance/Square::ySize*64)*180.0;
+	return sqrt(distance/Square::ySize*64)*140.0;
 }
 
 QPixmap* BallItem::glossPixmap = 0;
@@ -28,6 +28,7 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 			specialPixmapItem(0)
 {
 	QGraphicsEllipseItem::setBrush(QBrush(color));
+	setPen(Qt::NoPen);
 	setAcceptedMouseButtons(0);
 	setTransformOriginPoint((Square::xSize-2*xmargin)/2,
 			(Square::ySize-2*ymargin)/2);
@@ -44,7 +45,9 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 	glossPixmapItem->setTransformationMode(Qt::SmoothTransformation);
 	
 	if (yoffset != 0)
-		animate(yoffset, animDelay);
+		animateFalling(yoffset, animDelay);
+	else
+		animateAppear(animDelay);
 }
 
 void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
@@ -54,7 +57,7 @@ void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 			Square::xSize-2*xmargin, Square::ySize-2*ymargin);
 	
 	if (ypos != 0)
-		animate(ypos, animDelay);
+		animateFalling(ypos, animDelay);
 }
 
 void BallItem::placeOnSquare(Square* s, Square* from)
@@ -66,18 +69,35 @@ void BallItem::placeOnSquare(Square* s, Square* from)
 	animateArc(from->item()->pos() - s->item()->pos());
 }
 
-void BallItem::animate(qreal yoffset, int animDelay)
+void BallItem::animateAppear(int animDelay)
+{
+	static const int appearTime = 500;
+	QPropertyAnimation* anim = new QPropertyAnimation(this, "opacity");
+	anim->setStartValue(0);
+	anim->setEndValue(1);
+	int duration = appearTime+animDelay;
+	anim->setKeyValueAt(animDelay/double(duration), 0);
+	anim->setDuration(duration);
+	anim->setEasingCurve(QEasingCurve::InQuad);
+	
+	static_cast<Board*>(parentItem()->parentItem())->
+			registerAnimation(anim);
+	
+	anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void BallItem::animateFalling(qreal yoffset, int animDelay)
 {
 	QPropertyAnimation* anim = new QPropertyAnimation(this, "pos");
 	anim->setStartValue(QPointF(0, yoffset));
 	anim->setEndValue(QPointF(0, 0));
 	int duration = fallingDuration(fabs(yoffset)) + animDelay;
-	//~ anim->setKeyValueAt(animDelay/double(duration), rect());
 	anim->setKeyValueAt(animDelay/double(duration), QPointF(0, yoffset));
 	anim->setDuration(duration);
 	anim->setEasingCurve(QEasingCurve::OutBounce);
 	
-	static_cast<Board*>(scene())->registerAnimation(anim);
+	static_cast<Board*>(parentItem()->parentItem())->
+			registerAnimation(anim);
 	
 	anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -95,16 +115,16 @@ void BallItem::animateArc(QPointF startPoint)
 	anim->setDuration(400);
 	anim->setEasingCurve(QEasingCurve::InOutQuad);
 	
-	static_cast<Board*>(scene())->registerAnimation(anim);
+	static_cast<Board*>(parentItem()->parentItem())->
+			registerAnimation(anim);
 	
 	anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void BallItem::explode()
 {
-	#warning to sie zaraz zchrzani
-	QPointF sp = scenePos();
-	setParentItem(0);
+	QPointF sp = pos()+parentItem()->pos(); //wzgledem planszy
+	setParentItem(parentItem()->parentItem());
 	setPos(sp);
 	setZValue(3);
 	QPropertyAnimation* anim = new QPropertyAnimation(this, "scale");

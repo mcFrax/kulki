@@ -14,10 +14,9 @@ QPixmap* HighlightItem::pixmap[2] = {0};
 
 HighlightItem::HighlightItem(qreal x, qreal y, Board* board, Square* s1, Square* s2,
 		Direction dir)
-	: QGraphicsPixmapItem(getPixmap(dir), 0), board(board), s1(s1), s2(s2),
+	: QGraphicsPixmapItem(getPixmap(dir), board), board(board), s1(s1), s2(s2),
 		direction(dir), visibilityVal(0), anim(0), active(0)
 {
-	board->addItem(this);
 	qreal scaleF;
 	if (dir == horizontal)
 		scaleF = WFactor*Square::ySize/getPixmap(dir).height();

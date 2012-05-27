@@ -3,6 +3,7 @@
 #include "square.hpp"
 
 #include <QTransform>
+#include <QBrush>
 
 #include "debugtools.hpp"
 

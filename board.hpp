@@ -1,5 +1,5 @@
 #pragma once
-#include <QGraphicsScene>
+#include <QGraphicsRectItem>
 
 #include <set>
 
@@ -11,11 +11,12 @@ class Player;
 class BallColor;
 class QAbstractAnimation;
 
-class Board : public QGraphicsScene
+class Board : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT
 	public:
-		enum State {
+		enum State
+		{
 			waitingForPlayer, //nothing
 			waitingForMove,
 			animatingMove,
@@ -47,19 +48,27 @@ class Board : public QGraphicsScene
 				bool contains(int x, int y) const;
 		};
 	protected:
+		enum InternalState
+		{
+			normal,
+			falling
+		};
 		const GameSetup setup;
 		State state;
+		InternalState internalState;
 		Player* curPlayer;
 		Player* nextPlayer;
 		Array2<Square*> squares;
 		std::set<std::pair<Square*, Square*> > legalMoves;
 		std::set<QObject*> currentAnimations;
 	protected:
-		Board(const GameSetup&, QObject * parent = 0);
+		Board(const GameSetup&, QGraphicsItem * parent = 0);
 		void setState(State);
 		virtual void check() = 0;
+		virtual void refill(int animDelay = 0) = 0;
+		static const int margin;
 	public:
-		static Board* newBoard(const GameSetup&, QObject * parent = 0);
+		static Board* newBoard(const GameSetup&, QGraphicsItem * parent = 0);
 		
 		Player* currentPlayer();
 		Player* getNextPlayer();

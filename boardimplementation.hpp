@@ -7,8 +7,7 @@ class Ball;
 class BallColor;
 class HighlightItem;
 
-//Tu sa upchniete te metody pomocnicze, ktore niepotrzebnie zasmiecaly
-//Board, a wyrzucenie ich poza klase byloby problemem.
+//Tu sa upchniete wewnetrzne metody, zeby: a) nie zasmiecac interfejsu, b) podzielic kod
 class BoardImplementation : public Board
 {
 	Q_OBJECT
@@ -29,21 +28,19 @@ class BoardImplementation : public Board
 		Array2<std::pair<HighlightItem*, HighlightItem*> > highlights;
 		int total;
 		int turnNumber;
-		bool swappingBalls;
 	private:
-		void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);
-		void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);
 		void check();
 		void computeLegalMoves(const int, const int, bool);
 		bool computeLegalMoves(bool);
 		Rows findRows();
-		void refill();
+		void gravity();
+		void refill(int animDelay = 0);
 		void newTurn();
 		void ballsNewCheckUpdate();
 	private:
 		bool move(Square*, Square*);
 	public:
-		BoardImplementation(const GameSetup&, QObject * parent = 0);
+		BoardImplementation(const GameSetup&, QGraphicsItem * parent = 0);
 		~BoardImplementation();
 	public slots:
 		void setCurrentPlayer(Player*);

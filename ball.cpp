@@ -1,3 +1,5 @@
+#include <QBrush>
+
 #include <cstdlib>
 
 #include "ball.hpp"

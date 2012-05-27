@@ -2,6 +2,7 @@
 #include "board.hpp"
 
 #include <QFont>
+#include <QPen>
 #include <QBrush>
 #include <QString>
 #include <QPropertyAnimation>
@@ -9,7 +10,7 @@
 #include "debugtools.hpp"
 
 PointsEarnedItem::PointsEarnedItem(Board* b, qreal x, qreal y, int points)
-	: QGraphicsSimpleTextItem(QString::number(points), 0, b),
+	: QGraphicsSimpleTextItem(QString::number(points), b),
 		posVal(0), sizeVal(0)
 {
 	//setFont(###);

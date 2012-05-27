@@ -1,4 +1,4 @@
-#include <QGraphicsSceneMouseEvent>
+#include <QPen>
 #include <QBrush>
 #include <QPixmap>
 
@@ -56,12 +56,13 @@ class SwapPretender
 		}
 };
 
-
 //!Konstruktor
-BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
-	: Board(s, parent), highlights(s.width, s.height), turnNumber(0), swappingBalls(0)
+BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * parent)
+	: Board(s, parent), highlights(s.width, s.height), turnNumber(0)
 {
-	setBackgroundBrush(QBrush(QPixmap(":Background.jpg")));
+	setPen(Qt::NoPen);
+	setBrush(QBrush(QPixmap(":Background.jpg")));
+	setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 	
 	BallColor::createTable(setup.colors);
 	
@@ -108,7 +109,7 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QObject * parent)
 	//placing balls
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
-			Ball::getNew(setup, squares(ix, iy), iy+1);
+			Ball::getNew(setup, squares(ix, iy), iy+2);
 		}
 	}
 	
@@ -154,30 +155,6 @@ void BoardImplementation::Row::emitPointsEarnedItem(Board* b) const
 	new PointsEarnedItem(b, center.x(), center.y(), points());
 }
 
-//!overrides QGraphicsScene::mousePressEvent
-void BoardImplementation::mousePressEvent(QGraphicsSceneMouseEvent * event)
-{
-	switch (state) {
-		case waitingForMove :
-			QGraphicsScene::mousePressEvent(event);
-			return;
-		default:
-			event->ignore();
-	}
-}
-
-//!overrides QGraphicsScene::mouseMoveEvent
-void BoardImplementation::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
-{
-	switch (state) {
-		case waitingForMove :
-			QGraphicsScene::mouseMoveEvent(event);
-			return;
-		default:
-			event->ignore();
-	}
-}
-
 //!Wykonanie ruchu - zamiany kulki na s1 z kulka na s2 - przez biezacego gracza
 bool BoardImplementation::move(Square* s1, Square* s2)
 {
@@ -200,8 +177,6 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 		}
 	}
 	
-	//~ check(1);
-	swappingBalls = 1;
 	emit playerMoved(curPlayer);
 	return 1;
 }
@@ -359,7 +334,9 @@ void BoardImplementation::ballsNewCheckUpdate()
 {
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			squares(ix, iy)->getBall()->newCheckUpdate();
+			Ball* b = squares(ix, iy)->getBall();
+			if (b)
+				b->newCheckUpdate();
 		}
 	}
 }
@@ -368,10 +345,6 @@ void BoardImplementation::ballsNewCheckUpdate()
 void BoardImplementation::check()
 {
 	setState(animatingMove);
-	if (!swappingBalls){
-		ballsNewCheckUpdate();
-	}
-	swappingBalls = 0;
 	const Rows& rows = findRows();
 	if (rows.empty()){
 		//spadanie sie skonczylo
@@ -393,18 +366,43 @@ void BoardImplementation::check()
 		}
 		for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
 			(*i)->explode();
-		refill();
+		gravity();
 	}
 }
 
-//!zepchniecie kulek (grawitacja) + utworzenie nowych (zapelnienie planszy)
-void BoardImplementation::refill()
+//!zepchniecie kulek (grawitacja)
+void BoardImplementation::gravity()
 {
+	bool noEffect = 1;
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			squares(ix, iy)->takeBall(800);
+			if (squares(ix, iy)->gravity(800))
+				noEffect = 0;
 		}
 	}
+	
+	internalState = falling;
+	
+	if (noEffect)
+		refill(600); //wpp refilla odpali animationEnded
+}
+
+//!utworzenie nowych kulek (zapelnienie planszy)
+void BoardImplementation::refill(int animDelay)
+{
+	internalState = normal;
+	ballsNewCheckUpdate();
+	
+	bool noEffect = 1;
+	for ( int iy = setup.height-1; iy >= 0 ; --iy){
+		for ( int ix = 0; ix < setup.width; ++ix){
+			if (squares(ix, iy)->ensureHavingBall(animDelay))
+				noEffect = 0;
+		}
+	}
+	
+	if (noEffect)
+		check(); //wpp rchecka odpali animationEnded
 }
 
 //!Oddaje nastepny ruch graczowi p.

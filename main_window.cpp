@@ -1,4 +1,5 @@
 #include <QGraphicsView>
+#include <QGraphicsScene>
 
 #include "main_window.hpp"
 #include "humanplayer.hpp"
@@ -15,12 +16,14 @@ MainWindow::MainWindow()
 	gameSetup.colors = 5;
 	gameSetup.rowLength = 3;
 	
-	scene = Board::newBoard(gameSetup, this);
+	scene = new QGraphicsScene(this);
+	board = Board::newBoard(gameSetup);
+	scene->addItem(board);
 	
 	human = new HumanPlayer("Matou");
 	ai = new AIPlayer();
-	scene->setCurrentPlayer(human);
-	connect(scene, SIGNAL(playerMoveEnded(Player*, uint)), this, SLOT(nextPlayer(Player*)));
+	board->setCurrentPlayer(human);
+	connect(board, SIGNAL(playerMoveEnded(Player*, uint)), this, SLOT(nextPlayer(Player*)));
 
 	graphicsView = new QGraphicsView(scene, this);
 	graphicsView->setMouseTracking(1);
@@ -31,7 +34,7 @@ MainWindow::MainWindow()
 void MainWindow::nextPlayer(Player* p)
 {
 	if (p == human)
-		scene->setCurrentPlayer(ai);
+		board->setCurrentPlayer(ai);
 	else
-		scene->setCurrentPlayer(human);
+		board->setCurrentPlayer(human);
 }

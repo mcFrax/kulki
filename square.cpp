@@ -1,4 +1,5 @@
 #include <QGraphicsSceneHoverEvent>
+#include <QPen>
 
 #include "square.hpp"
 #include "board.hpp"
@@ -11,7 +12,7 @@ const qreal Square::xSize = 92;
 const qreal Square::ySize = 92;
 
 Square::Square(uint xPos, uint yPos, Board* b)
-	: QGraphicsRectItem(0, 0, xSize, ySize, 0, b), xPos(xPos), yPos(yPos),
+	: QGraphicsRectItem(0, 0, xSize, ySize, b), xPos(xPos), yPos(yPos),
 		board(b)
 {
 	setPen(Qt::NoPen);
@@ -63,16 +64,26 @@ QGraphicsItem* Square::item()
 	return this;
 }
 
-void Square::takeBall(int animDelay)
+//!Sciaga najblizsza kulke z gory (jezeli taka jest)
+bool Square::gravity(int animDelay)
 {
-	if (ball) return;
+	//!\return Czy jakas kulka w efekcie spada
+	if (ball) return 0;
 	int fall = 1;
 	for (Square* s = this->neighbours[top]; s != 0; s = s->neighbours[top]) {
 		if (s->ball) {
 			s->ball->placeOnSquare(this, fall, animDelay);
-			return;
+			return 1;
 		}
 		++fall;
 	}
-	Ball::getNew(board->gameSetup(), this, fall, animDelay);
+	return 0;
+}
+
+bool Square::ensureHavingBall(int animDelay)
+{
+	if (ball)
+		return 0;
+	Ball::getNew(board->gameSetup(), this, 0, animDelay);
+	return 1;
 }

@@ -5,6 +5,7 @@
 class Board;
 class Player;
 class QGraphicsView;
+class QGraphicsScene;
 
 class MainWindow : public QMainWindow
 {
@@ -12,7 +13,8 @@ class MainWindow : public QMainWindow
 
 	protected:
 		QGraphicsView *graphicsView;
-		Board *scene;
+		QGraphicsScene *scene;
+		Board *board;
 		Player* human;
 		Player* ai;
 	protected slots:

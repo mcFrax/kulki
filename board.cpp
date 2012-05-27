@@ -26,16 +26,22 @@ std::ostream& operator << (std::ostream& os, Board::State s){
 	}
 }
 
+const int Board::margin = Square::xSize/2;
+
 //!Fabryka
-Board* Board::newBoard(const GameSetup& s, QObject * parent)
+Board* Board::newBoard(const GameSetup& s, QGraphicsItem * parent)
 {
 	return new BoardImplementation(s, parent);
 }
 
 //!Konstruktor
-Board::Board(const GameSetup& s, QObject * parent)
-	: QGraphicsScene(0, 0, s.width*Square::xSize,
-		s.height*Square::ySize, parent), setup(s), state(animatingMove),
+Board::Board(const GameSetup& s, QGraphicsItem * parent)
+	: QGraphicsRectItem(
+			-margin, -margin,
+			s.width*Square::xSize + 2*margin,
+			s.height*Square::ySize + 2*margin,
+			parent), 
+		setup(s), state(animatingMove), internalState(normal),
 		curPlayer(0), nextPlayer(0), squares(s.width, s.height)
 {
 }
@@ -116,8 +122,18 @@ void Board::animationEnded()
 	if (i == currentAnimations.end())
 		return;
 	currentAnimations.erase(i);
+	
+	//to nie jest najladniejsze rozwiazanie, pewnie moglbym uzyc QStateMachine
+	//ale teraz juz nie bede zmienial
 	if (currentAnimations.empty()){
-		check();
+		switch (internalState) {
+			case normal: 
+				check();
+				return;
+			case falling:
+				refill();
+				return;
+		}
 	}
 }
 
