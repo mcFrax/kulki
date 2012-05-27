@@ -26,7 +26,7 @@ std::ostream& operator << (std::ostream& os, Board::State s){
 	}
 }
 
-const int Board::margin = Square::xSize/2;
+const int Board::margin = Square::xSize/4;
 
 //!Fabryka
 Board* Board::newBoard(const GameSetup& s, QGraphicsItem * parent)

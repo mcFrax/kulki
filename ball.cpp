@@ -21,9 +21,6 @@ void Ball::placeOnSquare(Square* s, int fall, int animDelay)
 {
 	if (square) //may be detached
 		square->ball = 0;
-	//~ if (!ballItem)
-		//~ ballItem = new BallItem(color, s, -fall*Square::ySize, animDelay);
-	//~ else
 	ballItem->placeOnSquare(s, -fall*Square::ySize, animDelay);
 	square = s;
 	if (s)
