@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="Balls">
-	<file alias="Ball.png">images/Ball.png</file>
+	<file alias="BallGloss.png">images/BallGloss.png</file>
+	<file alias="BallMask.png">images/BallMask.png</file>
 	
 	<file alias="Joker.png">images/JesterHat.png</file>
 	<file alias="JokerBrush.png">images/swirl.png</file>
@@ -13,5 +14,7 @@
 	<file alias="Background.jpg">images/starfield.jpg</file>
 	<file alias="Highlight.png">images/highlight1.png</file>
 	<file alias="Icon.png">images/icon.png</file>
+	<file alias="SquareGloss.png">images/SquareGloss.png</file>
+	<file alias="SquareMask.png">images/SquareMask.png</file>
 </qresource>
 </RCC>

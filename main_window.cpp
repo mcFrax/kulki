@@ -17,10 +17,12 @@ using namespace std;
 MainWindow::MainWindow()
 {
 	Board::GameSetup gameSetup;
-	gameSetup.width =  8;
-	gameSetup.height = 8;
-	gameSetup.colors = 12;
-	gameSetup.rowLength = 3;
+	settings()->beginGroup("game settings/");
+		gameSetup.width =  settings()->value("width").toUInt();
+		gameSetup.height = settings()->value("height").toUInt();
+		gameSetup.colors = settings()->value("colors").toUInt();
+		gameSetup.rowLength = settings()->value("rowLength").toUInt();
+	settings()->endGroup();
 	
 	scene = new QGraphicsScene(this);
 	scene->setBackgroundBrush(QBrush(QPixmap(":Background.jpg")));

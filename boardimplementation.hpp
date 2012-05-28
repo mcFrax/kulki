@@ -37,6 +37,7 @@ class BoardImplementation : public Board
 		void refill(int animDelay = 0);
 		void newTurn();
 		void ballsNewCheckUpdate();
+		void endGame();
 	private:
 		bool move(Square*, Square*);
 	public:

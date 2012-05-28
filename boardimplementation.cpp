@@ -1,6 +1,9 @@
 #include <QPen>
+#include <QFont>
 #include <QBrush>
 #include <QPixmap>
+#include <QGraphicsSimpleTextItem>
+#include <QGraphicsDropShadowEffect>
 
 #include "board.hpp"
 #include "boardimplementation.hpp"
@@ -343,6 +346,32 @@ void BoardImplementation::ballsNewCheckUpdate()
 	}
 }
 
+void BoardImplementation::endGame()
+{
+	//tu robie taki duzy napis
+	QGraphicsSimpleTextItem* endItem = new QGraphicsSimpleTextItem(
+		tr("Koniec gry"), this);
+		
+	QFont font;
+	font.setPixelSize(100);
+	endItem->setFont(font);
+	
+	if (endItem->boundingRect().width() > rect().width())
+		endItem->setScale(rect().width() / endItem->boundingRect().width());
+		
+	endItem->setPos(
+			(rect().width()  - endItem->boundingRect().width())  /2, 
+			(rect().height() - endItem->boundingRect().height()) /2);
+	
+	endItem->setBrush(Qt::white);
+	endItem->setZValue(100);
+	endItem->setGraphicsEffect(new QGraphicsDropShadowEffect(this));
+	
+	//a tutaj jest to, co istotne, czyli stan i signal
+	setState(locked);
+	emit gameEnded();
+}
+
 //!Sprawdzenie planszy (po ruchu/uzupelnieniu) i odpowiednia zmiana stanu
 void BoardImplementation::check()
 {
@@ -353,8 +382,7 @@ void BoardImplementation::check()
 		if (curPlayer)
 			emit playerMoveEnded(curPlayer, total);
 		if (!computeLegalMoves(0)){
-			setState(locked);
-			emit gameEnded();
+			endGame();
 		} else {
 			newTurn();
 		}

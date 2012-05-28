@@ -38,7 +38,7 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 			(Square::size()-2*margin())/2);
 	
 	if (!glossPixmap)
-		glossPixmap = new QPixmap(":Balls/Ball.png");
+		glossPixmap = new QPixmap(":Balls/BallGloss.png");
 		
 	glossPixmapItem = new QGraphicsPixmapItem(*glossPixmap, this);
 	glossPixmapItem->setAcceptedMouseButtons(0);

@@ -9,7 +9,7 @@ SET(kulki_SOURCES main.cpp
 	board.cpp square.cpp highlightitem.cpp
 	pointsearneditem.cpp boardimplementation.cpp player.cpp 
 	humanplayer.cpp aiplayer.cpp settings.cpp playerinfoitem.cpp
-	playericonitem.cpp )
+	playericonitem.cpp gloss.cpp )
 
 SET(kulki_HEADERS main_window.hpp 
 	ballitem.hpp board.hpp boardimplementation.hpp 
@@ -28,4 +28,7 @@ ADD_EXECUTABLE(kulki ${kulki_SOURCES}
     ${kulki_HEADERS_MOC}
     ${kulki_RESOURCES_RCC} )
     
-TARGET_LINK_LIBRARIES(kulki ${QT_LIBRARIES})
+SET(CMAKE-CXX-FLAGS ${CMAKE-CXX-FLAGS} -O3 -flto)
+    
+#~ TARGET_LINK_LIBRARIES(kulki ${QT_LIBRARIES})
+TARGET_LINK_LIBRARIES(kulki -fuse-linker-plugin -flto -fwhole-program ${QT_LIBRARIES})
