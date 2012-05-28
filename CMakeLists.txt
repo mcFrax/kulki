@@ -8,11 +8,13 @@ SET(kulki_SOURCES main.cpp
 	ball.cpp ballcolor.cpp ballitem.cpp balltypes.cpp
 	board.cpp square.cpp highlightitem.cpp
 	pointsearneditem.cpp boardimplementation.cpp player.cpp 
-	humanplayer.cpp aiplayer.cpp )
+	humanplayer.cpp aiplayer.cpp settings.cpp playerinfoitem.cpp
+	playericonitem.cpp )
 
 SET(kulki_HEADERS main_window.hpp 
 	ballitem.hpp board.hpp boardimplementation.hpp 
-	highlightitem.hpp pointsearneditem.hpp player.hpp aiplayer.hpp)
+	highlightitem.hpp pointsearneditem.hpp player.hpp aiplayer.hpp 
+	playerinfoitem.hpp playericonitem.hpp)
 
 SET(kulki_RESOURCES kulki.qrc)
 

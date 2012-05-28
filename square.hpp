@@ -33,12 +33,12 @@ class Square : protected QGraphicsRectItem
 		Ball* getBall();
 		Board* getBoard();
 		BallColor ballColor();
+		QPointF center() const;
 		
 		QGraphicsItem* item();
 		
 		bool gravity(int animDelay = 0);
 		bool ensureHavingBall(int animDelay = 0);
 		
-		static const qreal xSize;
-		static const qreal ySize;
+		static int size();
 };

@@ -6,17 +6,15 @@
 #include "ball.hpp"
 #include "ballitem.hpp"
 
+#include "settings.hpp"
 #include "debugtools.hpp"
 
-const qreal Square::xSize = 92;
-const qreal Square::ySize = 92;
-
 Square::Square(uint xPos, uint yPos, Board* b)
-	: QGraphicsRectItem(0, 0, xSize, ySize, b), xPos(xPos), yPos(yPos),
+	: QGraphicsRectItem(0, 0, size(), size(), b), xPos(xPos), yPos(yPos),
 		board(b)
 {
 	setPen(Qt::NoPen);
-	setPos(xPos*xSize, yPos*ySize);
+	setPos(xPos*size(), yPos*size());
 	for (int i = 0; i < 5; ++i)
 		neighbours[i] = 0;
 }
@@ -62,6 +60,16 @@ BallColor Square::ballColor()
 QGraphicsItem* Square::item()
 {
 	return this;
+}
+
+QPointF Square::center() const
+{
+	return pos()+rect().center();
+}
+
+int Square::size()
+{
+	return settings()->value("square/size").toInt();
 }
 
 //!Sciaga najblizsza kulke z gory (jezeli taka jest)

@@ -12,5 +12,6 @@
 <qresource>
 	<file alias="Background.jpg">images/starfield.jpg</file>
 	<file alias="Highlight.png">images/highlight1.png</file>
+	<file alias="Icon.png">images/icon.png</file>
 </qresource>
 </RCC>

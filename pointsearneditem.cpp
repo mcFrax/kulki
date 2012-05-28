@@ -3,13 +3,15 @@
 
 #include <QFont>
 #include <QPen>
+#include <QColor>
 #include <QBrush>
 #include <QString>
 #include <QPropertyAnimation>
 
 #include "debugtools.hpp"
 
-PointsEarnedItem::PointsEarnedItem(Board* b, qreal x, qreal y, int points)
+PointsEarnedItem::PointsEarnedItem(Board* b, qreal x, qreal y, 
+		int points, QColor color)
 	: QGraphicsSimpleTextItem(QString::number(points), b),
 		posVal(0), sizeVal(0)
 {
@@ -19,7 +21,7 @@ PointsEarnedItem::PointsEarnedItem(Board* b, qreal x, qreal y, int points)
 	this->y = y-r.height()/2;
 	QGraphicsSimpleTextItem::setPos(x-r.width()/2, this->y);
 	
-	setBrush(QBrush(QRadialGradient()));
+	setBrush(QBrush(color));
 	setPen(QColor(Qt::black));
 	
 	setAcceptedMouseButtons(0);

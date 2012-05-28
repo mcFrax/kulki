@@ -1,7 +1,7 @@
 #include "humanplayer.hpp"
 
-HumanPlayer::HumanPlayer(QString name)
-	: Player(name)
+HumanPlayer::HumanPlayer(QString name, QColor color)
+	: Player(name, color)
 {
 }
 

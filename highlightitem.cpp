@@ -6,9 +6,13 @@
 #include <QPropertyAnimation>
 #include <QImage>
 
+#include "settings.hpp"
 #include "debugtools.hpp"
 
-static const qreal WFactor = 0.6;
+static inline qreal WFactor()
+{
+	return settings()->value("highlight/widthFactor").toDouble();
+}
 
 QPixmap* HighlightItem::pixmap[2] = {0};
 
@@ -19,9 +23,9 @@ HighlightItem::HighlightItem(qreal x, qreal y, Board* board, Square* s1, Square*
 {
 	qreal scaleF;
 	if (dir == horizontal)
-		scaleF = WFactor*Square::ySize/getPixmap(dir).height();
+		scaleF = WFactor()*Square::size()/getPixmap(dir).height();
 	else
-		scaleF = WFactor*Square::xSize/getPixmap(dir).width();
+		scaleF = WFactor()*Square::size()/getPixmap(dir).width();
 	setScale(scaleF);
 	setZValue(1);
 	setPos(x-scaleF*getPixmap(dir).width()/2, 
@@ -56,8 +60,8 @@ void HighlightItem::setVisibility(qreal v)
 {
 	visibilityVal = v;
 	
-	static_cast<QGraphicsOpacityEffect*>(graphicsEffect())->
-			setOpacity(0.8*v);
+	static_cast<QGraphicsOpacityEffect*>(graphicsEffect())->setOpacity(
+			settings()->value("highlight/opacityFactor").toDouble()*v);
 }
 
 qreal HighlightItem::visibility()

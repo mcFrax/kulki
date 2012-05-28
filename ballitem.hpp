@@ -12,8 +12,6 @@ class BallItem : public QObject, protected QGraphicsEllipseItem
 	Q_PROPERTY(qreal scale READ scale WRITE setScale)
 	Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 	protected:
-		static const qreal xmargin;
-		static const qreal ymargin;
 		void animateFalling(qreal yoffset, int animDelay = 0);
 		void animateAppear(int time = 0);
 		void animateArc(QPointF startpoint);
@@ -30,5 +28,4 @@ class BallItem : public QObject, protected QGraphicsEllipseItem
 		void setSpecialPixmap(const QPixmap&, qreal sizeFactor = 1.0);
 		QPixmap specialPixmap();
 		void explode();
-		QGraphicsEllipseItem::sceneBoundingRect;
 };

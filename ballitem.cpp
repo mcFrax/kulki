@@ -10,37 +10,41 @@
 #include "square.hpp"
 #include "board.hpp"
 
+#include "settings.hpp"
 #include "debugtools.hpp"
 
-const qreal BallItem::xmargin = 3;
-const qreal BallItem::ymargin = 3;
-
-int fallingDuration(qreal distance)
+inline static int fallingDuration(qreal distance)
 {
-	return sqrt(distance/Square::ySize*64)*140.0;
+	return sqrt(distance/Square::size())*
+		settings()->value("ball/fallingTimeFactor").toInt();
+}
+
+inline static qreal margin()
+{
+	return settings()->value("ball/margin").toDouble();
 }
 
 QPixmap* BallItem::glossPixmap = 0;
 
 BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
-	: QGraphicsEllipseItem(xmargin, ymargin,
-			Square::xSize-2*xmargin, Square::ySize-2*ymargin, s->item()),
+	: QGraphicsEllipseItem(margin(), margin(),
+			Square::size()-2*margin(), Square::size()-2*margin(), s->item()),
 			specialPixmapItem(0)
 {
 	QGraphicsEllipseItem::setBrush(QBrush(color));
 	setPen(Qt::NoPen);
 	setAcceptedMouseButtons(0);
-	setTransformOriginPoint((Square::xSize-2*xmargin)/2,
-			(Square::ySize-2*ymargin)/2);
+	setTransformOriginPoint((Square::size()-2*margin())/2,
+			(Square::size()-2*margin())/2);
 	
 	if (!glossPixmap)
 		glossPixmap = new QPixmap(":Balls/Ball.png");
 		
 	glossPixmapItem = new QGraphicsPixmapItem(*glossPixmap, this);
 	glossPixmapItem->setAcceptedMouseButtons(0);
-	glossPixmapItem->setScale((Square::xSize-2*xmargin)/glossPixmap->width());
+	glossPixmapItem->setScale((Square::size()-2*margin())/glossPixmap->width());
 	glossPixmapItem->setZValue(1);
-	glossPixmapItem->setPos(xmargin, ymargin);
+	glossPixmapItem->setPos(margin(), margin());
 	glossPixmapItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
 	glossPixmapItem->setTransformationMode(Qt::SmoothTransformation);
 	
@@ -53,8 +57,8 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 {
 	QGraphicsEllipseItem::setParentItem(s->item());
-	QGraphicsEllipseItem::setRect(xmargin, ymargin,
-			Square::xSize-2*xmargin, Square::ySize-2*ymargin);
+	QGraphicsEllipseItem::setRect(margin(), margin(),
+			Square::size()-2*margin(), Square::size()-2*margin());
 	
 	if (ypos != 0)
 		animateFalling(ypos, animDelay);
@@ -63,15 +67,15 @@ void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 void BallItem::placeOnSquare(Square* s, Square* from)
 {
 	QGraphicsEllipseItem::setParentItem(s->item());
-	QGraphicsEllipseItem::setRect(xmargin, ymargin,
-			Square::xSize-2*xmargin, Square::ySize-2*ymargin);
+	QGraphicsEllipseItem::setRect(margin(), margin(),
+			Square::size()-2*margin(), Square::size()-2*margin());
 	
 	animateArc(from->item()->pos() - s->item()->pos());
 }
 
 void BallItem::animateAppear(int animDelay)
 {
-	static const int appearTime = 500;
+	const int appearTime = settings()->value("ball/appearTime").toInt();
 	QPropertyAnimation* anim = new QPropertyAnimation(this, "opacity");
 	anim->setStartValue(0);
 	anim->setEndValue(1);
@@ -94,7 +98,8 @@ void BallItem::animateFalling(qreal yoffset, int animDelay)
 	int duration = fallingDuration(fabs(yoffset)) + animDelay;
 	anim->setKeyValueAt(animDelay/double(duration), QPointF(0, yoffset));
 	anim->setDuration(duration);
-	anim->setEasingCurve(QEasingCurve::OutBounce);
+	//~ anim->setEasingCurve(QEasingCurve::OutBounce);
+	anim->setEasingCurve(QEasingCurve::InQuad);
 	
 	static_cast<Board*>(parentItem()->parentItem())->
 			registerAnimation(anim);
@@ -112,7 +117,7 @@ void BallItem::animateArc(QPointF startPoint)
 	
 	anim->setKeyValueAt(0.5, line.normalVector().p2());
 	
-	anim->setDuration(400);
+	anim->setDuration(settings()->value("ball/arcTime").toInt());
 	anim->setEasingCurve(QEasingCurve::InOutQuad);
 	
 	static_cast<Board*>(parentItem()->parentItem())->
@@ -128,8 +133,8 @@ void BallItem::explode()
 	setPos(sp);
 	setZValue(3);
 	QPropertyAnimation* anim = new QPropertyAnimation(this, "scale");
-	anim->setEndValue(2);
-	anim->setDuration(500);
+	anim->setEndValue(settings()->value("ball/explosionFactor").toDouble());
+	anim->setDuration(settings()->value("ball/explosionTime").toInt());
 	anim->setEasingCurve(QEasingCurve::InOutBack);
 	connect(anim, SIGNAL(finished()), this, SLOT(deleteLater()));
 	
@@ -149,14 +154,14 @@ void BallItem::setBrush(const QBrush& b)
 void BallItem::scalePixmapItem(const QPixmap& pm, qreal sizeFactor)
 {
 	if (pm.isNull()) return;
-	qreal W = Square::xSize - 2*xmargin; //alternatywnie rect().width()
-	qreal H = Square::ySize - 2*xmargin; //alternatywnie rect().height()
+	qreal W = Square::size() - 2*margin(); //alternatywnie rect().width()
+	qreal H = Square::size() - 2*margin(); //alternatywnie rect().height()
 	qreal w = pm.width();
 	qreal h = pm.height();
 	qreal realScaleFactor = std::min((sizeFactor*W)/w, (sizeFactor*H)/h);
 	specialPixmapItem->setScale(realScaleFactor);
-	specialPixmapItem->setPos(xmargin+(W-w*realScaleFactor)/2, 
-			ymargin+(H-h*realScaleFactor)/2);
+	specialPixmapItem->setPos(margin()+(W-w*realScaleFactor)/2, 
+			margin()+(H-h*realScaleFactor)/2);
 }
 
 void BallItem::setSpecialPixmap(const QPixmap& pm, qreal sizeFactor)

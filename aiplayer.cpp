@@ -4,16 +4,19 @@
 #include <cstdlib>
 #include <QTimer>
 
+#include "settings.hpp"
+
 void makeMove(Board*);
-AIPlayer::AIPlayer()
-	: Player("AI")
+AIPlayer::AIPlayer(QColor color)
+	: Player("AI", color)
 {
 }
 
 void AIPlayer::makeMove(Board* board)
 {
 	boards.push(board);
-	QTimer::singleShot(750, this, SLOT(makeRealMove()));
+	QTimer::singleShot(settings()->value("ai/moveDelay").toInt(), 
+			this, SLOT(makeRealMove()));
 }
 
 

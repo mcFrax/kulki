@@ -11,28 +11,28 @@
 #include "debugtools.hpp"
 
 Ball::Ball(const BallColor& c, Square* s, int fall, int animDelay)
-	: color(c), square(s), 
-		ballItem(new BallItem(c, s, -fall*Square::ySize, animDelay))
+	: color(c), squareVal(s), 
+		ballItem(new BallItem(c, s, -fall*Square::size(), animDelay))
 {
 	s->ball = this;
 }
 
 void Ball::placeOnSquare(Square* s, int fall, int animDelay)
 {
-	if (square) //may be detached
-		square->ball = 0;
-	ballItem->placeOnSquare(s, -fall*Square::ySize, animDelay);
-	square = s;
+	if (squareVal) //may be detached
+		squareVal->ball = 0;
+	ballItem->placeOnSquare(s, -fall*Square::size(), animDelay);
+	squareVal = s;
 	if (s)
 		s->ball = this;
 }
 
 void Ball::placeOnSquare(Square* s, Square* from)
 {
-	if (square) //may be detached
-		square->ball = 0;
+	if (squareVal) //may be detached
+		squareVal->ball = 0;
 	ballItem->placeOnSquare(s, from);
-	square = s;
+	squareVal = s;
 	if (s)
 		s->ball = this;
 }
@@ -41,8 +41,8 @@ Ball::~Ball()
 {
 	if (ballItem)
 		delete ballItem;
-	if (square)
-		square->ball = 0;
+	if (squareVal)
+		squareVal->ball = 0;
 }
 
 int Ball::applyPointModificator(const int& points) const
@@ -77,15 +77,15 @@ BallColor Ball::getColor() const
 	return color;
 }
 
-QRectF Ball::getRect() const
-{
-	return ballItem->sceneBoundingRect();
-}
-
 void Ball::setColor(const BallColor& col)
 {
 	color = col;
 	ballItem->setBrush(QBrush(col));
+}
+
+Square* Ball::square()
+{
+	return squareVal;
 }
 
 Ball* Ball::getNew(const Board::GameSetup&, Square* s, int falling, int animDelay)

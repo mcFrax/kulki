@@ -3,6 +3,7 @@
 #include <QGraphicsSimpleTextItem>
 
 class Board;
+class QColor;
 
 class PointsEarnedItem : public QObject, public QGraphicsSimpleTextItem
 {
@@ -19,5 +20,5 @@ class PointsEarnedItem : public QObject, public QGraphicsSimpleTextItem
 		qreal size();
 		void setSize(qreal val);
 	public:
-		PointsEarnedItem(Board*, qreal x, qreal y, int points);
+		PointsEarnedItem(Board*, qreal x, qreal y, int points, QColor color);
 };

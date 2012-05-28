@@ -9,6 +9,7 @@
 #include "ballcolor.hpp"
 #include "player.hpp"
 
+#include "settings.hpp"
 #include "debugtools.hpp"
 
 using namespace std;
@@ -26,20 +27,23 @@ std::ostream& operator << (std::ostream& os, Board::State s){
 	}
 }
 
-const int Board::margin = Square::xSize/4;
-
 //!Fabryka
 Board* Board::newBoard(const GameSetup& s, QGraphicsItem * parent)
 {
 	return new BoardImplementation(s, parent);
 }
 
+static inline qreal margin()
+{
+	return settings()->value("board/margin").toDouble();
+}
+
 //!Konstruktor
 Board::Board(const GameSetup& s, QGraphicsItem * parent)
 	: QGraphicsRectItem(
-			-margin, -margin,
-			s.width*Square::xSize + 2*margin,
-			s.height*Square::ySize + 2*margin,
+			-margin(), -margin(),
+			s.width*Square::size() + 2*margin(),
+			s.height*Square::size() + 2*margin(),
 			parent), 
 		setup(s), state(animatingMove), internalState(normal),
 		curPlayer(0), nextPlayer(0), squares(s.width, s.height)
@@ -80,6 +84,7 @@ void Board::setState(State s)
 	if (s == waitingForMove && curPlayer){
 		//~ std::cerr << "Ruch gracza " << curPlayer->name().toStdString() << endl;
 		curPlayer->makeMove(this);
+		emit playerTurn(curPlayer);
 	}
 }
 

@@ -66,7 +66,6 @@ class Board : public QObject, public QGraphicsRectItem
 		void setState(State);
 		virtual void check() = 0;
 		virtual void refill(int animDelay = 0) = 0;
-		static const int margin;
 	public:
 		static Board* newBoard(const GameSetup&, QGraphicsItem * parent = 0);
 		
@@ -87,6 +86,7 @@ class Board : public QObject, public QGraphicsRectItem
 		
 		void registerAnimation(QAbstractAnimation* anim);
 	signals:
+		void playerTurn(Player*);
 		void playerMoved(Player*);
 		void playerMoveEnded(Player*, uint total); //or fallingEnded
 		void pointsEarned(Player*, uint points);

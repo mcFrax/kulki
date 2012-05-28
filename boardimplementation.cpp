@@ -10,6 +10,7 @@
 #include "pointsearneditem.hpp"
 #include "player.hpp"
 
+#include "settings.hpp"
 #include "debugtools.hpp"
 
 using namespace std;
@@ -61,8 +62,6 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 	: Board(s, parent), highlights(s.width, s.height), turnNumber(0)
 {
 	setPen(Qt::NoPen);
-	setBrush(QBrush(QPixmap(":Background.jpg")));
-	setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 	
 	BallColor::createTable(setup.colors);
 	
@@ -92,14 +91,14 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 				//na brzegu wstawiam zera (tym ? :)
 				//poziomy HighlightItem
 				(squares(ix, iy)->getNeighbour(Square::right))
-					?new HighlightItem((ix+1)*Square::xSize, 
-						(iy+0.5)*Square::ySize, this, squares(ix, iy),
+					?new HighlightItem((ix+1)*Square::size(), 
+						(iy+0.5)*Square::size(), this, squares(ix, iy),
 						squares(ix+1, iy), HighlightItem::horizontal)
 					:0,
 				//pionowy HighlightItem
 				(squares(ix, iy)->getNeighbour(Square::bottom))
-					?new HighlightItem((ix+0.5)*Square::xSize, 
-						(iy+1)*Square::ySize, this, squares(ix, iy),
+					?new HighlightItem((ix+0.5)*Square::size(), 
+						(iy+1)*Square::size(), this, squares(ix, iy),
 						squares(ix, iy+1), HighlightItem::vertical)
 					:0
 			);
@@ -109,7 +108,8 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 	//placing balls
 	for (uint iy = 0; iy < s.height; ++iy){
 		for (uint ix = 0; ix < s.width; ++ix){
-			Ball::getNew(setup, squares(ix, iy), iy+2);
+			Ball::getNew(setup, squares(ix, iy), 0, 
+				(iy+2)*settings()->value("board/ballPlacingDelay").toInt());
 		}
 	}
 	
@@ -149,10 +149,12 @@ bool BoardImplementation::Row::matches(Ball* b) const
 
 void BoardImplementation::Row::emitPointsEarnedItem(Board* b) const
 {
+	//assert(b->currentPlayer())
 	QPointF center(0, 0);
 	for (const_iterator i = begin(); i != end(); ++i)
-		center += (*i)->getRect().center() / qreal(size());
-	new PointsEarnedItem(b, center.x(), center.y(), points());
+		center += (*i)->square()->center() / qreal(size());
+	new PointsEarnedItem(b, center.x(), center.y(), points(), 
+			b->currentPlayer()->color());
 }
 
 //!Wykonanie ruchu - zamiany kulki na s1 z kulka na s2 - przez biezacego gracza
@@ -361,8 +363,14 @@ void BoardImplementation::check()
 		for (Rows::const_iterator ir = rows.begin(); ir != rows.end(); ++ir){
 			for (Row::const_iterator ib = ir->begin(); ib != ir->end(); ++ib)
 				balls.insert(*ib);
-			total += ir->points();
-			ir->emitPointsEarnedItem(this);
+			uint points = ir->points();
+			total += points;
+			
+			if (curPlayer){
+				ir->emitPointsEarnedItem(this);
+				curPlayer->pointsVal += points;
+				emit pointsEarned(curPlayer, points);
+			}
 		}
 		for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
 			(*i)->explode();
@@ -376,7 +384,8 @@ void BoardImplementation::gravity()
 	bool noEffect = 1;
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			if (squares(ix, iy)->gravity(800))
+			if (squares(ix, iy)->gravity(
+					settings()->value("ball/fallingDelay").toInt()))
 				noEffect = 0;
 		}
 	}
@@ -384,7 +393,7 @@ void BoardImplementation::gravity()
 	internalState = falling;
 	
 	if (noEffect)
-		refill(600); //wpp refilla odpali animationEnded
+		refill(settings()->value("ball/appearDelay").toInt()); //wpp refilla odpali animationEnded
 }
 
 //!utworzenie nowych kulek (zapelnienie planszy)

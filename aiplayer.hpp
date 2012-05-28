@@ -4,6 +4,8 @@
 
 #include "player.hpp"
 
+class QColor;
+
 class AIPlayer : public Player
 {
 	Q_OBJECT
@@ -13,6 +15,6 @@ class AIPlayer : public Player
 	private slots:
 		void makeRealMove();
 	public:
-		AIPlayer();
+		AIPlayer(QColor color);
 		bool isHuman() const;
 };
