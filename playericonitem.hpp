@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QColor>
+#include <QGraphicsItem>
 #include <QObject>
 #include <QPixmap>
-#include <QGraphicsItem>
 
 class QImage;
 class QPainter;

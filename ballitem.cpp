@@ -1,15 +1,17 @@
 #include <cmath>
 
 #include <QBrush>
+#include <QGraphicsPixmapItem>
+#include <QHash>
+#include <QPainter>
 #include <QPen>
 #include <QPixmap>
 #include <QPropertyAnimation>
-#include <QGraphicsPixmapItem>
 
 #include "ballitem.hpp"
-#include "square.hpp"
 #include "board.hpp"
 #include "gloss.hpp"
+#include "square.hpp"
 
 #include "settings.hpp"
 #include "debugtools.hpp"
@@ -29,20 +31,35 @@ QImage BallItem::glossImage;
 QImage BallItem::maskImage;
 
 BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
-	: QGraphicsPixmapItem(getPixmap(color), s->item()), specialPixmapItem(0)
+	: QGraphicsItem(s->item()), 
+		rect(margin(), margin(), Square::size()-margin(),
+				Square::size()-margin()),
+		pixmapVal(getPixmap(color))
 {
-	//~ setOffset(margin(), margin());
 	setAcceptedMouseButtons(0);
-	setScale((Square::size()-2*margin())/pixmap().width());
-	setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
-	setTransformationMode(Qt::SmoothTransformation);
 		
-	//~ setTransformOriginPoint(boundingRect().center() + offset());
+	setTransformOriginPoint(Square::size()/2 - margin(), 
+			Square::size()/2 - margin());
 	
 	if (yoffset != 0)
 		animateFalling(yoffset, animDelay);
 	else
 		animateAppear(animDelay);
+}
+
+QRectF BallItem::boundingRect() const
+{
+	return rect;
+}
+
+void BallItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*)
+{
+	#warning to powinno byc gdzies indziej
+	painter->setRenderHint(QPainter::SmoothPixmapTransform);
+	
+	painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+	painter->drawPixmap(rect, pixmapVal, pixmapVal.rect());
+	painter->drawPixmap(specialPixmapRect, specialPixmapVal, specialPixmapVal.rect());
 }
 
 inline void BallItem::commonGetPixmap()
@@ -55,8 +72,17 @@ inline void BallItem::commonGetPixmap()
 
 QPixmap BallItem::getPixmap(QColor color)
 {
-	commonGetPixmap();
-	return QPixmap::fromImage(glossyColorShape(color, maskImage, glossImage));
+	static QHash<QRgb, QPixmap> map;
+	QHash<QRgb, QPixmap>::iterator it = map.find(color.rgba());
+	if (it == map.end()){
+		commonGetPixmap();
+		it = map.insert(
+				color.rgba(),
+				QPixmap::fromImage(
+						glossyColorShape(color, maskImage, glossImage))
+				);
+	}
+	return it.value();
 }
 
 QPixmap BallItem::getPixmap(QBrush brush)
@@ -148,47 +174,25 @@ void BallItem::explode()
 	anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-//~ QBrush BallItem::brush() const
+//~ QBrush BallItem::brush()
 //~ {
 	//~ return QGraphicsEllipseItem::brush();
 //~ }
 
 void BallItem::setBrush(const QBrush& b)
 {
-	setPixmap(getPixmap(b));
-}
-
-void BallItem::scalePixmapItem(const QPixmap& pm, qreal sizeFactor)
-{
-	if (pm.isNull()) return;
-	qreal W = pixmap().width();//Square::size() - 2*margin(); //alternatywnie rect().width()
-	qreal H = pixmap().height();//Square::size() - 2*margin(); //alternatywnie rect().height()
-	qreal w = pm.width();
-	qreal h = pm.height();
-	qreal realScaleFactor = std::min((sizeFactor*W)/w, (sizeFactor*H)/h);
-	specialPixmapItem->setScale(realScaleFactor);
-	specialPixmapItem->setPos(margin()+(W-w*realScaleFactor)/2, 
-			margin()+(H-h*realScaleFactor)/2);
+	pixmapVal = getPixmap(b);
+	update();
 }
 
 void BallItem::setSpecialPixmap(const QPixmap& pm, qreal sizeFactor)
 {
-	if (specialPixmapItem) {
-		specialPixmapItem->setPixmap(pm);
-	} else {
-		specialPixmapItem = new QGraphicsPixmapItem(pm, this);
-		specialPixmapItem->setAcceptedMouseButtons(0);
-		specialPixmapItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
-		specialPixmapItem->setTransformationMode(Qt::SmoothTransformation);
-		specialPixmapItem->setZValue(2);
-	}
-	scalePixmapItem(pm, sizeFactor);
+	specialPixmapVal = pm;
+	qreal margin = (rect.width() - rect.width()*sizeFactor) / 2;
+	specialPixmapRect = rect.adjusted(margin, margin, -margin, -margin);
 }
 
 QPixmap BallItem::specialPixmap()
 {
-	if (specialPixmapItem)
-		return specialPixmapItem->pixmap();
-	else
-		return QPixmap();
+	return specialPixmapVal;
 }
