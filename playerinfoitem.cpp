@@ -4,6 +4,7 @@
 #include "board.hpp"
 
 #include <QFont>
+#include <QBrush>
 
 //~ #include "debugtools.hpp"
 
@@ -53,14 +54,14 @@ Player* PlayerInfoItem::player()
 void PlayerInfoItem::playerTurn(Player* p)
 {
 	if (p != playerVal) return;
-	iconItem->blink();
+	iconItem->blink(1);
 	iconItem->activate();
 }
 
 void PlayerInfoItem::playerMoved(Player* p)
 {
 	if (p != playerVal) return;
-	iconItem->throbber();
+	iconItem->noThrobber();
 }
 
 void PlayerInfoItem::playerMoveEnded(Player* p, uint total)

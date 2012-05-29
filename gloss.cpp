@@ -1,46 +1,34 @@
-#include <QPixmap>
-#include <QColor>
 #include <QImage>
-#include <QPaintEngine>
+#include <QPainter>
+#include <QColor>
 
-QImage glossyColorShape(QColor color, QImage mask, QImage gloss)
+
+//!Czesc wspolna obu wersji (z QColor i QBrush)
+static void glossyColorShape(QPainter& painter, const QImage& mask, const QImage& gloss)
 {
-	QImage result = QImage(mask.width(), mask.height(), QImage::Format_ARGB32);
+	painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+	painter.drawImage(QPointF(0, 0), mask);
+	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	painter.drawImage(QPointF(0, 0), gloss);
+}
+
+QImage glossyColorShape(QColor color, const QImage& mask, const QImage& gloss)
+{
+	QImage result = QImage(mask.width(), mask.height(), 
+			QImage::Format_ARGB32_Premultiplied);
 	result.fill(color);
-	switch (mask.format()) {
-		case QImage::Format_Indexed8:
-			for (int iy = 0; iy < result.height(); ++iy){
-				QRgb* resLine = reinterpret_cast<QRgb*>(result.scanLine(iy));
-				uchar* maskLine = mask.scanLine(iy);
-				for (int ix = 0; ix < result.width(); ++ix){
-					resLine[ix] = qRgba(
-							qRed(resLine[ix]),
-							qGreen(resLine[ix]),
-							qBlue(resLine[ix]),
-							maskLine[ix]);
-				}
-			}
-			break;
-		case QImage::Format_RGB32:
-		case QImage::Format_ARGB32:
-			for (int iy = 0; iy < result.height(); ++iy){
-				QRgb* resLine = reinterpret_cast<QRgb*>(result.scanLine(iy));
-				QRgb* maskLine = reinterpret_cast<QRgb*>(mask.scanLine(iy));
-				for (int ix = 0; ix < result.width(); ++ix){
-					resLine[ix] = qRgba(
-							qRed(resLine[ix]),
-							qGreen(resLine[ix]),
-							qBlue(resLine[ix]),
-							qRed(maskLine[ix]));
-				}
-			}
-			break;
-		default:
-			//possibly error message
-			break;
-	}
-	
-	result.paintEngine()->drawImage(result.rect(), gloss, gloss.rect(), 
-			Qt::AutoColor | Qt::NoOpaqueDetection);
+	QPainter painter(&result);
+	glossyColorShape(painter, mask, gloss);
+	return result;
+}
+
+QImage glossyColorShape(QBrush brush, const QImage& mask, const QImage& gloss)
+{
+	QImage result = QImage(mask.width(), mask.height(), 
+			QImage::Format_ARGB32_Premultiplied);
+	QRectF r = result.rect();
+	QPainter painter(&result);
+	painter.fillRect(result.rect(), brush);
+	glossyColorShape(painter, mask, gloss);
 	return result;
 }

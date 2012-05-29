@@ -36,10 +36,8 @@ JokerBall::JokerBall(Square* s, int falling, int animDelay)
 	if (!specialPixmap)
 		specialPixmap = new QPixmap(":Balls/Joker.png");
 	if (brush.style() == Qt::NoBrush){
-		QPixmap brushPixmap(QPixmap(":Balls/JokerBrush.png").
-			scaledToWidth(Square::size()+40, Qt::SmoothTransformation));
+		QPixmap brushPixmap(QPixmap(":Balls/JokerBrush.png"));
 		brush = QBrush(brushPixmap);
-		brush.setTransform(QTransform::fromTranslate(-20, -20));
 	}
 	ballItem->setBrush(brush);
 	ballItem->setSpecialPixmap(*specialPixmap, 0.6);

@@ -9,6 +9,7 @@
 #include "ballitem.hpp"
 #include "square.hpp"
 #include "board.hpp"
+#include "gloss.hpp"
 
 #include "settings.hpp"
 #include "debugtools.hpp"
@@ -24,29 +25,19 @@ inline static qreal margin()
 	return settings()->value("ball/margin").toDouble();
 }
 
-QPixmap* BallItem::glossPixmap = 0;
+QImage BallItem::glossImage;
+QImage BallItem::maskImage;
 
 BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
-	: QGraphicsEllipseItem(margin(), margin(),
-			Square::size()-2*margin(), Square::size()-2*margin(), s->item()),
-			specialPixmapItem(0)
+	: QGraphicsPixmapItem(getPixmap(color), s->item()), specialPixmapItem(0)
 {
-	QGraphicsEllipseItem::setBrush(QBrush(color));
-	setPen(Qt::NoPen);
+	//~ setOffset(margin(), margin());
 	setAcceptedMouseButtons(0);
-	setTransformOriginPoint((Square::size()-2*margin())/2,
-			(Square::size()-2*margin())/2);
-	
-	if (!glossPixmap)
-		glossPixmap = new QPixmap(":Balls/BallGloss.png");
+	setScale((Square::size()-2*margin())/pixmap().width());
+	setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
+	setTransformationMode(Qt::SmoothTransformation);
 		
-	glossPixmapItem = new QGraphicsPixmapItem(*glossPixmap, this);
-	glossPixmapItem->setAcceptedMouseButtons(0);
-	glossPixmapItem->setScale((Square::size()-2*margin())/glossPixmap->width());
-	glossPixmapItem->setZValue(1);
-	glossPixmapItem->setPos(margin(), margin());
-	glossPixmapItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
-	glossPixmapItem->setTransformationMode(Qt::SmoothTransformation);
+	//~ setTransformOriginPoint(boundingRect().center() + offset());
 	
 	if (yoffset != 0)
 		animateFalling(yoffset, animDelay);
@@ -54,11 +45,29 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 		animateAppear(animDelay);
 }
 
+inline void BallItem::commonGetPixmap()
+{
+	if (glossImage.isNull())
+		glossImage.load(":Balls/BallGloss.png");
+	if (maskImage.isNull())
+		maskImage.load(":Balls/BallMask.png");
+}
+
+QPixmap BallItem::getPixmap(QColor color)
+{
+	commonGetPixmap();
+	return QPixmap::fromImage(glossyColorShape(color, maskImage, glossImage));
+}
+
+QPixmap BallItem::getPixmap(QBrush brush)
+{
+	commonGetPixmap();
+	return QPixmap::fromImage(glossyColorShape(brush, maskImage, glossImage));
+}
+
 void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 {
-	QGraphicsEllipseItem::setParentItem(s->item());
-	QGraphicsEllipseItem::setRect(margin(), margin(),
-			Square::size()-2*margin(), Square::size()-2*margin());
+	setParentItem(s->item());
 	
 	if (ypos != 0)
 		animateFalling(ypos, animDelay);
@@ -66,9 +75,7 @@ void BallItem::placeOnSquare(Square* s, qreal ypos, int animDelay)
 
 void BallItem::placeOnSquare(Square* s, Square* from)
 {
-	QGraphicsEllipseItem::setParentItem(s->item());
-	QGraphicsEllipseItem::setRect(margin(), margin(),
-			Square::size()-2*margin(), Square::size()-2*margin());
+	setParentItem(s->item());
 	
 	animateArc(from->item()->pos() - s->item()->pos());
 }
@@ -133,7 +140,7 @@ void BallItem::explode()
 	setPos(sp);
 	setZValue(3);
 	QPropertyAnimation* anim = new QPropertyAnimation(this, "scale");
-	anim->setEndValue(settings()->value("ball/explosionFactor").toDouble());
+	anim->setEndValue(settings()->value("ball/explosionFactor").toDouble()*scale());
 	anim->setDuration(settings()->value("ball/explosionTime").toInt());
 	anim->setEasingCurve(QEasingCurve::InOutBack);
 	connect(anim, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -141,21 +148,21 @@ void BallItem::explode()
 	anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-QBrush BallItem::brush() const
-{
-	return QGraphicsEllipseItem::brush();
-}
+//~ QBrush BallItem::brush() const
+//~ {
+	//~ return QGraphicsEllipseItem::brush();
+//~ }
 
 void BallItem::setBrush(const QBrush& b)
 {
-	QGraphicsEllipseItem::setBrush(b);
+	setPixmap(getPixmap(b));
 }
 
 void BallItem::scalePixmapItem(const QPixmap& pm, qreal sizeFactor)
 {
 	if (pm.isNull()) return;
-	qreal W = Square::size() - 2*margin(); //alternatywnie rect().width()
-	qreal H = Square::size() - 2*margin(); //alternatywnie rect().height()
+	qreal W = pixmap().width();//Square::size() - 2*margin(); //alternatywnie rect().width()
+	qreal H = pixmap().height();//Square::size() - 2*margin(); //alternatywnie rect().height()
 	qreal w = pm.width();
 	qreal h = pm.height();
 	qreal realScaleFactor = std::min((sizeFactor*W)/w, (sizeFactor*H)/h);

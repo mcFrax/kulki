@@ -1,11 +1,11 @@
 #pragma once
-#include <QGraphicsEllipseItem>
+#include <QGraphicsPixmapItem>
 
 class Square;
+class QColor;
 class QPixmap;
-class QGraphicsPixmapItem;
 
-class BallItem : public QObject, protected QGraphicsEllipseItem
+class BallItem : public QObject, protected QGraphicsPixmapItem
 {
 	Q_OBJECT
 	Q_PROPERTY(QPointF pos READ pos WRITE setPos)
@@ -18,12 +18,16 @@ class BallItem : public QObject, protected QGraphicsEllipseItem
 		QGraphicsPixmapItem* glossPixmapItem;
 		QGraphicsPixmapItem* specialPixmapItem;
 		void scalePixmapItem(const QPixmap&, qreal sizeFactor);
-		static QPixmap* glossPixmap;
+		static QImage glossImage;
+		static QImage maskImage;
+		static void commonGetPixmap(); //common part of these:
+		static QPixmap getPixmap(QColor color);
+		static QPixmap getPixmap(QBrush brush);
 	public:
 		BallItem(const QColor&, Square*, qreal yoffset = 0, int animDelay = 0);
 		void placeOnSquare(Square*, qreal ypos = 0, int animDelay = 0);
 		void placeOnSquare(Square*, Square* from);
-		QBrush brush() const;
+		//~ QBrush brush() const;
 		void setBrush(const QBrush&);
 		void setSpecialPixmap(const QPixmap&, qreal sizeFactor = 1.0);
 		QPixmap specialPixmap();
