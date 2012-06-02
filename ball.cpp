@@ -10,8 +10,8 @@
 
 #include "debugtools.hpp"
 
-int Ball::specialBallTypes = 5;
-static const QString specialBallTypeNames[Ball::specialBallTypes] = 
+const int Ball::specialBallTypes = 5;
+const QString Ball::specialBallTypeNames[Ball::specialBallTypes] = 
 {
 	"Joker",
 	"Chameleon",

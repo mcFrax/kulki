@@ -4,13 +4,13 @@
 
 #include <QListIterator>
 
-int Player::playerTypes = 3;
-const QString Player::playerTypeNames[Player::playerTypes]
+const int Player::playerTypes = 3;
+const QString Player::playerTypeNames[Player::playerTypes] =
 {
 	"Human",
 	"Easy CPU",
 	"Medium CPU",
-}
+};
 
 Player::Player(QString name, QColor color, int type, QObject* parent)
 	: QObject(parent), typeVal(type), nameVal(name), colorVal(color), 
@@ -44,24 +44,24 @@ Player::PlayerInfo Player::playerInfo() const
 }
 
 template <class PlayerT>
-Player* constructor(const PlayerInfo& info)
+Player* constructorTemplate(const Player::PlayerInfo& info, QObject* parent = 0)
 {
-	return new PlayerT(info.name, info.color);
+	return new PlayerT(info.name, info.color, parent);
 }
 
-typedef Player* (*playerConstructor)(const PlayerInfo& info);
+typedef Player* (*playerConstructor)(const Player::PlayerInfo& info, QObject* parent);
 
 static int constructors = Player::playerTypes;
 static playerConstructor constructor[Player::playerTypes] =
 {
-	constructor<HumanPlayer>,
-	constructor<AI1Player>,
-	constructor<AI2Player>,
+	constructorTemplate<HumanPlayer>,
+	constructorTemplate<AI1Player>,
+	constructorTemplate<AI2Player>,
 };
 
-Player* Player::fromPlayerInfo(const PlayerInfo& info)
+Player* Player::fromPlayerInfo(const PlayerInfo& info, QObject* parent)
 {
-	return constructor[info.type % constructors](info);
+	return constructor[info.type % constructors](info, parent);
 }
 
 Player::PlayerInfo::PlayerInfo ()
@@ -80,7 +80,7 @@ Player::PlayerInfo::PlayerInfo (const QList<QVariant> list)
 	color = list[2].value<QColor>();
 }
 
-Player::PlayerInfo::operator QList<QVariant>() const
+Player::PlayerInfo::operator QVariant() const
 {
 	QList<QVariant> res;
 	res.append(name);
@@ -89,20 +89,11 @@ Player::PlayerInfo::operator QList<QVariant>() const
 	return res;
 }
 
-QList<Player*> Player::createPlayers(const QList<QVariant> ls)
+QList<Player*> Player::createPlayers(const QList<Player::PlayerInfo> ls, QObject* parent)
 {
 	QList<Player*> res;
-	QListIterator<QVariant> iterator(ls);
+	QListIterator<Player::PlayerInfo> iterator(ls);
 	while (iterator.hasNext())
-		res.append(fromPlayerInfo(iterator.next().toList()));
-	return res;
-}
-
-QList<QVariant> Player::toQVariantList(const QList<Player*>& ls)
-{
-	QList<QVariant> res;
-	QListIterator<Player*> iterator(ls);
-	while (iterator.hasNext())
-		res.append(iterator.next()->playerInfo());
+		res.append(fromPlayerInfo(iterator.next(), parent));
 	return res;
 }

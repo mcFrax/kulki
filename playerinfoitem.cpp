@@ -47,6 +47,16 @@ PlayerInfoItem::~PlayerInfoItem()
 		delete anim;
 }
 
+int PlayerInfoItem::width()
+{
+	return 100;
+}
+
+int PlayerInfoItem::height()
+{
+	return 74;
+}
+
 uint PlayerInfoItem::visiblePoints()
 {
 	return visiblePointsVal;

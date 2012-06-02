@@ -9,6 +9,7 @@
 #include "square.hpp"
 #include "ballcolor.hpp"
 #include "player.hpp"
+#include "playerinfoitem.hpp"
 
 #include "settings.hpp"
 #include "debugtools.hpp"
@@ -36,7 +37,7 @@ Board* Board::newBoard(const GameSetup& s, QGraphicsItem * parent)
 	return new BoardImplementation(s, parent);
 }
 
-static inline qreal margin()
+qreal Board::margin()
 {
 	return settings()->value("board/margin").toDouble();
 }
@@ -45,24 +46,28 @@ static inline qreal margin()
 Board::Board(const GameSetup& s, QGraphicsItem * parent)
 	: QGraphicsRectItem(
 			-margin(), -margin(),
-			s.width*Square::size() + 2*margin(),
+			s.width*Square::size() + PlayerInfoItem::width() + 3*margin(),
 			s.height*Square::size() + 2*margin(),
 			parent), 
 		setup(s), state(animatingMove), internalState(normal),
-		curPlayer(0), nextPlayer(0), squares(s.width, s.height)
+		curPlayer(0), turnNumber(0), squares(s.width, s.height)
 {
+	QListIterator<Player::PlayerInfo> it(s.players);
+	while(it.hasNext())
+		players.append(Player::fromPlayerInfo(it.next(), this));
+}
+
+Board::~Board()
+{
+	QListIterator<Player*> it(players);
+	while(it.hasNext())
+		delete it.next();
 }
 
 //!Zwraca biezacego gracza
 Player* Board::currentPlayer()
 {
 	return curPlayer;
-}
-
-//!Zwraca nastepnego gracza (jezeli zostal ustawiony)
-Player* Board::getNextPlayer()
-{
-	return nextPlayer;
 }
 
 //!Zwraca gameSetup
@@ -75,6 +80,12 @@ const Board::GameSetup& Board::gameSetup()
 Board::State Board::getState()
 {
 	return state;
+}
+
+//!Numer tury
+uint Board::turn()
+{
+	return turnNumber;
 }
 
 //!Ustawia state i emituje stateChanged (gdy state != s)
@@ -145,26 +156,44 @@ void Board::animationEnded()
 	}
 }
 
-Q_DECLARE_METATYPE(QList<uint>)
+template <class T1, class T2>
+struct NoConv
+{
+	T2 operator ()(const T1& v)
+	{
+		return v;
+	}
+};
+
+static inline QList<QVariant> conv1(const QVariant& v)
+{
+	return v.toList();
+}
+
+static inline uint conv2(const QVariant& v)
+{
+	return v.toUInt();
+}
+
+template <class T1, class T2, class ConverterT>
+static QList<T2> convertList(const QList<T1>& list, ConverterT conv = ConverterT())
+{
+	QList<T2> res;
+	QListIterator<T1> iterator(list);
+	while (iterator.hasNext())
+		res.append(conv(iterator.next()));
+	return res;
+}
 
 Board::GameSetup::GameSetup()
 	:	width(settings()->value("game settings/width").toUInt()),
 		height(settings()->value("game settings/height").toUInt()),
 		colors(settings()->value("game settings/colors").toUInt()),
 		rowLength(settings()->value("game settings/rowLength").toInt()),
-		players(Player::createPlayers(settings()->value("game settings/players").toList())),
-		ballTypeSettings(settings()->value("game settings/ballTypeSettings").value<QList<uint> >()),
+		players(convertList<QVariant, Player::PlayerInfo>(settings()->value("game settings/players").toList(), conv1)),
+		ballTypeSettings(convertList<QVariant, uint>(settings()->value("game settings/ballTypeSettings").toList(), conv2)),
 		roundLimit(settings()->value("game settings/roundLimit").toUInt())
 {
-}
-
-static QVariant convertBTS(const QList<uint> ls)
-{
-	QList<QVariant> res;
-	QListIterator<uint> iterator(ls);
-	while (iterator.hasNext())
-		res.append(iterator.next());
-	return res;
 }
 
 void Board::GameSetup::setAsDefault()
@@ -173,9 +202,11 @@ void Board::GameSetup::setAsDefault()
 	settings()->setValue("game settings/height", height);
 	settings()->setValue("game settings/colors", colors);
 	settings()->setValue("game settings/rowLength", rowLength);
-	settings()->setValue("game settings/players", Player::toQVariantList(players));
-	settings()->setValue("game settings/ballTypeSettings", convertBTS(ballTypeSettings));
+	settings()->setValue("game settings/players", convertList<Player::PlayerInfo, QVariant>(players, NoConv<Player::PlayerInfo, QVariant>()));
+	settings()->setValue("game settings/ballTypeSettings", convertList<uint, QVariant>(ballTypeSettings, NoConv<uint, QVariant>()));
 	settings()->setValue("game settings/roundLimit", roundLimit);
+	
+	settings()->sync();
 }
 
 //!Kontruktor

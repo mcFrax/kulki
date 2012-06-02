@@ -33,4 +33,7 @@ class PlayerInfoItem : public QObject, public QGraphicsRectItem
 		PlayerInfoItem(Player*, Board*, qreal x, qreal y, QGraphicsItem* parentItem = 0);
 		~PlayerInfoItem();
 		Player* player();
+		
+		static int width();
+		static int height();
 };

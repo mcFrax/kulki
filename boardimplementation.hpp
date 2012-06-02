@@ -10,7 +10,6 @@ class HighlightItem;
 //Tu sa upchniete wewnetrzne metody, zeby: a) nie zasmiecac interfejsu, b) podzielic kod
 class BoardImplementation : public Board
 {
-	Q_OBJECT
 	private:
 		class Row : public std::vector<Ball*>
 		{
@@ -27,7 +26,6 @@ class BoardImplementation : public Board
 	private:
 		Array2<std::pair<HighlightItem*, HighlightItem*> > highlights;
 		int total;
-		int turnNumber;
 	private:
 		void check();
 		void computeLegalMoves(const int, const int, bool);
@@ -44,6 +42,4 @@ class BoardImplementation : public Board
 	public:
 		BoardImplementation(const GameSetup&, QGraphicsItem * parent = 0);
 		~BoardImplementation();
-	public slots:
-		void setCurrentPlayer(Player*);
 };

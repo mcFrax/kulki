@@ -14,7 +14,7 @@ SET(kulki_SOURCES main.cpp
 	ColorComboBox.cpp )
 
 SET(kulki_HEADERS main_window.hpp 
-	ballitem.hpp board.hpp boardimplementation.hpp 
+	ballitem.hpp board.hpp 
 	highlightitem.hpp pointsearneditem.hpp player.hpp AIPlayers.hpp 
 	playerinfoitem.hpp playericonitem.hpp ColorComboBox.hpp NewGameDialog.hpp )
 

@@ -15,6 +15,7 @@
 #include "ball.hpp"
 #include "pointsearneditem.hpp"
 #include "player.hpp"
+#include "playerinfoitem.hpp"
 #include "playericonitem.hpp"
 
 #include "settings.hpp"
@@ -66,8 +67,25 @@ class SwapPretender
 
 //!Konstruktor
 BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * parent)
-	: Board(s, parent), highlights(s.width, s.height), turnNumber(0)
+	: Board(s, parent), highlights(s.width, s.height)
 {
+	if (players.empty()){
+		QGraphicsSimpleTextItem* t = new QGraphicsSimpleTextItem("No Players", this);
+		QFont font;
+		font.setPixelSize(24);
+		t->setFont(font);
+		t->setPen(QPen(Qt::black));
+		t->setBrush(Qt::white);
+		return;
+	}
+	
+	for (int i = 0; i < players.size(); ++i){
+		new PlayerInfoItem(players[i], this, 
+				s.width*Square::size() + 2*margin(),
+				i*PlayerInfoItem::height() + margin(),
+				this);
+	}
+	
 	setPen(Qt::NoPen);
 	//~ setPen(QPen(Qt::white, 5.0, Qt::DashLine, Qt::RoundCap));
 	
@@ -254,8 +272,20 @@ void BoardImplementation::newTurn()
 {
 	total = 0;
 	++turnNumber;
-	curPlayer = nextPlayer;
-	nextPlayer = 0;
+	if (turnNumber == 1){
+		curPlayer = players[0];
+	} else {
+		for (int i = 0; i < players.size(); ++i){
+			if (curPlayer == players[i]){
+				if (i == players.size()-1)
+					curPlayer = players[0];
+				else
+					curPlayer = players[i+1];
+				break;
+			}
+		}
+	}
+		
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
 			squares(ix, iy)->getBall()->newTurnUpdate();
@@ -424,7 +454,7 @@ void BoardImplementation::check()
 		//spadanie sie skonczylo
 		if (curPlayer)
 			emit playerMoveEnded(curPlayer, total);
-		if (!computeLegalMoves(0)){
+		if ((setup.roundLimit != 0 && turnNumber == setup.roundLimit) || !computeLegalMoves(0)){
 			endGame();
 		} else {
 			newTurn();
@@ -483,16 +513,4 @@ void BoardImplementation::refill(int animDelay)
 	
 	if (noEffect)
 		check(); //wpp checka odpali animationEnded
-}
-
-//!Oddaje nastepny ruch graczowi p. (ta funkcja wziela sie z troche innej na pocz. koncepcji dzialania)
-void BoardImplementation::setCurrentPlayer(Player* p)
-{
-	if (state == waitingForPlayer){
-		curPlayer = p;
-		computeLegalMoves(curPlayer->isHuman());
-		setState(waitingForMove);
-	} else if (!nextPlayer) {
-		nextPlayer = p;
-	}
 }

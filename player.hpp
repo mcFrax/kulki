@@ -20,7 +20,7 @@ class Player : public QObject
 			PlayerInfo ();
 			PlayerInfo (QString name, int type, QColor color);
 			PlayerInfo (const QList<QVariant>);
-			operator QList<QVariant>() const;
+			operator QVariant() const;
 		};
 		enum { human = 0, cpu1 = 1, cpu2 = 2 };
 	private:
@@ -31,7 +31,6 @@ class Player : public QObject
 	protected:
 		virtual void makeMove(Board*) = 0;
 		Player(QString name, QColor color, int type, QObject* parent = 0);
-		#warning parents needed
 	public:
 		virtual bool isHuman() const = 0;
 		int points() const;
@@ -40,9 +39,9 @@ class Player : public QObject
 		QString name() const;
 		PlayerInfo playerInfo()  const;
 		
-		static Player* fromPlayerInfo(const PlayerInfo& info);
-		static QList<Player*> createPlayers(const QList<QVariant>);
-		static QList<QVariant> toQVariantList(const QList<Player*>&);
+		static Player* fromPlayerInfo(const PlayerInfo& info, QObject* parent = 0);
+		static QList<Player*> createPlayers(const QList<Player::PlayerInfo>, QObject* parent = 0);
+		
 		static const int playerTypes;
 		static const QString playerTypeNames[];
 };

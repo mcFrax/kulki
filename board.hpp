@@ -5,10 +5,10 @@
 #include <set>
 
 #include "array2.hpp"
+#include "player.hpp"
 
 class QPoint;
 class Square;
-class Player;
 class BallColor;
 class QAbstractAnimation;
 class QPlayerInfoItem;
@@ -30,7 +30,7 @@ class Board : public QObject, public QGraphicsRectItem
 			int height; //in squares
 			uint colors;
 			int rowLength;
-			QList<Player*> players;
+			QList<Player::PlayerInfo> players;
 			QList<uint> ballTypeSettings;
 			uint roundLimit;
 			
@@ -60,25 +60,27 @@ class Board : public QObject, public QGraphicsRectItem
 		State state;
 		InternalState internalState;
 		Player* curPlayer;
-		Player* nextPlayer;
+		uint turnNumber;
+		QList<Player*> players;
 		Array2<Square*> squares;
 		std::set<std::pair<Square*, Square*> > legalMoves;
 		std::set<QObject*> currentAnimations;
-		virtual void setCurrentPlayer(Player*) = 0;
 	protected:
 		Board(const GameSetup&, QGraphicsItem * parent = 0);
+		~Board();
 		void setState(State);
 		virtual void check() = 0;
 		virtual void refill(int animDelay = 0) = 0;
+		static qreal margin();
 	public:
 		static Board* newBoard(const GameSetup&, QGraphicsItem * parent = 0);
 		
 		Player* currentPlayer();
-		Player* getNextPlayer();
 		
 		const GameSetup& gameSetup();
 		
 		State getState();
+		uint turn();
 		
 		bool inBoard(int x, int y);
 		
