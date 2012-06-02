@@ -38,6 +38,7 @@ class BoardImplementation : public Board
 		void newTurn();
 		void ballsNewCheckUpdate();
 		void endGame();
+		QGraphicsItem* createGameOverItem(Player* winner);
 	private:
 		bool move(Square*, Square*);
 	public:

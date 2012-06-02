@@ -30,7 +30,8 @@ HighlightItem::HighlightItem(qreal x, qreal y, Board* board, Square* s1, Square*
 	setZValue(1);
 	setPos(x-scaleF*getPixmap(dir).width()/2, 
 			y-scaleF*getPixmap(dir).height()/2);
-	//nie jestem pewien, czy ten efekt jest potrzebny, ale uzycie zwyklego opacity jakos nawalalo
+	//nie jestem pewien, czy ten efekt jest potrzebny, ale uzycie zwyklego
+	//opacity jakos nawalalo - przezroczysty element nie dostawal mouseEventow
 	setGraphicsEffect(new QGraphicsOpacityEffect());
 	setVisibility(0);
 	setVisible(0);

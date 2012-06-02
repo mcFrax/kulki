@@ -7,6 +7,7 @@
 #include "main_window.hpp"
 #include "humanplayer.hpp"
 #include "aiplayer.hpp"
+#include "ai2player.hpp"
 #include "board.hpp"
 #include "playerinfoitem.hpp"
 
@@ -29,7 +30,8 @@ MainWindow::MainWindow()
 	board = Board::newBoard(gameSetup);
 	scene->addItem(board);
 	
-	human = new HumanPlayer("Matou", Qt::blue);
+	//~ human = new HumanPlayer("Matou", Qt::blue);
+	human = new AI2Player(Qt::blue);
 	ai = new AIPlayer(Qt::red);
 	board->setCurrentPlayer(human);
 	connect(board, SIGNAL(playerMoveEnded(Player*, uint)), this, SLOT(nextPlayer(Player*)));

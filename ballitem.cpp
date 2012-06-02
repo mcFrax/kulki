@@ -27,9 +27,6 @@ inline static qreal margin()
 	return settings()->value("ball/margin").toDouble();
 }
 
-QImage BallItem::glossImage;
-QImage BallItem::maskImage;
-
 BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 	: QGraphicsItem(s->item()), 
 		rect(margin(), margin(), Square::size()-margin(),
@@ -62,7 +59,10 @@ void BallItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget
 	painter->drawPixmap(specialPixmapRect, specialPixmapVal, specialPixmapVal.rect());
 }
 
-inline void BallItem::commonGetPixmap()
+static QImage glossImage;
+static QImage maskImage;
+
+inline void commonGetPixmap()
 {
 	if (glossImage.isNull())
 		glossImage.load(":Balls/BallGloss.png");

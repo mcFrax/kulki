@@ -5,11 +5,15 @@
 
 #include <QFont>
 #include <QBrush>
+#include <QPropertyAnimation>
 
-//~ #include "debugtools.hpp"
+#include <cmath>
+
+#include "debugtools.hpp"
 
 PlayerInfoItem::PlayerInfoItem(Player* player, Board* board, qreal x, qreal y, QGraphicsItem* parentItem)
-	: QGraphicsRectItem(parentItem), playerVal(player), boardVal(board)
+	: QGraphicsRectItem(parentItem), playerVal(player), boardVal(board), 
+		visiblePointsVal(player->points()), anim(0)
 {
 	#warning about hardcoded values
 	setBrush(Qt::white);
@@ -35,6 +39,23 @@ PlayerInfoItem::PlayerInfoItem(Player* player, Board* board, qreal x, qreal y, Q
 	connect(board, SIGNAL(playerMoved(Player*)), this, SLOT(playerMoved(Player*)));
 	connect(board, SIGNAL(playerMoveEnded(Player*, uint)), this, SLOT(playerMoveEnded(Player*, uint)));
 	connect(board, SIGNAL(pointsEarned(Player*, uint)), this, SLOT(pointsEarned(Player*, uint)));
+}
+
+PlayerInfoItem::~PlayerInfoItem()
+{
+	if (anim)
+		delete anim;
+}
+
+uint PlayerInfoItem::visiblePoints()
+{
+	return visiblePointsVal;
+}
+
+void PlayerInfoItem::setVisiblePoints(uint val)
+{
+	visiblePointsVal = val;
+	pointsItem->setText(pointsString(uint(val)));
 }
 
 inline QString PlayerInfoItem::pointsString(uint points)
@@ -74,5 +95,11 @@ void PlayerInfoItem::pointsEarned(Player* p, uint points)
 {
 	if (p != playerVal) return;
 	
-	pointsItem->setText(pointsString(playerVal->points()));
+	if (!anim)
+		anim = new QPropertyAnimation(this, "visiblePoints");
+	anim->stop();
+	anim->setStartValue(visiblePointsVal);
+	anim->setEndValue(playerVal->points());
+	anim->setDuration(sqrt(playerVal->points() - visiblePointsVal)*25);
+	anim->start();
 }

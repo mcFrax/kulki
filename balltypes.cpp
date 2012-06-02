@@ -59,7 +59,7 @@ CameleonBall::CameleonBall(Square* s, int falling, int animDelay)
 {
 	if (!specialPixmap)
 		specialPixmap = new QPixmap(":Balls/Cameleon.png");
-	ballItem->setSpecialPixmap(*specialPixmap, 0.6);
+	ballItem->setSpecialPixmap(*specialPixmap, 0.7);
 }
 
 void CameleonBall::newCheckUpdate()
@@ -78,7 +78,7 @@ DoubleBall::DoubleBall(const BallColor& color, Square* s, int falling, int animD
 {
 	if (!specialPixmap)
 		specialPixmap = new QPixmap(":Balls/Double.png");
-	ballItem->setSpecialPixmap(*specialPixmap, 0.6);
+	ballItem->setSpecialPixmap(*specialPixmap, 0.7);
 }
 
 int DoubleBall::applyPointModificator(const int& points) const

@@ -16,14 +16,7 @@ class BallItem : public QObject, protected QGraphicsItem
 		QRectF specialPixmapRect;
 		QPixmap pixmapVal;
 		QPixmap specialPixmapVal;
-	protected: //methods
-		void animateFalling(qreal yoffset, int animDelay = 0);
-		void animateAppear(int time = 0);
-		void animateArc(QPointF startpoint);
 	protected: //static members
-		static QImage glossImage;
-		static QImage maskImage;
-		static void commonGetPixmap(); //common part of these:
 		static QPixmap getPixmap(QColor color);
 		static QPixmap getPixmap(QBrush brush);
 	public:
@@ -39,4 +32,8 @@ class BallItem : public QObject, protected QGraphicsItem
 		
 		QRectF boundingRect() const;
 		void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget * widget = 0);
+		
+		void animateFalling(qreal yoffset, int animDelay = 0);
+		void animateAppear(int animDelay = 0);
+		void animateArc(QPointF startpoint);
 };

@@ -1,6 +1,7 @@
 #include <QPen>
 #include <QFont>
 #include <QBrush>
+#include <QColor>
 #include <QPixmap>
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsDropShadowEffect>
@@ -12,6 +13,7 @@
 #include "ball.hpp"
 #include "pointsearneditem.hpp"
 #include "player.hpp"
+#include "playericonitem.hpp"
 
 #include "settings.hpp"
 #include "debugtools.hpp"
@@ -65,6 +67,7 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 	: Board(s, parent), highlights(s.width, s.height), turnNumber(0)
 {
 	setPen(Qt::NoPen);
+	//~ setPen(QPen(Qt::white, 5.0, Qt::DashLine, Qt::RoundCap));
 	
 	BallColor::createTable(setup.colors);
 	
@@ -346,26 +349,75 @@ void BoardImplementation::ballsNewCheckUpdate()
 	}
 }
 
+QGraphicsItem* BoardImplementation::createGameOverItem(Player* winner)
+{
+	struct GameOverItem : public QGraphicsItem
+	{
+		GameOverItem(QGraphicsItem* pI) : QGraphicsItem(pI) {}
+		QRectF boundingRect() const 
+		{
+			return childrenBoundingRect();
+		}
+		void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget * widget = 0)
+		{
+		}
+	};
+	
+	QGraphicsItem* endItem = new GameOverItem(this);
+	
+	QGraphicsSimpleTextItem* gameOver = new QGraphicsSimpleTextItem(
+			tr("Koniec gry"), endItem);
+			
+		QFont font;
+		font.setPixelSize(82);
+		gameOver->setFont(font);
+		
+		gameOver->setBrush(Qt::white);
+		gameOver->setZValue(100);
+		gameOver->setGraphicsEffect(new QGraphicsDropShadowEffect(this));
+	
+	if (winner){
+		PlayerIconItem* icon = new PlayerIconItem(winner->color(), endItem);
+		icon->blink(1);
+		icon->activate();
+		QGraphicsSimpleTextItem* winnerText = new QGraphicsSimpleTextItem(
+				tr("Wygrywa ")+winner->name()+"!", endItem);
+		
+		QFont winnerFont;
+		winnerFont.setPixelSize(24);
+		winnerText->setFont(winnerFont);
+		winnerText->setPen(QPen(Qt::black));
+		winnerText->setBrush(Qt::white);
+		
+		qreal off = 
+				(gameOver->boundingRect().width()
+				-(winnerText->boundingRect().width() + icon->boundingRect().width() + 3)
+				) /2;
+		if ( off < 0){
+			gameOver->setPos(-off, 0);
+			icon->setPos(0, gameOver->boundingRect().height() + 3);
+			winnerText->setPos(
+					icon->boundingRect().width() + 3,
+					gameOver->boundingRect().height() + 3);
+		} else {
+			icon->setPos(off, gameOver->boundingRect().height() + 3);
+			winnerText->setPos(
+					off + icon->boundingRect().width() + 3,
+					gameOver->boundingRect().height() + 3);
+		}
+	}
+		
+	return endItem;
+}
+
 void BoardImplementation::endGame()
 {
 	//tu robie taki duzy napis
-	QGraphicsSimpleTextItem* endItem = new QGraphicsSimpleTextItem(
-		tr("Koniec gry"), this);
-		
-	QFont font;
-	font.setPixelSize(100);
-	endItem->setFont(font);
+	QGraphicsItem* endItem = createGameOverItem(curPlayer);
 	
-	if (endItem->boundingRect().width() > rect().width())
-		endItem->setScale(rect().width() / endItem->boundingRect().width());
-		
 	endItem->setPos(
 			(rect().width()  - endItem->boundingRect().width())  /2, 
 			(rect().height() - endItem->boundingRect().height()) /2);
-	
-	endItem->setBrush(Qt::white);
-	endItem->setZValue(100);
-	endItem->setGraphicsEffect(new QGraphicsDropShadowEffect(this));
 	
 	//a tutaj jest to, co istotne, czyli stan i signal
 	setState(locked);

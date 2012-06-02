@@ -1,5 +1,6 @@
 #pragma once
 #include <QGraphicsRectItem>
+#include <QList>
 
 #include <set>
 
@@ -28,6 +29,7 @@ class Board : public QObject, public QGraphicsRectItem
 			uint height; //in squares
 			uint colors;
 			uint rowLength;
+			QList<Player*> players;
 			//list_of_players
 			//time_limit
 			//bonus chances
