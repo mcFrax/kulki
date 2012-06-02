@@ -46,7 +46,7 @@ qreal Board::margin()
 Board::Board(const GameSetup& s, QGraphicsItem * parent)
 	: QGraphicsRectItem(
 			-margin(), -margin(),
-			s.width*Square::size() + PlayerInfoItem::width() + 3*margin(),
+			s.width*Square::size() + PlayerInfoItem::width() + 4*margin(),
 			s.height*Square::size() + 2*margin(),
 			parent), 
 		setup(s), state(animatingMove), internalState(normal),
@@ -55,6 +55,7 @@ Board::Board(const GameSetup& s, QGraphicsItem * parent)
 	QListIterator<Player::PlayerInfo> it(s.players);
 	while(it.hasNext())
 		players.append(Player::fromPlayerInfo(it.next(), this));
+	turnLimit = s.roundLimit*players.size();
 }
 
 Board::~Board()

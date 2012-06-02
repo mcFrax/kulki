@@ -17,7 +17,13 @@ BallTypeSettingsDialog::BallTypeSettingsDialog(const QList<uint> settings, QWidg
 		edits[i]->setValidator(new QIntValidator(0, 1000/Ball::specialBallTypes, this));
 		layout->addWidget(new QLabel(Ball::specialBallTypeNames[i], this));
 		layout->addWidget(edits[i]);
+		connect(edits[i], SIGNAL(textChanged(const QString&)), this, SLOT(updateFactor()));
 	}
+	layout->addWidget(new QLabel(tr("Wspolczynnik poziomu trudnosci"), this));
+	factorEdit = new QLineEdit("", this);
+	factorEdit->setReadOnly(1);
+	updateFactor();
+	layout->addWidget(factorEdit);
 
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 		| QDialogButtonBox::Cancel);
@@ -32,6 +38,15 @@ BallTypeSettingsDialog::BallTypeSettingsDialog(const QList<uint> settings, QWidg
 BallTypeSettingsDialog::~BallTypeSettingsDialog()
 {
 	delete [] edits;
+}
+
+void BallTypeSettingsDialog::updateFactor()
+{
+	QList<uint> setts;
+	for (int i = 0; i < Ball::specialBallTypes; ++i){
+		setts.append(edits[i]->text().toUInt());
+	}
+	factorEdit->setText(QString::number(Ball::levelFactor(setts)));
 }
 
 void BallTypeSettingsDialog::accept()

@@ -64,7 +64,7 @@ ChameleonBall::ChameleonBall(Square* s, int falling, int animDelay)
 
 void ChameleonBall::newCheckUpdate()
 {
-	setColor(BallColor::random());
+	setColor(BallColor::random(getColor()));
 }
 
 ///////////////////////////////////////////////////////////

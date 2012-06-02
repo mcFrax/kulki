@@ -5,6 +5,7 @@
 #include "board.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 
 #include <QLabel>
 #include <QLineEdit>
@@ -13,7 +14,11 @@
 #include <QPushButton>
 #include <QIntValidator>
 #include <QDialogButtonBox>
- 
+#include <QListIterator>
+#include <QScrollArea>
+
+#include "debugtools.hpp"
+
 NewGameDialog::NewGameDialog(const Board::GameSetup& setup, QWidget* parent)
 	: QDialog(parent), setupVal(setup), ballSettings(setup.ballTypeSettings)
 {
@@ -36,7 +41,7 @@ NewGameDialog::NewGameDialog(const Board::GameSetup& setup, QWidget* parent)
 	
 	colorsEdit = new QLineEdit(QString::number(setup.colors), this);
 	colorsEdit->setValidator(validator);
-	leftLayout->addWidget(new QLabel("Liczb kolorow", this));
+	leftLayout->addWidget(new QLabel("Liczba kolorow", this));
 	leftLayout->addWidget(colorsEdit);
 	
 	rowLengthEdit = new QLineEdit(QString::number(setup.rowLength), this);
@@ -49,11 +54,22 @@ NewGameDialog::NewGameDialog(const Board::GameSetup& setup, QWidget* parent)
 	leftLayout->addWidget(new QLabel("Limit rund (0 - bez limitu)", this));
 	leftLayout->addWidget(roundLimitEdit);
 	
-	#warning players
-	//~ for (int i = 0; i < 
-	//~ QList<PlayerSetupWidget*> players;
-	//~ BallTypeSettingsDialog* ballTypeSettingsDialog;
+	leftLayout->addStretch();
 	
+	QListIterator<Player::PlayerInfo> iter(setup.players);
+	while (iter.hasNext()){
+		PlayerSetupWidget* p = new PlayerSetupWidget(iter.next(), this);
+		rightLayout->addWidget(p);
+		players.append(p);
+		connect(p, SIGNAL(destroyed()), this, SLOT(playerWidgetDeleted()));
+	}
+	
+	rightLayout->addStretch();
+	QPushButton* addPlayerButton = new QPushButton(tr("Dodaj gracza"), this);
+	rightLayout->addWidget(addPlayerButton);
+	connect(addPlayerButton, SIGNAL(clicked()), this, SLOT(addPlayer()));
+	
+	playersLayout = rightLayout;
 
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 		| QDialogButtonBox::Cancel);
@@ -62,13 +78,21 @@ NewGameDialog::NewGameDialog(const Board::GameSetup& setup, QWidget* parent)
 	buttonBox->addButton(ballTypeSettingsButton, QDialogButtonBox::ActionRole);
 	connect(ballTypeSettingsButton, SIGNAL(clicked()), this, SLOT(showBallTypeSettings()));
 	
+	okButton = buttonBox->button(QDialogButtonBox::Ok);
+	
+	okButton->setEnabled(!players.empty());
+	
 	QVBoxLayout* mainLayout = new QVBoxLayout;
 	QHBoxLayout* splitLayout = new QHBoxLayout;
 	
-	//~ QWidget* leftPanel = new QWidget(this);
-	//~ QWidget* rightPanel = new QWidget(this);
+	QWidget* rightPanel = new QWidget(this);
+	QScrollArea* scrollArea = new QScrollArea(this);
+	scrollArea->setWidgetResizable(1);
+	rightPanel->setLayout(rightLayout);
+	scrollArea->setWidget(rightPanel);
+	
 	splitLayout->addLayout(leftLayout);
-	splitLayout->addLayout(rightLayout);
+	splitLayout->addWidget(scrollArea, 1);
 	
 	mainLayout->addLayout(splitLayout);
 	mainLayout->addWidget(buttonBox);
@@ -93,8 +117,11 @@ void NewGameDialog::accept()
 	setupVal.roundLimit = roundLimitEdit->text().toUInt();
 	setupVal.ballTypeSettings = ballSettings;
 	
-	#warning setupVal.players = ??
-	//~ setupVal.players = 
+	setupVal.players.clear();
+	QListIterator<PlayerSetupWidget*> iter(players);
+	while (iter.hasNext()){
+		setupVal.players.append(iter.next()->playerInfo());
+	}
 	
 	setupVal.setAsDefault();
 	
@@ -111,10 +138,27 @@ void NewGameDialog::showBallTypeSettings()
 
 void NewGameDialog::playerWidgetDeleted()
 {
+	LINECHECK
 	for (QList<PlayerSetupWidget*>::iterator i = players.begin(); i != players.end(); ++i){
-		if (*i == dynamic_cast<PlayerSetupWidget*>(sender())){
+		if (*i == static_cast<PlayerSetupWidget*>(sender())){
 			players.erase(i);
-			return;
+			break;
 		}
 	}
+	okButton->setEnabled(!players.empty());
+}
+
+void NewGameDialog::addPlayer()
+{
+	PlayerSetupWidget* p = new PlayerSetupWidget(
+			Player::PlayerInfo(
+				tr("Gracz ")+QString::number(players.size()+1), 
+				Player::human, 
+				QColor::colorNames()[rand()%QColor::colorNames().size()]), 
+			this);
+	
+	connect(p, SIGNAL(destroyed()), this, SLOT(playerWidgetDeleted()));
+	players.append(p);
+	playersLayout->insertWidget(playersLayout->count()-2, p);
+	okButton->setEnabled(!players.empty());
 }

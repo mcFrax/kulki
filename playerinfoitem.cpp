@@ -49,7 +49,7 @@ PlayerInfoItem::~PlayerInfoItem()
 
 int PlayerInfoItem::width()
 {
-	return 100;
+	return 150;
 }
 
 int PlayerInfoItem::height()

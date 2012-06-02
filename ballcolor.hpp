@@ -26,6 +26,7 @@ class BallColor {
 		static QColor* table;
 		static void createTable(uint colors);
 		static BallColor random();
+		static BallColor random(BallColor forbidden);
 		static BallColor random(const std::set<BallColor>& forbidden);
 		static uint availableColors();
 };

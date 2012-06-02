@@ -20,6 +20,16 @@ const QString Ball::specialBallTypeNames[Ball::specialBallTypes] =
 	"Hourball",
 };
 
+const qreal specialBallModifacatorsFactor = 0.1; //common factor
+const qreal specialBallModifacators[Ball::specialBallTypes] = 
+{
+	-0.1,
+	-0.1,
+	-0.2,
+	+0.2,
+	+0.1,
+};
+
 Ball::Ball(const BallColor& c, Square* s, int fall, int animDelay)
 	: color(c), squareVal(s), 
 		ballItem(new BallItem(c, s, -fall*Square::size(), animDelay))
@@ -127,11 +137,21 @@ Ball* Ball::getNew(const Board::GameSetup& setup, Square* s, int falling, int an
 {
 	const QList<uint>& bts = setup.ballTypeSettings;
 	uint type = rand()%1000;
-	int sum = 0;
+	uint sum = 0;
 	for (int i = 0; i < bts.size() && i < constructors; ++i){
 		sum += bts[i];
-		if (type < bts[i])
+		if (type < sum){
 			return constructor[i](s, falling, animDelay);
+		}
 	}
 	return construct2<ColorBall>(s, falling, animDelay);
+}
+
+qreal Ball::levelFactor(const QList<uint> bts)
+{
+	qreal res = 1;
+	for (int i = 0; i < bts.size() && i < Ball::specialBallTypes; ++i){
+		res += bts[i]*specialBallModifacators[i] * specialBallModifacatorsFactor;
+	}
+	return res;
 }

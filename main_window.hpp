@@ -16,7 +16,8 @@ class MainWindow : public QMainWindow
 		QGraphicsView *graphicsView;
 		QGraphicsScene *scene;
 		Board *board;
-		QList<Player*> players;
+	protected slots:
+		void newGame();
 	public:
 		MainWindow();
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <QGraphicsEllipseItem>
+#include <QList>
 
 #include "ballcolor.hpp"
 #include "board.hpp"
@@ -32,6 +33,7 @@ class Ball
 	public:
 		static Ball* getNew(const Board::GameSetup&, Square* s,
 				int falling = 0, int animDelay = 0);
+		static qreal levelFactor(const QList<uint> ballTypeSettings);
 		static const int specialBallTypes; //liczba typow kulek
 		static const QString specialBallTypeNames[]; //liczba typow kulek
 };

@@ -7,6 +7,8 @@ class QLineEdit;
 class PlayerSetupWidget;
 class BallTypeSettingsDialog;
 class QIntValidator;
+class QPushButton;
+class QVBoxLayout;
 
 class NewGameDialog : public QDialog
 {
@@ -21,7 +23,10 @@ class NewGameDialog : public QDialog
 		QLineEdit *roundLimitEdit;
 		QList<PlayerSetupWidget*> players;
 		QList<uint> ballSettings;
+		QPushButton* okButton;
+		QVBoxLayout* playersLayout;
 	private slots:
+		void addPlayer();
 		void playerWidgetDeleted();
 		void showBallTypeSettings();
 	public:

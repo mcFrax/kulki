@@ -25,11 +25,11 @@ static QList<QVariant> defBallTypeSettings()
 {
 	//prawdopodobienstwo w promilach
 	QList<QVariant> res;
-	res.append(60); //jokers
-	res.append(60); //chameleons
-	res.append(60); //doubles
-	res.append(60); //skulls
-	res.append(60); //hourglasses
+	res.append(33); //jokers
+	res.append(33); //chameleons
+	res.append(33); //doubles
+	res.append(33); //skulls
+	res.append(33); //hourglasses
 	return res;
 }
 
@@ -40,7 +40,7 @@ static void ensureContains()
 	settingsPtr->endGroup();
 	
 	settingsPtr->beginGroup("board");
-		ensureContains("margin", 0);
+		ensureContains("margin", 10);
 		ensureContains("ballPlacingDelay", 55);
 	settingsPtr->endGroup();
 	
@@ -72,7 +72,7 @@ static void ensureContains()
 	settingsPtr->endGroup();
 	
 	settingsPtr->beginGroup("ai");
-		ensureContains("moveDelay", 1200);
+		ensureContains("moveDelay", 1500);
 	settingsPtr->endGroup();
 }
 

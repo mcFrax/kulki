@@ -1,5 +1,6 @@
 #include <QComboBox>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QIcon>
@@ -8,24 +9,24 @@
 #include "ColorComboBox.hpp"
 #include "player.hpp"
 
-QLineEdit* nameEdit;
 
 PlayerSetupWidget::PlayerSetupWidget(const Player::PlayerInfo& info, QWidget* parent)
 {
-	QVBoxLayout* layout = new QVBoxLayout();
+	QHBoxLayout* layout = new QHBoxLayout();
 	
 	nameEdit = new QLineEdit(info.name, this);
 	layout->addWidget(nameEdit);
 	
-	ColorComboBox* colorBox = new ColorComboBox(info.color, this);
+	colorBox = new ColorComboBox(info.color, this);
 	layout->addWidget(colorBox);
 	
-	QComboBox* typeBox = new QComboBox(this);
+	typeBox = new QComboBox(this);
 	for (int i = 0; i < Player::playerTypes; ++i)
 		typeBox->addItem(Player::playerTypeNames[i]);
 	layout->addWidget(typeBox);
+	typeBox->setCurrentIndex(info.type);
 	
-	QPushButton* delButton = new QPushButton(QIcon(":DeletePlayerIcon.png"), QString());
+	QPushButton* delButton = new QPushButton(QIcon(":DeletePlayerIcon.png"), tr("Usun"));
 	layout->addWidget(delButton);
 	
 	connect(delButton, SIGNAL(clicked()), this, SLOT(deleteLater()));

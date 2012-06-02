@@ -71,8 +71,17 @@ void BallColor::createTable(uint cols)
 		table[i] = QColor((Qt::GlobalColor)(i+7));
 }
 
+//!Losuje kolor
 BallColor BallColor::random()
 {
+	return rand()%colors;
+}
+
+//!Losuje kolor inny niz forbidden
+BallColor BallColor::random(BallColor forbidden)
+{
+	BallColor res;
+	while((res = random()) == forbidden);
 	return rand()%colors;
 }
 

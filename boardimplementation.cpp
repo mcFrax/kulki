@@ -81,7 +81,7 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 	
 	for (int i = 0; i < players.size(); ++i){
 		new PlayerInfoItem(players[i], this, 
-				s.width*Square::size() + 2*margin(),
+				s.width*Square::size() + 3*margin(),
 				i*PlayerInfoItem::height() + margin(),
 				this);
 	}
@@ -431,10 +431,32 @@ QGraphicsItem* BoardImplementation::createGameOverItem(Player* winner)
 	return endItem;
 }
 
+//!Znajduje zwyciezce. Przy remisie lub bruku punktow zwraca 0.
+static Player* getWinner(const QList<Player*> players)
+{
+	int bestPoints = 0;
+	Player* best = 0;
+	QListIterator<Player*> it(players);
+	while(it.hasNext()){
+		Player* p = it.next();
+		if (p->points() == bestPoints){
+			best = 0;
+		} else {
+			if (p->points() > bestPoints){
+				best = p;
+				bestPoints = p->points();
+			}
+		}
+	}
+	return best;
+}
+
 void BoardImplementation::endGame()
 {
+	Player* winner = getWinner(players);
+	
 	//tu robie taki duzy napis
-	QGraphicsItem* endItem = createGameOverItem(curPlayer);
+	QGraphicsItem* endItem = createGameOverItem(winner);
 	
 	endItem->setPos(
 			(rect().width()  - endItem->boundingRect().width())  /2, 
@@ -454,7 +476,7 @@ void BoardImplementation::check()
 		//spadanie sie skonczylo
 		if (curPlayer)
 			emit playerMoveEnded(curPlayer, total);
-		if ((setup.roundLimit != 0 && turnNumber == setup.roundLimit) || !computeLegalMoves(0)){
+		if ((turnLimit && turnNumber == turnLimit) || !computeLegalMoves(0)){
 			endGame();
 		} else {
 			newTurn();

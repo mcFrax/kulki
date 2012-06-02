@@ -60,6 +60,7 @@ class Board : public QObject, public QGraphicsRectItem
 		State state;
 		InternalState internalState;
 		Player* curPlayer;
+		uint turnLimit;
 		uint turnNumber;
 		QList<Player*> players;
 		Array2<Square*> squares;
@@ -67,13 +68,13 @@ class Board : public QObject, public QGraphicsRectItem
 		std::set<QObject*> currentAnimations;
 	protected:
 		Board(const GameSetup&, QGraphicsItem * parent = 0);
-		~Board();
 		void setState(State);
 		virtual void check() = 0;
 		virtual void refill(int animDelay = 0) = 0;
 		static qreal margin();
 	public:
 		static Board* newBoard(const GameSetup&, QGraphicsItem * parent = 0);
+		~Board();
 		
 		Player* currentPlayer();
 		

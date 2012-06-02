@@ -16,7 +16,8 @@ SET(kulki_SOURCES main.cpp
 SET(kulki_HEADERS main_window.hpp 
 	ballitem.hpp board.hpp 
 	highlightitem.hpp pointsearneditem.hpp player.hpp AIPlayers.hpp 
-	playerinfoitem.hpp playericonitem.hpp ColorComboBox.hpp NewGameDialog.hpp )
+	playerinfoitem.hpp playericonitem.hpp ColorComboBox.hpp 
+	NewGameDialog.hpp BallTypeSettingsDialog.hpp )
 
 SET(kulki_RESOURCES kulki.qrc)
 
