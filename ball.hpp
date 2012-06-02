@@ -32,4 +32,6 @@ class Ball
 	public:
 		static Ball* getNew(const Board::GameSetup&, Square* s,
 				int falling = 0, int animDelay = 0);
+		static const int specialBallTypes; //liczba typow kulek
+		static const QString specialBallTypeNames[]; //liczba typow kulek
 };

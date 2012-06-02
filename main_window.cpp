@@ -5,9 +5,7 @@
 #include <QPixmap>
 
 #include "main_window.hpp"
-#include "humanplayer.hpp"
-#include "aiplayer.hpp"
-#include "ai2player.hpp"
+#include "player.hpp"
 #include "board.hpp"
 #include "playerinfoitem.hpp"
 
@@ -17,12 +15,15 @@ using namespace std;
 
 MainWindow::MainWindow()
 {
+	
 	Board::GameSetup gameSetup;
 	settings()->beginGroup("game settings/");
 		gameSetup.width =  settings()->value("width").toUInt();
 		gameSetup.height = settings()->value("height").toUInt();
 		gameSetup.colors = settings()->value("colors").toUInt();
 		gameSetup.rowLength = settings()->value("rowLength").toUInt();
+		players = Player::createPlayers(settings()->value("players").toList());
+		gameSetup.players = players;
 	settings()->endGroup();
 	
 	scene = new QGraphicsScene(this);
@@ -30,17 +31,13 @@ MainWindow::MainWindow()
 	board = Board::newBoard(gameSetup);
 	scene->addItem(board);
 	
-	//~ human = new HumanPlayer("Matou", Qt::blue);
-	human = new AI2Player(Qt::blue);
-	ai = new AIPlayer(Qt::red);
-	board->setCurrentPlayer(human);
+	board->setCurrentPlayer(players[0]);
 	connect(board, SIGNAL(playerMoveEnded(Player*, uint)), this, SLOT(nextPlayer(Player*)));
 	
-	PlayerInfoItem* piitem1 = new PlayerInfoItem(human, board, board->rect().width(), 0);
-	scene->addItem(piitem1);
-	
-	PlayerInfoItem* piitem2 = new PlayerInfoItem(ai, board, board->rect().width(), 74);
-	scene->addItem(piitem2);
+	for (int i = 0; i < players.size(); ++i){
+		PlayerInfoItem* piitem = new PlayerInfoItem(players[i], board, board->rect().width(), i*74);
+		scene->addItem(piitem);
+	}
 	
 	scene->setSceneRect(scene->sceneRect()); //ustawia biezacy na sztywno
 
@@ -52,8 +49,13 @@ MainWindow::MainWindow()
 
 void MainWindow::nextPlayer(Player* p)
 {
-	if (p == human)
-		board->setCurrentPlayer(ai);
-	else
-		board->setCurrentPlayer(human);
+	for (int i = 0; i < players.size(); ++i){
+		if (p == players[i]){
+			if (i == players.size()-1)
+				board->setCurrentPlayer(players[0]);
+			else
+				board->setCurrentPlayer(players[i+1]);
+			return;
+		}
+	}
 }

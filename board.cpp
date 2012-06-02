@@ -1,5 +1,6 @@
 #include <QPoint>
 #include <QAbstractAnimation>
+#include <QListIterator>
 
 #include <ostream>
 
@@ -24,6 +25,8 @@ std::ostream& operator << (std::ostream& os, Board::State s){
 			return os << "animatingMove";
 		case Board::locked:
 			return os << "locked";
+		default:
+			return os;
 	}
 }
 
@@ -142,26 +145,59 @@ void Board::animationEnded()
 	}
 }
 
+Q_DECLARE_METATYPE(QList<uint>)
+
+Board::GameSetup::GameSetup()
+	:	width(settings()->value("game settings/width").toUInt()),
+		height(settings()->value("game settings/height").toUInt()),
+		colors(settings()->value("game settings/colors").toUInt()),
+		rowLength(settings()->value("game settings/rowLength").toInt()),
+		players(Player::createPlayers(settings()->value("game settings/players").toList())),
+		ballTypeSettings(settings()->value("game settings/ballTypeSettings").value<QList<uint> >()),
+		roundLimit(settings()->value("game settings/roundLimit").toUInt())
+{
+}
+
+static QVariant convertBTS(const QList<uint> ls)
+{
+	QList<QVariant> res;
+	QListIterator<uint> iterator(ls);
+	while (iterator.hasNext())
+		res.append(iterator.next());
+	return res;
+}
+
+void Board::GameSetup::setAsDefault()
+{
+	settings()->setValue("game settings/width", width);
+	settings()->setValue("game settings/height", height);
+	settings()->setValue("game settings/colors", colors);
+	settings()->setValue("game settings/rowLength", rowLength);
+	settings()->setValue("game settings/players", Player::toQVariantList(players));
+	settings()->setValue("game settings/ballTypeSettings", convertBTS(ballTypeSettings));
+	settings()->setValue("game settings/roundLimit", roundLimit);
+}
+
 //!Kontruktor
-Board::BoardInfo::BoardInfo(Square** array, uint width, uint height)
+Board::BoardInfo::BoardInfo(Square** array, int width, int height)
 	: array(array), arrayWidth(width), arrayHeight(height)
 {
 }
 
 //!Square na pozycji (x, y)
-BallColor Board::BoardInfo::operator () (uint x, uint y) const
+BallColor Board::BoardInfo::operator () (int x, int y) const
 {
 	return array[y*arrayWidth+x]->ballColor();
 }
 
 //!Szerokosc (w polach)
-uint Board::BoardInfo::width() const
+int Board::BoardInfo::width() const
 {
 	return arrayWidth;
 }
 
 //!Wyskokosc (w polach)
-uint Board::BoardInfo::height() const
+int Board::BoardInfo::height() const
 {
 	return arrayHeight;
 }

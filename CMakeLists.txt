@@ -8,13 +8,15 @@ SET(kulki_SOURCES main.cpp
 	ball.cpp ballcolor.cpp ballitem.cpp balltypes.cpp
 	board.cpp square.cpp highlightitem.cpp
 	pointsearneditem.cpp boardimplementation.cpp player.cpp 
-	humanplayer.cpp aiplayer.cpp settings.cpp playerinfoitem.cpp
-	playericonitem.cpp gloss.cpp ai2player.cpp )
+	HumanPlayer.cpp AIPlayers.cpp settings.cpp playerinfoitem.cpp
+	playericonitem.cpp gloss.cpp NewGameDialog.cpp 
+	BallTypeSettingsDialog.cpp PlayerSetupWidget.cpp
+	ColorComboBox.cpp )
 
 SET(kulki_HEADERS main_window.hpp 
 	ballitem.hpp board.hpp boardimplementation.hpp 
-	highlightitem.hpp pointsearneditem.hpp player.hpp aiplayer.hpp 
-	playerinfoitem.hpp playericonitem.hpp ai2player.hpp )
+	highlightitem.hpp pointsearneditem.hpp player.hpp AIPlayers.hpp 
+	playerinfoitem.hpp playericonitem.hpp ColorComboBox.hpp NewGameDialog.hpp )
 
 SET(kulki_RESOURCES kulki.qrc)
 
@@ -28,7 +30,7 @@ ADD_EXECUTABLE(kulki ${kulki_SOURCES}
     ${kulki_HEADERS_MOC}
     ${kulki_RESOURCES_RCC} )
     
-SET(CMAKE-CXX-FLAGS ${CMAKE-CXX-FLAGS} -O3 -flto)
+#~ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -flto -Wall" )
     
-#~ TARGET_LINK_LIBRARIES(kulki ${QT_LIBRARIES})
-TARGET_LINK_LIBRARIES(kulki -fuse-linker-plugin -flto -fwhole-program ${QT_LIBRARIES})
+TARGET_LINK_LIBRARIES(kulki ${QT_LIBRARIES})
+#~ TARGET_LINK_LIBRARIES(kulki -fuse-linker-plugin -O3 -flto -Wall ${QT_LIBRARIES})

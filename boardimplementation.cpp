@@ -6,6 +6,8 @@
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsDropShadowEffect>
 
+#include <stdexcept>
+
 #include "board.hpp"
 #include "boardimplementation.hpp"
 #include "square.hpp"
@@ -27,18 +29,18 @@ class SwapPretender
 {
 	private:
 		Square** array;
-		uint arrayWidth;
-		uint arrayHeight;
+		int arrayWidth;
+		int arrayHeight;
 		Square* s1;
 		Square* s2;
 	public:
-		SwapPretender(Square** array, uint arrayWidth, uint arrayHeight,
+		SwapPretender(Square** array, int arrayWidth, int arrayHeight,
 				Square* s1, Square* s2)
 			: array(array), arrayWidth(arrayWidth), 
 					arrayHeight(arrayHeight), s1(s1), s2(s2)
 		{
 		}
-		BallColor operator () (uint x, uint y) const
+		BallColor operator () (int x, int y) const
 		{
 			Square* square = array[y*arrayWidth+x];
 			if (square == s1)
@@ -47,11 +49,11 @@ class SwapPretender
 				square = s1;
 			return square->ballColor();
 		}
-		uint width() const
+		int width() const
 		{
 			return arrayWidth;
 		}
-		uint height() const
+		int height() const
 		{
 			return arrayHeight;
 		}
@@ -72,15 +74,15 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 	BallColor::createTable(setup.colors);
 	
 	//creating squares
-	for (uint iy = 0; iy < s.height; ++iy){
-		for (uint ix = 0; ix < s.width; ++ix){
+	for (int iy = 0; iy < s.height; ++iy){
+		for (int ix = 0; ix < s.width; ++ix){
 			squares(ix, iy) = new Square(ix, iy, this);
 		}
 	}
 	
 	//setting squares neighbours
-	for (uint iy = 0; iy < s.height; ++iy){
-		for (uint ix = 0; ix < s.width; ++ix){
+	for (int iy = 0; iy < s.height; ++iy){
+		for (int ix = 0; ix < s.width; ++ix){
 			squares(ix, iy)->setNeighbours(
 					ix == 0 ? 0 : squares(ix-1, iy),
 					iy == 0 ? 0 : squares(ix, iy-1),
@@ -90,30 +92,9 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 		}
 	}
 	
-	//creating highlights
-	for (uint iy = 0; iy < s.height; ++iy){
-		for (uint ix = 0; ix < s.width; ++ix){
-			highlights(ix, iy) = make_pair(
-				//na brzegu wstawiam zera (tym ? :)
-				//poziomy HighlightItem
-				(squares(ix, iy)->getNeighbour(Square::right))
-					?new HighlightItem((ix+1)*Square::size(), 
-						(iy+0.5)*Square::size(), this, squares(ix, iy),
-						squares(ix+1, iy), HighlightItem::horizontal)
-					:0,
-				//pionowy HighlightItem
-				(squares(ix, iy)->getNeighbour(Square::bottom))
-					?new HighlightItem((ix+0.5)*Square::size(), 
-						(iy+1)*Square::size(), this, squares(ix, iy),
-						squares(ix, iy+1), HighlightItem::vertical)
-					:0
-			);
-		}
-	}
-	
 	//placing balls
-	for (uint iy = 0; iy < s.height; ++iy){
-		for (uint ix = 0; ix < s.width; ++ix){
+	for (int iy = 0; iy < s.height; ++iy){
+		for (int ix = 0; ix < s.width; ++ix){
 			Ball::getNew(setup, squares(ix, iy), 0, 
 				(iy+2)*settings()->value("board/ballPlacingDelay").toInt());
 		}
@@ -176,12 +157,15 @@ bool BoardImplementation::move(Square* s1, Square* s2)
 	b1->placeOnSquare(s2, s1);
 	b2->placeOnSquare(s1, s2);
 	
-	for (uint iy = 0; iy < setup.height; ++iy){
-		for (uint ix = 0; ix < setup.width; ++ix){
+	//niszczenie highlightow
+	for (int iy = 0; iy < setup.height; ++iy){
+		for (int ix = 0; ix < setup.width; ++ix){
 			if (highlights(ix, iy).first)
-				highlights(ix, iy).first->setVisible(0);
+				delete highlights(ix, iy).first;
 			if (highlights(ix, iy).second)
-				highlights(ix, iy).second->setVisible(0);
+				delete highlights(ix, iy).second;
+			highlights(ix, iy).first = 0;
+			highlights(ix, iy).second = 0;
 		}
 	}
 	
@@ -229,8 +213,8 @@ static bool checkForRow(uint x, uint y, const Board::GameSetup& setup,
 //!Wylicza legalne zamiany typu <x,y> z <x+dx, y+dy>. Przy dx, dy != 0, 1  i dx+dy != 1 moze sie krzaczyc
 void BoardImplementation::computeLegalMoves(const int dx, const int dy, bool setVisibility)
 {
-	for ( uint iy = 0; iy < setup.height-dy; ++iy){
-		for ( uint ix = 0; ix < setup.width-dx; ++ix){
+	for ( int iy = 0; iy < setup.height-dy; ++iy){
+		for ( int ix = 0; ix < setup.width-dx; ++ix){
 			//symulacja zamiany, i sprawdzenie, czy cos daje
 			SwapPretender pret(squares, setup.width, setup.height, 
 					squares(ix, iy), squares(ix+dx, iy+dy));
@@ -241,10 +225,15 @@ void BoardImplementation::computeLegalMoves(const int dx, const int dy, bool set
 				legalMoves.insert(make_pair(squares(ix+dx, iy+dy), 
 						squares(ix, iy)));
 				if (setVisibility){
+					//tworzenie highlightow
 					if (dx)
-						highlights(ix,iy).first->setVisible(1);
+						highlights(ix,iy).first = new HighlightItem((ix+1)*Square::size(), 
+							(iy+0.5)*Square::size(), this, squares(ix, iy),
+							squares(ix+1, iy), HighlightItem::horizontal);
 					else
-						highlights(ix,iy).second->setVisible(1);
+						highlights(ix,iy).second = new HighlightItem((ix+0.5)*Square::size(), 
+							(iy+1)*Square::size(), this, squares(ix, iy),
+							squares(ix, iy+1), HighlightItem::vertical);
 				}
 			}
 		}
@@ -307,11 +296,12 @@ static void putBestToSet(Board::BoardInfo bi, int ix, int iy,
 
 BoardImplementation::Rows BoardImplementation::findRows()
 {
+	//jezeli dla kazdego pola wezme najdluzszy rzadek, ktory je zawiera, to ten rzadek na pewno bedzie "dobry", tzn, w szczeg. policze go raz
 	BoardInfo bi(squares, setup.width, setup.height);
 	Rows res;
-	for (uint iy = 0; iy < setup.height; ++iy){
+	for (int iy = 0; iy < setup.height; ++iy){
 		set<pair<int, int> > rowset;
-		for (uint ix = 0; ix < setup.width; ++ix){
+		for (int ix = 0; ix < setup.width; ++ix){
 			putBestToSet(bi, ix, iy, setup, rowset, 1, 0);
 		}
 		//mamy gotowy set
@@ -322,9 +312,9 @@ BoardImplementation::Rows BoardImplementation::findRows()
 		}
 	}
 	
-	for (uint ix = 0; ix < setup.width; ++ix){
+	for (int ix = 0; ix < setup.width; ++ix){
 		set<pair<int, int> > rowset;
-		for (uint iy = 0; iy < setup.height; ++iy){
+		for (int iy = 0; iy < setup.height; ++iy){
 			putBestToSet(bi, ix, iy, setup, rowset, 0, 1);
 		}
 		//mamy gotowy set
@@ -349,6 +339,7 @@ void BoardImplementation::ballsNewCheckUpdate()
 	}
 }
 
+//!Tworzy napis "Koniec gry" i ew. dopisuje zwyciezce
 QGraphicsItem* BoardImplementation::createGameOverItem(Player* winner)
 {
 	struct GameOverItem : public QGraphicsItem
@@ -491,10 +482,10 @@ void BoardImplementation::refill(int animDelay)
 	}
 	
 	if (noEffect)
-		check(); //wpp rchecka odpali animationEnded
+		check(); //wpp checka odpali animationEnded
 }
 
-//!Oddaje nastepny ruch graczowi p.
+//!Oddaje nastepny ruch graczowi p. (ta funkcja wziela sie z troche innej na pocz. koncepcji dzialania)
 void BoardImplementation::setCurrentPlayer(Player* p)
 {
 	if (state == waitingForPlayer){

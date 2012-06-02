@@ -49,12 +49,12 @@ uint JokerBall::getPointValue()
 }
 
 ///////////////////////////////////////////////////////////
-////////////////////    Cameleon    ///////////////////////
+///////////////////    Chameleon    ///////////////////////
 ///////////////////////////////////////////////////////////
 
-QPixmap* CameleonBall::specialPixmap = 0;
+QPixmap* ChameleonBall::specialPixmap = 0;
 
-CameleonBall::CameleonBall(Square* s, int falling, int animDelay)
+ChameleonBall::ChameleonBall(Square* s, int falling, int animDelay)
 	: ColorBall(BallColor::random(), s, falling, animDelay)
 {
 	if (!specialPixmap)
@@ -62,7 +62,7 @@ CameleonBall::CameleonBall(Square* s, int falling, int animDelay)
 	ballItem->setSpecialPixmap(*specialPixmap, 0.7);
 }
 
-void CameleonBall::newCheckUpdate()
+void ChameleonBall::newCheckUpdate()
 {
 	setColor(BallColor::random());
 }

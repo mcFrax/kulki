@@ -34,7 +34,6 @@ HighlightItem::HighlightItem(qreal x, qreal y, Board* board, Square* s1, Square*
 	//opacity jakos nawalalo - przezroczysty element nie dostawal mouseEventow
 	setGraphicsEffect(new QGraphicsOpacityEffect());
 	setVisibility(0);
-	setVisible(0);
 	setAcceptHoverEvents(1);
 };
 

@@ -10,11 +10,13 @@
 	<file alias="Skull.png">images/Skull.png</file>
 	<file alias="Hourglass.png">images/Hourglass.png</file>
 </qresource>
+
 <qresource>
 	<file alias="Background.jpg">images/starfield.jpg</file>
 	<file alias="Highlight.png">images/highlight1.png</file>
 	<file alias="Icon.png">images/icon.png</file>
 	<file alias="SquareGloss.png">images/SquareGloss.png</file>
 	<file alias="SquareMask.png">images/SquareMask.png</file>
+	<file alias="DeletePlayerIcon.png">images/Skull.png</file>
 </qresource>
 </RCC>

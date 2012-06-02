@@ -46,7 +46,7 @@ class Array2
 		}
 		~Array2()
 		{
-			delete content;
+			delete [] content;
 		}
 		T& operator()(unsigned x, unsigned y)
 		{

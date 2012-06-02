@@ -10,6 +10,16 @@
 
 #include "debugtools.hpp"
 
+int Ball::specialBallTypes = 5;
+static const QString specialBallTypeNames[Ball::specialBallTypes] = 
+{
+	"Joker",
+	"Chameleon",
+	"Double",
+	"Skull",
+	"Hourball",
+};
+
 Ball::Ball(const BallColor& c, Square* s, int fall, int animDelay)
 	: color(c), squareVal(s), 
 		ballItem(new BallItem(c, s, -fall*Square::size(), animDelay))
@@ -88,22 +98,40 @@ Square* Ball::square()
 	return squareVal;
 }
 
-Ball* Ball::getNew(const Board::GameSetup&, Square* s, int falling, int animDelay)
+//wrappery konstruktorow
+template<class BallT>
+static Ball* construct1(Square* s, int falling, int animDelay)
 {
-	#warning temporary
-	int type = rand()%30;
-	switch (type) {
-		case 0:
-			return new JokerBall(s, falling, animDelay);
-		case 1:
-			return new SkullBall(BallColor::random(), s, falling, animDelay);
-		case 2:
-			return new DoubleBall(BallColor::random(), s, falling, animDelay);
-		case 3:
-			return new CameleonBall(s, falling, animDelay);
-		case 4:
-			return new HourglassBall(BallColor::random(), s, falling, animDelay);
-		default:
-			return new ColorBall(BallColor::random(), s, falling, animDelay);
+	return new BallT(s, falling, animDelay);
+}
+
+template<class BallT>
+static Ball* construct2(Square* s, int falling, int animDelay)
+{
+	return new BallT(BallColor::random(), s, falling, animDelay);
+}
+
+typedef Ball* (*BallConstructor)(Square* s, int falling, int animDelay);
+
+static const int constructors = Ball::specialBallTypes;
+static const BallConstructor constructor[constructors] = 
+{
+	construct1<JokerBall>,
+	construct1<ChameleonBall>,
+	construct2<DoubleBall>,
+	construct2<SkullBall>,
+	construct2<HourglassBall>,
+};
+
+Ball* Ball::getNew(const Board::GameSetup& setup, Square* s, int falling, int animDelay)
+{
+	const QList<uint>& bts = setup.ballTypeSettings;
+	uint type = rand()%1000;
+	int sum = 0;
+	for (int i = 0; i < bts.size() && i < constructors; ++i){
+		sum += bts[i];
+		if (type < bts[i])
+			return constructor[i](s, falling, animDelay);
 	}
+	return construct2<ColorBall>(s, falling, animDelay);
 }

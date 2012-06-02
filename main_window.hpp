@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QList>
 
 class Board;
 class Player;
@@ -15,8 +16,7 @@ class MainWindow : public QMainWindow
 		QGraphicsView *graphicsView;
 		QGraphicsScene *scene;
 		Board *board;
-		Player* human;
-		Player* ai;
+		QList<Player*> players;
 	protected slots:
 		void nextPlayer(Player*);
 	public:

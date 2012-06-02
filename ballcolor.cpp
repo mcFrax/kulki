@@ -1,5 +1,7 @@
 #include "ballcolor.hpp"
 
+#include <cstdlib>
+
 #include <QColor>
 
 using namespace std;
@@ -62,30 +64,19 @@ void BallColor::createTable(uint cols)
 	colors = cols;
 	#warning ugly & fails for colors > 19 (20th color is transparent)
 	#warning and expanding should be possible
-	if (table) delete table;
+	if (table) delete [] table;
 	table = new QColor[colors];
 	for (uint i = 0; i < colors; ++i)
 		#warning disgusting
 		table[i] = QColor((Qt::GlobalColor)(i+7));
 }
 
-#include <cstdlib>
-#include <ctime>
-#include <iostream>
-
-bool sra = 0;
-
 BallColor BallColor::random()
 {
-	#warning very temporary
-	if (!sra)
-		srand(time(0));
-	sra = 1;
-	//~ std::cerr << rand()%colors  << std::endl;
 	return rand()%colors;
 }
 
-//!Losuje kolor nie nalezacy do zbioru forbidden
+//!Losuje kolor nie nalezacy do zbioru forbidden (nieuzywana)
 BallColor BallColor::random(const std::set<BallColor>& fb)
 {
 	BallColor res;

@@ -20,10 +20,10 @@ class HighlightItem : public QObject, public QGraphicsPixmapItem
 		Board* board;
 		Square* s1;
 		Square* s2;
+		Direction direction;
 		qreal visibilityVal;
 		qreal visibility();
 		void setVisibility(qreal);
-		Direction direction;
 		QPropertyAnimation* anim;
 		bool active;
 		static QPixmap* pixmap[2];

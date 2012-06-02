@@ -16,8 +16,20 @@ static inline void ensureContains(QString key, QVariant defValue)
 static QList<QVariant> defPlayers()
 {
 	QList<QVariant> res;
-	res.append(Player::PlayerInfo("Gracz", "Human", "#0000FF"));
-	res.append(Player::PlayerInfo("CPU", "Cpu", "#FF0000"));
+	res.append(QVariant(Player::PlayerInfo("Gracz", Player::human, "#0000FF")));
+	res.append(QVariant(Player::PlayerInfo("CPU", Player::cpu1, "#FF0000")));
+	return res;
+}
+
+static QList<QVariant> defBallTypeSettings()
+{
+	//prawdopodobienstwo w promilach
+	QList<QVariant> res;
+	res.append(60); //jokers
+	res.append(60); //chameleons
+	res.append(60); //doubles
+	res.append(60); //skulls
+	res.append(60); //hourglasses
 	return res;
 }
 
@@ -55,7 +67,8 @@ static void ensureContains()
 		ensureContains("rowLength", 3);
 		ensureContains("turnLimit", 0);
 		ensureContains("players", defPlayers());
-		//~ ensureContains("jokers", ?);
+		ensureContains("ballTypeSettings", defBallTypeSettings());
+		ensureContains("roundLimit", 0);
 	settingsPtr->endGroup();
 	
 	settingsPtr->beginGroup("ai");

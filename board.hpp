@@ -11,6 +11,7 @@ class Square;
 class Player;
 class BallColor;
 class QAbstractAnimation;
+class QPlayerInfoItem;
 
 class Board : public QObject, public QGraphicsRectItem
 {
@@ -25,28 +26,28 @@ class Board : public QObject, public QGraphicsRectItem
 		};
 		struct GameSetup
 		{
-			uint width;  //
-			uint height; //in squares
+			int width;  //
+			int height; //in squares
 			uint colors;
-			uint rowLength;
+			int rowLength;
 			QList<Player*> players;
-			//list_of_players
-			//time_limit
-			//bonus chances
-			//points factor
-			//etc, etc
+			QList<uint> ballTypeSettings;
+			uint roundLimit;
+			
+			GameSetup();
+			void setAsDefault();
 		};
 		class BoardInfo
 		{
 			private:
 				Square** array;
-				uint arrayWidth;
-				uint arrayHeight;
+				int arrayWidth;
+				int arrayHeight;
 			public:
-				BoardInfo(Square** array, uint width, uint height);
-				BallColor operator () (uint x, uint y) const;
-				uint width() const;
-				uint height() const;
+				BoardInfo(Square** array, int width, int height);
+				BallColor operator () (int x, int y) const;
+				int width() const;
+				int height() const;
 				bool contains(int x, int y) const;
 		};
 	protected:
@@ -63,6 +64,7 @@ class Board : public QObject, public QGraphicsRectItem
 		Array2<Square*> squares;
 		std::set<std::pair<Square*, Square*> > legalMoves;
 		std::set<QObject*> currentAnimations;
+		virtual void setCurrentPlayer(Player*) = 0;
 	protected:
 		Board(const GameSetup&, QGraphicsItem * parent = 0);
 		void setState(State);
@@ -95,7 +97,6 @@ class Board : public QObject, public QGraphicsRectItem
 		void gameEnded();
 		void stateChanged(Board::State);
 	public slots:
-		virtual void setCurrentPlayer(Player*) = 0;
 		void animationEnded();
 };
 

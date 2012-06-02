@@ -20,12 +20,12 @@ class JokerBall : public Ball
 		uint getPointValue();
 };
 
-class CameleonBall : public ColorBall
+class ChameleonBall : public ColorBall
 {
 	private:
 		static QPixmap* specialPixmap;
 	public:
-		CameleonBall(Square*, int falling = 0, int animDelay = 0);
+		ChameleonBall(Square*, int falling = 0, int animDelay = 0);
 		void newCheckUpdate();
 };
 
