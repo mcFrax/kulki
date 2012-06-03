@@ -16,6 +16,7 @@
 
 void recordHighScore(Player* p, const Board::GameSetup& s)
 {
+	if (!p->isHuman()) return;
 	qreal realPoints = p->points() * Ball::levelFactor(s.ballTypeSettings);
 	QList<QVariant> varList = settings()->value("highscores").toList();
 	QList<QPair<qreal, QString> > list;
