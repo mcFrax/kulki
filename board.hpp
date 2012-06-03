@@ -54,6 +54,7 @@ class Board : public QObject, public QGraphicsRectItem
 		enum InternalState
 		{
 			normal,
+			preparing,
 			falling
 		};
 		const GameSetup setup;

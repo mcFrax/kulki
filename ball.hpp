@@ -20,15 +20,17 @@ class Ball
 		Ball(const BallColor&, Square*, int falling = 0, int animDelay = 0);
 	public: 
 		~Ball();
-		virtual void placeOnSquare(Square*, int falling = 0, int animDelay = 0);
+		virtual void placeOnSquare(Square*, int falling, int animDelay = 0);
 		virtual void placeOnSquare(Square*, Square* from);
+		virtual void placeOnSquare(Square*);
 		virtual uint getPointValue() = 0;
 		virtual int applyPointModificator(const int& points) const;
 		BallColor getColor() const;
 		virtual void newTurnUpdate();
 		virtual void newCheckUpdate();
-		void explode();
+		void explode(bool immediately = false);
 		void detach();
+		void appear(int animDelay = 0);
 		Square* square();
 	public:
 		static Ball* getNew(const Board::GameSetup&, Square* s,

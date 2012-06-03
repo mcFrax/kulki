@@ -22,8 +22,9 @@ class BallItem : public QObject, protected QGraphicsItem
 	public:
 		BallItem(const QColor&, Square*, qreal yoffset = 0, int animDelay = 0);
 		
-		void placeOnSquare(Square*, qreal ypos = 0, int animDelay = 0);
+		void placeOnSquare(Square*, qreal ypos, int animDelay = 0);
 		void placeOnSquare(Square*, Square* from);
+		void placeOnSquare(Square*);
 		//~ QBrush brush();
 		void setBrush(const QBrush&);
 		void setSpecialPixmap(const QPixmap&, qreal sizeFactor = 1.0);

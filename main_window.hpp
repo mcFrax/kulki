@@ -16,8 +16,12 @@ class MainWindow : public QMainWindow
 		QGraphicsView *graphicsView;
 		QGraphicsScene *scene;
 		Board *board;
+		static MainWindow* instanceVal;
+		MainWindow();
+		~MainWindow();
 	protected slots:
 		void newGame();
+		void highScores();
 	public:
-		MainWindow();
+		static MainWindow* instance();
 };

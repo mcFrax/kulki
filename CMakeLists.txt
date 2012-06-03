@@ -11,7 +11,7 @@ SET(kulki_SOURCES main.cpp
 	HumanPlayer.cpp AIPlayers.cpp settings.cpp playerinfoitem.cpp
 	playericonitem.cpp gloss.cpp NewGameDialog.cpp 
 	BallTypeSettingsDialog.cpp PlayerSetupWidget.cpp
-	ColorComboBox.cpp )
+	ColorComboBox.cpp HighScores.cpp)
 
 SET(kulki_HEADERS main_window.hpp 
 	ballitem.hpp board.hpp 

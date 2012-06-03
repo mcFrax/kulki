@@ -20,7 +20,7 @@ const QString Ball::specialBallTypeNames[Ball::specialBallTypes] =
 	"Hourball",
 };
 
-const qreal specialBallModifacatorsFactor = 0.1; //common factor
+const qreal specialBallModifacatorsFactor = 0.01; //common factor
 const qreal specialBallModifacators[Ball::specialBallTypes] = 
 {
 	-0.1,
@@ -57,6 +57,16 @@ void Ball::placeOnSquare(Square* s, Square* from)
 		s->ball = this;
 }
 
+void Ball::placeOnSquare(Square* s)
+{
+	if (squareVal) //may be detached
+		squareVal->ball = 0;
+	ballItem->placeOnSquare(s);
+	squareVal = s;
+	if (s)
+		s->ball = this;
+}
+
 Ball::~Ball()
 {
 	if (ballItem)
@@ -78,18 +88,26 @@ void Ball::newCheckUpdate()
 {
 }
 
-void Ball::explode()
+void Ball::explode(bool immediately)
 {
 	if (ballItem){
-		ballItem->explode();
-		ballItem = 0;
+		if (immediately)
+			delete ballItem;
+		else
+			ballItem->explode();
 	}
+	ballItem = 0;
 	delete this;
 }
 
 void Ball::detach()
 {
 	placeOnSquare(0);
+}
+
+void Ball::appear(int animDelay)
+{
+	ballItem->animateAppear(animDelay);
 }
 
 BallColor Ball::getColor() const

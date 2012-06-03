@@ -17,6 +17,7 @@
 #include "player.hpp"
 #include "playerinfoitem.hpp"
 #include "playericonitem.hpp"
+#include "HighScores.hpp"
 
 #include "settings.hpp"
 #include "debugtools.hpp"
@@ -113,13 +114,13 @@ BoardImplementation::BoardImplementation(const GameSetup& s, QGraphicsItem * par
 	//placing balls
 	for (int iy = 0; iy < s.height; ++iy){
 		for (int ix = 0; ix < s.width; ++ix){
-			Ball::getNew(setup, squares(ix, iy), 0, 
-				(iy+2)*settings()->value("board/ballPlacingDelay").toInt());
+			Ball::getNew(setup, squares(ix, iy), -1);
+			//~ Ball::getNew(setup, squares(ix, iy), 0, 
+				//~ (iy+2)*settings()->value("board/ballPlacingDelay").toInt());
 		}
 	}
 	
-	computeLegalMoves(0);
-	setState(animatingMove);
+	check();
 }
 
 //!Destruktor
@@ -431,9 +432,10 @@ QGraphicsItem* BoardImplementation::createGameOverItem(Player* winner)
 	return endItem;
 }
 
-//!Znajduje zwyciezce. Przy remisie lub bruku punktow zwraca 0.
+//!Znajduje zwyciezce. Przy remisie, braku punktow lub jednym graczu zwraca 0.
 static Player* getWinner(const QList<Player*> players)
 {
+	if (players.size() <= 1) return 0;
 	int bestPoints = 0;
 	Player* best = 0;
 	QListIterator<Player*> it(players);
@@ -465,6 +467,7 @@ void BoardImplementation::endGame()
 	//a tutaj jest to, co istotne, czyli stan i signal
 	setState(locked);
 	emit gameEnded();
+	if (players.size() == 1) recordHighScore(players[0], setup);
 }
 
 //!Sprawdzenie planszy (po ruchu/uzupelnieniu) i odpowiednia zmiana stanu
@@ -473,6 +476,17 @@ void BoardImplementation::check()
 	setState(animatingMove);
 	const Rows& rows = findRows();
 	if (rows.empty()){
+		if (internalState == preparing){
+			internalState = normal;
+			//"zapalanie" kulek
+			for (int iy = 0; iy < setup.height; ++iy){
+				for (int ix = 0; ix < setup.width; ++ix){
+					squares(ix, iy)->getBall()->appear(
+						(iy+2)*settings()->value("board/ballPlacingDelay").toInt());
+				}
+			}
+			return;
+		}
 		//spadanie sie skonczylo
 		if (curPlayer)
 			emit playerMoveEnded(curPlayer, total);
@@ -495,8 +509,13 @@ void BoardImplementation::check()
 				emit pointsEarned(curPlayer, points);
 			}
 		}
-		for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
-			(*i)->explode();
+		if (internalState == preparing){
+			for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
+				(*i)->explode(true);
+		} else {
+			for (set<Ball*>::const_iterator i = balls.begin(); i != balls.end(); ++i)
+				(*i)->explode();
+		}
 		gravity();
 	}
 }
@@ -507,32 +526,43 @@ void BoardImplementation::gravity()
 	bool noEffect = 1;
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			if (squares(ix, iy)->gravity(
-					settings()->value("ball/fallingDelay").toInt()))
-				noEffect = 0;
+			if (internalState == preparing){
+				squares(ix, iy)->gravity(true);
+			} else {
+				if (squares(ix, iy)->gravity(
+						settings()->value("ball/fallingDelay").toInt()))
+					noEffect = 0;
+			}
 		}
 	}
 	
-	internalState = falling;
+	if (internalState != preparing)
+		internalState = falling;
 	
-	if (noEffect)
+	if (noEffect || internalState == preparing)
 		refill(settings()->value("ball/appearDelay").toInt()); //wpp refilla odpali animationEnded
 }
 
 //!utworzenie nowych kulek (zapelnienie planszy)
 void BoardImplementation::refill(int animDelay)
 {
-	internalState = normal;
-	ballsNewCheckUpdate();
+	if (internalState != preparing){
+		internalState = normal;
+		ballsNewCheckUpdate();
+	}
 	
 	bool noEffect = 1;
 	for ( int iy = setup.height-1; iy >= 0 ; --iy){
 		for ( int ix = 0; ix < setup.width; ++ix){
-			if (squares(ix, iy)->ensureHavingBall(animDelay))
-				noEffect = 0;
+			if (internalState == preparing){
+				squares(ix, iy)->ensureHavingBall();
+			} else {
+				if (squares(ix, iy)->ensureHavingBall(animDelay))
+					noEffect = 0;
+			}
 		}
 	}
 	
-	if (noEffect)
+	if (noEffect || internalState == preparing)
 		check(); //wpp checka odpali animationEnded
 }

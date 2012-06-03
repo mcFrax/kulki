@@ -15,8 +15,7 @@ int main(int argc, char ** argv)
 	
 	app.setWindowIcon(QPixmap(":Icon.png"));
 
-	MainWindow mainWindow;
-	mainWindow.show();
+	MainWindow::instance()->show();
 	
 	return app.exec();
 }

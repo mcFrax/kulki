@@ -49,7 +49,7 @@ Board::Board(const GameSetup& s, QGraphicsItem * parent)
 			s.width*Square::size() + PlayerInfoItem::width() + 4*margin(),
 			s.height*Square::size() + 2*margin(),
 			parent), 
-		setup(s), state(animatingMove), internalState(normal),
+		setup(s), state(animatingMove), internalState(preparing),
 		curPlayer(0), turnNumber(0), squares(s.width, s.height)
 {
 	QListIterator<Player::PlayerInfo> it(s.players);
@@ -131,6 +131,7 @@ bool Board::move(QPoint p1, QPoint p2)
 //!Rejestruje animacje jako trwajaca
 void Board::registerAnimation(QAbstractAnimation* anim)
 {
+	if (internalState == preparing) return;
 	currentAnimations.insert(anim);
 	connect(anim, SIGNAL(finished()), this, SLOT(animationEnded()));
 }
@@ -143,8 +144,6 @@ void Board::animationEnded()
 		return;
 	currentAnimations.erase(i);
 	
-	//to nie jest najladniejsze rozwiazanie, pewnie moglbym uzyc QStateMachine
-	//ale teraz juz nie bede zmienial
 	if (currentAnimations.empty()){
 		switch (internalState) {
 			case normal: 
@@ -152,6 +151,8 @@ void Board::animationEnded()
 				return;
 			case falling:
 				refill();
+				return;
+			case preparing:
 				return;
 		}
 	}

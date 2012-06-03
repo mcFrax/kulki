@@ -62,13 +62,13 @@ bool BallColor::isNormal() const
 void BallColor::createTable(uint cols)
 {
 	colors = cols;
-	#warning ugly & fails for colors > 19 (20th color is transparent)
-	#warning and expanding should be possible
 	if (table) delete [] table;
 	table = new QColor[colors];
 	for (uint i = 0; i < colors; ++i)
-		#warning disgusting
-		table[i] = QColor((Qt::GlobalColor)(i+7));
+		if (i <= 10)
+			table[i] = QColor((Qt::GlobalColor)(i+7));
+		else
+			table[i] = QColor::colorNames()[rand()%QColor::colorNames().size()];
 }
 
 //!Losuje kolor

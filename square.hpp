@@ -36,8 +36,10 @@ class Square : protected QGraphicsRectItem
 		
 		QGraphicsItem* item();
 		
-		bool gravity(int animDelay = 0);
-		bool ensureHavingBall(int animDelay = 0);
+		bool gravity(bool immediate = true);
+		bool gravity(int animDelay);
+		bool ensureHavingBall(int animDelay);
+		bool ensureHavingBall();
 		
 		static int size();
 };

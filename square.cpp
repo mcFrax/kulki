@@ -73,6 +73,21 @@ int Square::size()
 }
 
 //!Sciaga najblizsza kulke z gory (jezeli taka jest)
+bool Square::gravity(bool immediate)
+{
+	//!\return Czy jakas kulka w efekcie spada
+	if (!immediate) return gravity(0);
+	if (ball) return 0;
+	for (Square* s = this->neighbours[top]; s != 0; s = s->neighbours[top]) {
+		if (s->ball) {
+			s->ball->placeOnSquare(this);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+//!Sciaga najblizsza kulke z gory (jezeli taka jest)
 bool Square::gravity(int animDelay)
 {
 	//!\return Czy jakas kulka w efekcie spada
@@ -93,5 +108,13 @@ bool Square::ensureHavingBall(int animDelay)
 	if (ball)
 		return 0;
 	Ball::getNew(board->gameSetup(), this, 0, animDelay);
+	return 1;
+}
+
+bool Square::ensureHavingBall()
+{
+	if (ball)
+		return 0;
+	Ball::getNew(board->gameSetup(), this, -1);
 	return 1;
 }

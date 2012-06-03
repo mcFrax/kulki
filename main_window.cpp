@@ -10,11 +10,14 @@
 #include "board.hpp"
 #include "playerinfoitem.hpp"
 #include "NewGameDialog.hpp"
+#include "HighScores.hpp"
 
 #include "settings.hpp"
 #include "debugtools.hpp"
 
 using namespace std;
+
+MainWindow* MainWindow::instanceVal = 0;
 
 MainWindow::MainWindow()
 	: graphicsView(0), scene(0), board(0)
@@ -30,8 +33,22 @@ MainWindow::MainWindow()
 	
 	QAction* newGameAction = menuBar()->addAction(tr("Nowa gra"));
 	connect(newGameAction, SIGNAL(triggered()), this, SLOT(newGame()));
+	
+	QAction* highScoresAction = menuBar()->addAction(tr("Najlepsze wyniki"));
+	connect(highScoresAction, SIGNAL(triggered()), this, SLOT(highScores()));
 }
 
+MainWindow::~MainWindow()
+{
+	instanceVal = 0;
+}
+
+MainWindow* MainWindow::instance()
+{
+	if (!instanceVal)
+		instanceVal = new MainWindow();
+	return instanceVal;
+}
 
 void MainWindow::newGame()
 {
@@ -54,4 +71,9 @@ void MainWindow::newGame()
 	r.adjust(0, 0, 50, 50); // <- to powinno byc jakos sensowniej
 	r.moveTo(geometry().topLeft());
 	setGeometry(r);
+}
+
+void MainWindow::highScores()
+{
+	showHighScores();
 }

@@ -38,6 +38,7 @@ BallItem::BallItem(const QColor& color, Square* s, qreal yoffset, int animDelay)
 	setTransformOriginPoint(Square::size()/2 - margin(), 
 			Square::size()/2 - margin());
 	
+	if (yoffset > 0) return;
 	if (yoffset != 0)
 		animateFalling(yoffset, animDelay);
 	else
@@ -104,6 +105,13 @@ void BallItem::placeOnSquare(Square* s, Square* from)
 	setParentItem(s->item());
 	
 	animateArc(from->item()->pos() - s->item()->pos());
+}
+
+void BallItem::placeOnSquare(Square* s)
+{
+	setParentItem(s->item());
+	
+	setPos(0, 0);
 }
 
 void BallItem::animateAppear(int animDelay)
