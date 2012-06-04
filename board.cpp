@@ -104,7 +104,7 @@ void Board::setState(State s)
 }
 
 //!Sprawdza, czy wspolrzedne (x, y) mieszcza sie w planszy
-bool Board::inBoard(int x, int y)
+bool Board::inBoard(int x, int y) const
 {
 	return x >= 0 && x < setup.width
 		&& y >= 0 && y < setup.height;

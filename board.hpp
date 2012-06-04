@@ -84,7 +84,7 @@ class Board : public QObject, public QGraphicsRectItem
 		State getState();
 		uint turn();
 		
-		bool inBoard(int x, int y);
+		bool inBoard(int x, int y) const;
 		
 		bool isLegal(Square*, Square*) const;
 		bool isLegal(QPoint, QPoint) const;
