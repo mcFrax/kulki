@@ -23,7 +23,7 @@ class Square : protected QGraphicsRectItem
 	protected:
 		Ball* ball;
 		Board* board;
-		Square* neighbours[4];
+		Square* neighbours[5];
 	public:
 		Square(uint xPos, uint yPos, Board*); //pos is in squares
 		void setNeighbours(Square* l, Square* t, Square* r, Square* b);
