@@ -53,6 +53,7 @@ class HourglassBall : public ColorBall
 	private:
 		static QPixmap* specialPixmap;
 		uint points;
+		bool firstTurn;
 	public:
 		HourglassBall(const BallColor&, Square*, int falling = 0, int animDelay = 0);
 		void newTurnUpdate();

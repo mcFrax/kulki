@@ -138,7 +138,6 @@ void NewGameDialog::showBallTypeSettings()
 
 void NewGameDialog::playerWidgetDeleted()
 {
-	LINECHECK
 	for (QList<PlayerSetupWidget*>::iterator i = players.begin(); i != players.end(); ++i){
 		if (*i == static_cast<PlayerSetupWidget*>(sender())){
 			players.erase(i);

@@ -26,7 +26,6 @@ QImage glossyColorShape(QBrush brush, const QImage& mask, const QImage& gloss)
 {
 	QImage result = QImage(mask.width(), mask.height(), 
 			QImage::Format_ARGB32_Premultiplied);
-	QRectF r = result.rect();
 	QPainter painter(&result);
 	painter.fillRect(result.rect(), brush);
 	glossyColorShape(painter, mask, gloss);

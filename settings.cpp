@@ -74,6 +74,10 @@ static void ensureContains()
 	settingsPtr->beginGroup("ai");
 		ensureContains("moveDelay", 1500);
 	settingsPtr->endGroup();
+	
+	settingsPtr->beginGroup("graphics");
+		ensureContains("SmoothPixmapTransform", true);
+	settingsPtr->endGroup();
 }
 
 QSettings* settings()

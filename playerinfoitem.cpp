@@ -15,7 +15,7 @@ PlayerInfoItem::PlayerInfoItem(Player* player, Board* board, qreal x, qreal y, Q
 	: QGraphicsRectItem(parentItem), playerVal(player), boardVal(board), 
 		visiblePointsVal(player->points()), anim(0)
 {
-	#warning about hardcoded values
+	#warning - awful hardcoded values in code
 	setBrush(Qt::white);
 	setPos(x, y);
 	iconItem = new PlayerIconItem(player->color(), this);

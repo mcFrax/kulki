@@ -13,7 +13,7 @@ QImage PlayerIconItem::glossImage;
 QImage PlayerIconItem::maskImage;
 
 PlayerIconItem::PlayerIconItem(QColor color, QGraphicsItem* parentItem)
-	: QGraphicsItem(parentItem), pixmap(getPixmap(color)), color(color)
+	: QGraphicsItem(parentItem), color(color), pixmap(getPixmap(color))
 {
 	setTransformOriginPoint(16, 16);
 	

@@ -31,7 +31,8 @@ ADD_EXECUTABLE(kulki ${kulki_SOURCES}
     ${kulki_HEADERS_MOC}
     ${kulki_RESOURCES_RCC} )
     
-#~ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -flto -Wall" )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall" )
+#~ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -flto -Wall" )
     
-TARGET_LINK_LIBRARIES(kulki ${QT_LIBRARIES})
-#~ TARGET_LINK_LIBRARIES(kulki -fuse-linker-plugin -O3 -flto -Wall ${QT_LIBRARIES})
+TARGET_LINK_LIBRARIES(kulki -O2 -Wall ${QT_LIBRARIES})
+#~ TARGET_LINK_LIBRARIES(kulki -fuse-linker-plugin -Ofast -flto -Wall ${QT_LIBRARIES})

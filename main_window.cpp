@@ -4,6 +4,7 @@
 #include <QColor>
 #include <QPixmap>
 #include <QMenuBar>
+#include <QPainter>
 
 #include "main_window.hpp"
 #include "player.hpp"
@@ -28,6 +29,8 @@ MainWindow::MainWindow()
 
 	graphicsView = new QGraphicsView(scene, this);
 	graphicsView->setMouseTracking(1);
+	graphicsView->setRenderHint(QPainter::SmoothPixmapTransform, 
+		settings()->value("graphics/SmoothPixmapTransform").toBool());
 
 	setCentralWidget(graphicsView);
 	

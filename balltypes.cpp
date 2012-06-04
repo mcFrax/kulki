@@ -117,7 +117,7 @@ int SkullBall::applyPointModificator(const int& points) const
 QPixmap* HourglassBall::specialPixmap = 0;
 
 HourglassBall::HourglassBall(const BallColor& color, Square* s, int falling, int animDelay)
-	: ColorBall(color, s, falling, animDelay)
+	: ColorBall(color, s, falling, animDelay), firstTurn(1)
 {
 	points = ColorBall::getPointValue();
 	if (!specialPixmap)
@@ -127,7 +127,12 @@ HourglassBall::HourglassBall(const BallColor& color, Square* s, int falling, int
 
 void HourglassBall::newTurnUpdate()
 {
-	if (points > 0) --points;
+	if (firstTurn){
+		firstTurn = 0;
+	} else {
+		if (points > 0)
+			--points;
+	}
 }
 
 uint HourglassBall::getPointValue()

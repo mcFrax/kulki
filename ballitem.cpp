@@ -52,10 +52,6 @@ QRectF BallItem::boundingRect() const
 
 void BallItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*)
 {
-	#warning to powinno byc gdzies indziej
-	painter->setRenderHint(QPainter::SmoothPixmapTransform);
-	
-	painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter->drawPixmap(rect, pixmapVal, pixmapVal.rect());
 	painter->drawPixmap(specialPixmapRect, specialPixmapVal, specialPixmapVal.rect());
 }
