@@ -41,7 +41,7 @@ NewGameDialog::NewGameDialog(const Board::GameSetup& setup, QWidget* parent)
 	connect(heightEdit, SIGNAL(textChanged(const QString&)), this, SLOT(updateRowLengthValidator()));
 	
 	colorsEdit = new QLineEdit(QString::number(setup.colors), this);
-	colorsEdit->setValidator(validator);
+	colorsEdit->setValidator(new QIntValidator(2, 20, this));
 	leftLayout->addWidget(new QLabel("Liczba kolorow", this));
 	leftLayout->addWidget(colorsEdit);
 	

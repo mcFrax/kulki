@@ -62,11 +62,37 @@ bool BallColor::isNormal() const
 void BallColor::createTable(uint cols)
 {
 	colors = cols;
+	const static uint predefinedColors = 20;
+	static const QColor colortable[predefinedColors] = {
+		QColor(Qt::red),
+		QColor(Qt::green),
+		QColor(Qt::blue),
+		QColor("orange"),
+		QColor(Qt::magenta),
+		QColor(Qt::darkRed),
+		QColor(Qt::darkGreen),
+		QColor(Qt::darkBlue),
+		QColor(Qt::darkCyan),
+		QColor(Qt::darkMagenta),
+		QColor(Qt::yellow),
+		QColor("deepskyblue"),
+		QColor("sandybrown"),
+		QColor("violet"),
+		QColor("silver"),
+		QColor("royalblue"),
+		QColor("palegreen"),
+		QColor(Qt::white),
+		QColor(Qt::black),
+		QColor(Qt::transparent),
+	};
+	
 	if (table) delete [] table;
+	
 	table = new QColor[colors];
+	
 	for (uint i = 0; i < colors; ++i)
-		if (i <= 10)
-			table[i] = QColor((Qt::GlobalColor)(i+7));
+		if (i < predefinedColors)
+			table[i] = colortable[i];
 		else
 			table[i] = QColor::colorNames()[rand()%QColor::colorNames().size()];
 }
