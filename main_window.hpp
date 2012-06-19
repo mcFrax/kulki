@@ -1,21 +1,21 @@
 #pragma once
 
-#include <QMainWindow>
 #include <QList>
+#include <QMainWindow>
 
 class Board;
 class Player;
-class QGraphicsView;
 class QGraphicsScene;
+class GameView;
 
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 	protected:
-		QGraphicsView *graphicsView;
+		GameView *graphicsView;
 		QGraphicsScene *scene;
-		Board *board;
+		Board *boardVal;
 		static MainWindow* instanceVal;
 		MainWindow();
 		~MainWindow();
@@ -23,5 +23,6 @@ class MainWindow : public QMainWindow
 		void newGame();
 		void highScores();
 	public:
+		const Board* board() const;
 		static MainWindow* instance();
 };
