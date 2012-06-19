@@ -25,19 +25,20 @@ NewGameDialog::NewGameDialog(const Board::GameSetup& setup, QWidget* parent)
 	QVBoxLayout* leftLayout = new QVBoxLayout;
 	QVBoxLayout* rightLayout = new QVBoxLayout;
 	
-	QIntValidator* validator = new QIntValidator(4, 30, this);
+	QIntValidator* validator = new QIntValidator(4, 100, this);
 	rowLengthValidator = new QIntValidator(3, std::min(setup.width, setup.height), this);
-	
 	
 	widthEdit = new QLineEdit(QString::number(setup.width), this);
 	widthEdit->setValidator(validator);
 	leftLayout->addWidget(new QLabel("Szerokosc planszy", this));
 	leftLayout->addWidget(widthEdit);
+	connect(widthEdit, SIGNAL(textChanged(const QString&)), this, SLOT(updateRowLengthValidator()));
 	
 	heightEdit = new QLineEdit(QString::number(setup.height), this);
 	heightEdit->setValidator(validator);
 	leftLayout->addWidget(new QLabel("Wysokosc planszy", this));
 	leftLayout->addWidget(heightEdit);
+	connect(heightEdit, SIGNAL(textChanged(const QString&)), this, SLOT(updateRowLengthValidator()));
 	
 	colorsEdit = new QLineEdit(QString::number(setup.colors), this);
 	colorsEdit->setValidator(validator);
@@ -126,6 +127,12 @@ void NewGameDialog::accept()
 	setupVal.setAsDefault();
 	
 	QDialog::accept();
+}
+
+void NewGameDialog::updateRowLengthValidator()
+{
+	rowLengthValidator->setTop(std::min(widthEdit->text().toInt(), 
+			heightEdit->text().toInt()));
 }
 
 void NewGameDialog::showBallTypeSettings()

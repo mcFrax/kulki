@@ -29,6 +29,7 @@ class NewGameDialog : public QDialog
 		void addPlayer();
 		void playerWidgetDeleted();
 		void showBallTypeSettings();
+		void updateRowLengthValidator();
 	public:
 		NewGameDialog(const Board::GameSetup& setup = Board::GameSetup(), QWidget* parent = 0);
 		const Board::GameSetup& setup();
